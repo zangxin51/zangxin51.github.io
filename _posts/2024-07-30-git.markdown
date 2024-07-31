@@ -70,8 +70,8 @@ git clone https://github.com/zangxin51/test-git-project.git remote-git-rep 克�
 
 ```bash
 # 配置
-git config --global user.name ``"myname"
-git config --global user.email ``"test@gmail.com"
+git config --global user.name "myname"
+git config --global user.email "test@gmail.com"
 ```
 
 ### 3.2文件操作
