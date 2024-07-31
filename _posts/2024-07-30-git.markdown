@@ -34,11 +34,127 @@ git 练习 [网站]([****]    https://learngitbranching.js.org/?locale=zh_CN)
 
 ## 2.git使用
 
-安装: git官网下载, 安装点击下一步即可
+git安装: git官网下载, 安装点击下一步即可
 
 客户端软件GitHub Desktop
 
+idea 集成git, github,gitee代码托管
+
 git 提交版本号/提交码: 40个16进制的数字组成, 通过版本号可以找到文件
 
+git cat-file -p 6c0f30e789c9232f7f467083405373d90560cae9
 
+![image-20240731194752341](..\img\md-img\image-20240731194752341.png)
+
+![image-20240731195230233](..\img\md-img\image-20240731195230233.png)
+
+.git/HEAD保存了当前分支文件
+
+git work dir ---git add--> 暂存区 ----git commit--> 存储区
+
+## 3.git命令
+
+remote repository ---git clone---> 存储区域 ---修改-->暂存区 <---add--工作区
+
+![image-20240731203703766](..\img\md-img\2024-07-30-git\image-20240731203703766.png)
+
+### 3.1仓库操作
+
+git init 初始化本地仓库, 生成.git文件
+
+git clone https://github.com/zangxin51/test-git-project.git
+
+git clone https://github.com/zangxin51/test-git-project.git remote-git-rep 克隆并更改名称
+
+ git config --global --list 查看git配置:用户名,邮箱,代理
+
+```bash
+# 配置
+git config --global user.name ``"myname"
+git config --global user.email ``"test@gmail.com"
+```
+
+### 3.2文件操作
+
+```bash
+# 查看暂存区状态
+git status
+# 从工作区到暂存区
+git add b.txt
+# 从暂存区移动到工作区
+git rm --cached b.txt
+git commit -m 新增文件
+# 查看提交记录
+git log
+git log --oneline
+# 把commit的文件删除后恢复
+git restore a.txt
+# 提交删除后恢复文件,--hard丢失提交记录 版本号为上一个版本(没有删除文件的版本)
+git reset --hard 07058ef
+# 回退 版本号为当前版本(已删除文件的版本)
+git revert 8964a53
+```
+
+### 3.3分支操作
+
+```bash
+# 创建分支
+git branch branch_name
+# 查看分支
+git branch -v
+# 切换分支
+git checkout branch_name
+# 创建切换一步完成
+git checkout -b order
+# 删除分支
+git branch -d user
+# 合并分支
+git merge order
+```
+
+### 3.4标签操作
+
+```bash
+# 查看所有标签
+git tag
+# 创建标签
+git tag updatefile 6c44c4c92654856fb5640419bee6c50b2c3e0712
+git log updatefile
+# 在addfile标签上创建分支
+git checkout -b addfile
+
+```
+
+### 3.5远程仓库
+
+```bash
+git push origin
+git pull
+# ssh方式访问远程仓库,公钥在用户目录下.ssh文件中
+ssh-keygen -t rsa -Cgit@gitee.com:zangxin51/remote-gitee-test.git
+
+```
+
+### 3.6 gitlab [安装](https://zhuanlan.zhihu.com/p/627162137)
+
+```bash
+# 安装镜像
+docker pull gitlab/gitlab-ce:latest
+# 运行容器
+sudo docker run --detach \
+  --hostname gitlab.example.com \
+  --publish 443:443 --publish 80:80 --publish 222:22 \
+  --name gitlab \
+  --restart always \
+  --volume $GITLAB_HOME/config:/etc/gitlab \
+  --volume $GITLAB_HOME/logs:/var/log/gitlab \
+  --volume $GITLAB_HOME/data:/var/opt/gitlab \
+  --shm-size 256m \
+  gitlab/gitlab-ce:latest
+# 首次登录需要执行下面的命令获取 root 用户的密码：密码文件将在 24 小时后的第一次重新配置运行中自动删除。 
+sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
+# 登录成功后在gitlab客户端配置新的密码即可
+git clone http://gitlab.example.com/root/test.git
+
+```
 
