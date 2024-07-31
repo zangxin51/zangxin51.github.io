@@ -44,9 +44,9 @@ git 提交版本号/提交码: 40个16进制的数字组成, 通过版本号可�
 
 git cat-file -p 6c0f30e789c9232f7f467083405373d90560cae9
 
-![image-20240731194752341](..\img\md-img\image-20240731194752341.png)
+![image-20240731194752341](../img/md-img/image-20240731194752341.png)
 
-![image-20240731195230233](..\img\md-img\image-20240731195230233.png)
+![image-20240731195230233](../img/md-img/image-20240731195230233.png)
 
 .git/HEAD保存了当前分支文件
 
@@ -56,7 +56,7 @@ git work dir ---git add--> 暂存区 ----git commit--> 存储区
 
 remote repository ---git clone---> 存储区域 ---修改-->暂存区 <---add--工作区
 
-![image-20240731203703766](..\img\md-img\2024-07-30-git\image-20240731203703766.png)
+![image-20240731203703766](../img/md-img/2024-07-30-git/image-20240731203703766.png)
 
 ### 3.1仓库操作
 
