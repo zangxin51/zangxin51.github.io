@@ -138,6 +138,8 @@ ssh-keygen -t rsa -Cgit@gitee.com:zangxin51/remote-gitee-test.git
 ### 3.6 gitlab [安装](https://zhuanlan.zhihu.com/p/627162137)
 
 ```bash
+# 在宿主机中设置环境变量
+export GITLAB_HOME=/srv/gitlab
 # 安装镜像
 docker pull gitlab/gitlab-ce:latest
 # 运行容器
