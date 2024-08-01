@@ -57,11 +57,11 @@ Spring Boot
 ##### 1.配置maven坐标
 
 ```xml
- 		<dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>5.3.30</version>
-        </dependency>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>5.3.30</version>
+</dependency>
 ```
 
 ##### 2.在resources目录下配置applicationContext.xml
