@@ -1,5 +1,6 @@
 ---
 
+
 layout:     post
 title:      "SSM框架"
 subtitle:   "ssm"
@@ -384,5 +385,94 @@ public class BookDaoImpl implements BookDao {
         </props>
     </property>
 </bean>
+<!--添加引用类型时,把value改成ref即可-->
+```
+
+### 1.4 数据源对象管理
+
+mysql-connector-j 8.0版本可以使用的mysql server version包括5.7 8.0
+
+![img](..\img\md-img\2024-08-01-ssm\684a2033f4849a0c9a804f3e0b4534b8.png)
+
+com.mysql.cj.jdbc.Driver 是 mysql-connector-java 6以及以上中的
+
+mysql配置(jdbc8.0)
+
+```properties
+driver-class-name=com.mysql.cj.jdbc.Driver
+url=jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+username=root
+password=root
+```
+
+#### 1.配置文件管理数据源对象
+
+druid和c3p0数据源对象交给spring管理
+
+```xml
+<bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql://localhost:3306/top_news"/>
+    <property name="username" value="root"></property>
+    <property name="password" value="root"></property>
+</bean>
+
+<bean id="c3p0DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    <property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
+    <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/top_news"/>
+    <property name="user" value="root"/>
+    <property name="password" value="root"/>
+</bean>
+```
+
+maven依赖
+
+```xml
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.0.33</version>
+</dependency>
+<dependency>
+    <groupId>c3p0</groupId>
+    <artifactId>c3p0</artifactId>
+    <version>0.9.1.2</version>
+</dependency>
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.16</version>
+</dependency>
+```
+
+#### 2.jdbc.properites文件方式
+
+1.在spring配置文件中开始context命名空间
+
+![image-20240801222616215](..\img\md-img\image-20240801222616215.png)
+
+2.利用context命名空间加载jdbc.properties文件
+
+3.使用属性占位符${}读取properties文件中的属性
+
+```xml
+<!--system-properties-mode="NEVER" 不使用系统环境变量,windows系统环境有个username他的优先度高于${username},所以要关掉-->
+<context:property-placeholder location="classpath*:jdbc.properties" system-properties-mode="NEVER"/>
+```
+
+```xml
+<context:property-placeholder location="classpath*:jdbc.properties"/>
+<bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driverClassName" value="$${driver-class-name}"/>
+    <property name="url" value="${url}"/>
+    <property name="username" value="${username}"></property>
+    <property name="password" value="${password}"></property>
+</bean>
+```
+
+```java
+// 获取环境变量
+Map<String, String> getenv = System.getenv();
+System.out.println("username = " + getenv.get("USERNAME"));
 ```
 
