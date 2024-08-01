@@ -3,7 +3,7 @@
 layout:     post
 title:      "SSM框架"
 subtitle:   "ssm"
-date:       2024-07-24 14:36:00
+date:       2024-08-01 11:58:00
 author:     "zangxin"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
@@ -27,7 +27,7 @@ Spring Boot
 
 ### 1.1spring 架构
 
-![image-20240801091412451](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240801091412451.png)
+![image-20240801091412451](\img\md-img\image-20240801091412451.png)
 
 ### 1.2 IOC
 
@@ -148,13 +148,13 @@ scop:  决定ctx.get()出来对象是不是同一个
 
 暴力破解反射,私有构造器也可以造对象 ,但是必须提供无参构造器, 否则会异常:
 
-No default constructor found; nested exception is java.lang.NoSuchMethodException: com.xxx.spring.dao.impl.BookDaoImpl.**<init>()**
+No default constructor found; nested exception is java.lang.NoSuchMethodException: com.xxx.spring.dao.impl.BookDaoImpl.\<init>()
 
 ```java
-        try {
-            BookDao obj = (BookDao) clazz.newInstance();
-            obj.addBook();
-        } catch (Exception e) {}
+try {
+    BookDao obj = (BookDao) clazz.newInstance();
+    obj.addBook();
+} catch (Exception e) {}
 ```
 
 ##### 2.静态工厂
