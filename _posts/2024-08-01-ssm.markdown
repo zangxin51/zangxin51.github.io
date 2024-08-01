@@ -1,0 +1,298 @@
+---
+
+layout:     post
+title:      "SSM框架"
+subtitle:   "ssm"
+date:       2024-07-24 14:36:00
+author:     "zangxin"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+---
+
+**SSM**
+
+## 1.spring
+
+用途: 简化javaweb开发
+
+- [ ] **IOC**
+- [ ] **AOP**(事务)
+
+官网: spring.io
+
+Spring Framework
+
+Spring Boot
+
+### 1.1spring 架构
+
+![image-20240801091412451](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240801091412451.png)
+
+### 1.2 IOC
+
+**IOC**: inversion of control 控制反转, 使用对象时由自己**new**对象, 转换成, 由**外部**提供对象, 对象创建的控制权限转移到**外部**.
+
+**IOC**容器: spring提供了一个容器, 就是上面的**外部**. IOC容器负责对象的创建, 初始化的工作, 被创建的对象在IOC容器中称为Bean.
+
+**DI**: dependency injection 依赖注入,
+
+- 在容器中建立bean与bean之间的依赖关系, 自动注入bean
+
+**解耦**
+
+- 使用IOC容器管理bean (IOC)
+- 在IOC容器中将有依赖关系的bean进行绑定(DI)
+- 效果: 使用对象时可以从IOC容器中获取, 并且bean已经绑定对其他bean的依赖关系
+- **不用new对象, 依赖自动处理好**
+
+#### 1.2.1 spring quickstart
+
+1. 管理什么? (service与dao)
+2. 如何将管理对象告知IOC容器? (配置)
+3. 如何获取IOC容器? (接口)
+4. 如何从IOC中获取bean? 
+5. 如何使用spring? (pom.xml)
+
+##### 1.配置maven坐标
+
+```xml
+ 		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.30</version>
+        </dependency>
+```
+
+##### 2.在resources目录下配置applicationContext.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="com.xxx.spring.dao.impl.BookDaoImpl" id="bookDao"/>
+
+    <bean class="com.xxx.spring.servcie.impl.BookServiceImpl" id="bookService"></bean>
+    
+</beans>
+```
+
+##### 3.**从IOC容器获取bean测试**
+
+```java
+public class APP {
+    public static void main(String[] args) {
+        // 获取容器
+        ApplicationContext context = new 	ClassPathXmlApplicationContext("classpath:*.xml");
+        BookDao bookDao = context.getBean("bookDao", BookDao.class);
+        bookDao.addBook();
+
+        BookService bookService = (BookService) context.getBean("bookService");
+        bookService.addBook();
+    }
+}
+```
+
+##### 4.DI测试
+
+```java
+public class BookServiceImpl implements BookService {
+    // 不用new对象了,只用声明有这个属性
+    private BookDao bookDao;
+
+    @Override
+    public void addBook() {
+        bookDao.addBook();
+        System.out.println("add success [BookServiceImpl]");
+
+    }
+	// 必须添加setter方法
+    public void setBookDao(BookDao bookDao) {
+        this.bookDao = bookDao;
+    }
+}
+```
+
+绑定service和dao的关系
+
+```xml
+    <bean class="com.xxx.spring.dao.impl.BookDaoImpl" id="bookDao"/>
+    
+    <!-- 配置service与dao的关系, 绑他两的关系 -->
+    <bean class="com.xxx.spring.servcie.impl.BookServiceImpl" id="bookService">
+        <property name="bookDao" ref="bookDao"></property>
+    </bean>
+```
+
+#### 1.2.2 bean的配置
+
+bean标签的属性
+
+id和name效果相同, ref=name/id和ctx.get(name/id)
+
+property:设置属性,利用setter方法
+
+scop:  决定ctx.get()出来对象是不是同一个
+
+- singleton 单例
+- prototype 非单例
+- 适合单例的对象: 表现层对象, 业务层,dao层,工具类, 不适合的: 请求对象/属性经常变化
+
+
+
+#### 1.2.3bean的实例化
+
+##### **1.无参构造方法**
+
+暴力破解反射,私有构造器也可以造对象 ,但是必须提供无参构造器, 否则会异常:
+
+No default constructor found; nested exception is java.lang.NoSuchMethodException: com.xxx.spring.dao.impl.BookDaoImpl.**<init>()**
+
+```java
+        try {
+            BookDao obj = (BookDao) clazz.newInstance();
+            obj.addBook();
+        } catch (Exception e) {}
+```
+
+##### 2.静态工厂
+
+```xml
+<!--无参构造器-->
+    <!--    <bean class="com.xxx.spring.dao.impl.BookDaoImpl" id="bookDao"/>-->
+    <!--  使用静态工厂实例化bean,class写工厂类  -->
+    <bean class="com.xxx.spring.factory.BookDaoFactory" id="bookDao" factory-method="getBookDao"/>
+```
+
+```java
+// 静态工厂
+public class BookDaoFactory {
+    public static BookDao getBookDao() {
+        return new BookDaoImpl();
+    }
+}
+```
+
+##### 3.实例工厂
+
+```xml
+    <!--无参构造器-->
+    <!--    <bean class="com.xxx.spring.dao.impl.BookDaoImpl" id="bookDao"/>-->
+    <!--  使用静态工厂实例化bean  -->
+    <!--    <bean class="com.xxx.spring.factory.BookDaoFactory" id="bookDao" factory-method="getBookDao"/>-->
+    <!--  实例工厂  -->
+    <bean id="instanceFactory" class="com.xxx.spring.factory.BookDaoInstanceFactory"/>
+    <bean id="bookDao" factory-method="getBookDao" factory-bean="instanceFactory"/>
+```
+
+```java
+// 实例工厂
+public class BookDaoInstanceFactory {
+    public  BookDao getBookDao() {
+        return new BookDaoImpl();
+    }
+}
+```
+
+4. FactoryBean 实例工厂的简化(配置两个bean简化一个bean)  实现FactoryBean接口
+
+```xml
+    <!-- FactoryBean方式 -->
+    <bean id="bookDao" class="com.xxx.spring.factory.BookDaoFactoryBean"/>	
+```
+
+```java
+public class BookDaoFactoryBean implements FactoryBean<BookDao> {
+    // 代替原始实例工厂中创建对象的方法
+    public BookDao getObject() throws Exception {
+        return new BookDaoImpl();
+    }
+
+    public Class<?> getObjectType() {
+        return BookDao.class;
+    }
+}
+```
+
+1.2.4bean的生命周期
+
+- 初始化容器
+  1. 创建对象
+  2. 执行构造方法
+  3. 执行属性注入(setter)
+  4. 执行bean初始化方法 (init-method  InitializingBean接口的afterPropertiesSet方法)
+- 使用bean
+  1. 执行业务操作
+- 关闭/销毁容器
+  1. 执行bean销毁方法 (DisposableBean.destroy()方法)
+
+bean的销毁方式两种 (ApplicationContext的子接口ConfigurableApplicationContext下面两个方法)
+
+ctx.close()
+
+// 注册关闭钩子
+
+ctx.registerShutdownHook()
+
+### 1.3 DI 依赖注入
+
+- 依赖注入的方式
+
+  1. 普通方法
+  2. 构造方法
+
+- 注入的类型
+
+  1. 引用类型
+  2. 简单类型(含String)
+
+- 依赖注入方式 (2*2 四种)
+
+  - setter注入(setter方法必须)
+
+    - **简单类型 (value)**
+
+      ```xml
+      <property name="databaseUrl" value="jdbc:mysql://localhost:3306/top_news"></property>
+      ```
+
+      
+
+    - **引用类型(ref)**
+
+      ```xml
+      <property name="bookDao" ref="bookDao"></property>
+      ```
+
+  - 构造器注入
+
+    - 简单类型
+
+    - 引用类型
+
+      ```xml
+          <!--  形参名要和构造器一致,形参耦合问题  -->
+          <bean id="userService" class="com.xxx.spring.servcie.impl.UserServiceImpl">
+              <constructor-arg name="username" value="root"></constructor-arg>
+              <constructor-arg name="userDao" ref="userDao"></constructor-arg>
+          </bean>
+      
+          <!--  按类型注入  -->
+          <bean id="userService" class="com.xxx.spring.servcie.impl.UserServiceImpl">
+              <constructor-arg type="com.xxx.spring.dao.UserDao" ref="userDao"></constructor-arg>
+              <constructor-arg type="java.lang.String" value="root"></constructor-arg>
+          </bean>
+      
+          <!--  按参数位置  -->
+          <bean id="userService" class="com.xxx.spring.servcie.impl.UserServiceImpl">
+              <constructor-arg index="0" ref="userDao"></constructor-arg>
+              <constructor-arg index="1" value="root"></constructor-arg>
+          </bean>
+      
+          <bean id="userDao" class="com.xxx.spring.dao.impl.UserDaoImpl"/>
+      ```
+
+      
+
