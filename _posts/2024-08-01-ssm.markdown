@@ -476,3 +476,77 @@ Map<String, String> getenv = System.getenv();
 System.out.println("username = " + getenv.get("USERNAME"));
 ```
 
+
+
+```java
+// 路径获取配置文件
+ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:*.xml");
+// 绝对路径
+// ApplicationContext ctx1 = new FileSystemXmlApplicationContext("C:\\Users\\....\\src\\main\\resources\\applicationContext.xml");
+// 获取bean的三种方式
+ctx.getBean("bookDao");
+BookDao bookDao = ctx.getBean("bookDao", BookDao.class);
+BookDao bookDao1 = ctx.getBean(BookDao.class);
+bookDao1.add();
+```
+
+![1629984980781](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1629984980781.png)
+
+BeanFactory创建完毕后,所有bean均为延迟加载, ApplicationContext默认为非懒加载
+
+通过bean标签的lazy-init属性可以配置是否懒加载
+
+```xml
+<bean id="bookDao" class="dao.impl.BookDaoImpl" lazy-init="true"/>
+```
+
+BeanFactory是所有容器的顶层接口
+
+```java
+// 使用BeanFactory
+Resource resource = new ClassPathResource("applicationContext.xml");
+BeanFactory bf = new XmlBeanFactory(resource);
+BookDao bookDao = bf.getBean(BookDao.class);
+bookDao.add();
+```
+
+### 1.5 容器总结
+
+![1629986510487](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1629986510487.png)
+
+![1629986848563](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1629986848563.png)
+
+### 1.6 注解开发
+
+#### 1.定义bean
+
+1. 使用@Component注解, 等价的注解还有三个(Controller,Service,Repository)
+2. 配置包扫描
+
+```java
+@Component("bookDao")
+public class BookDaoImpl implements BookDao {}
+```
+
+```xml
+<context:component-scan base-package="com.xxx.dao"/>
+```
+
+#### 2.纯注解开发
+
+利用java类替代了ApplicationContext.xml配置文件 @ComponentScan替代了context:component-scan标签
+
+AnnotationConfigApplicationContext获取容器对象
+
+```java
+@Configuration
+@ComponentScan({"com.xxx", "com.xxx.dao"})
+public class SpringConfig {}
+```
+
+```java
+ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+BookDao bookDao = ctx.getBean("bookDao", BookDao.class);
+bookDao.add();
+```
+
