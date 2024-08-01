@@ -248,9 +248,9 @@ ctx.registerShutdownHook()
   1. 引用类型
   2. 简单类型(含String)
 
-- 依赖注入方式 (2*2 四种)
+- **依赖注入方式 (2*2 四种)**
 
-  - setter注入(setter方法必须)
+  - setter注入(**用property标签** **setter方法必须**)
 
     - **简单类型 (value)**
 
@@ -266,9 +266,9 @@ ctx.registerShutdownHook()
       <property name="bookDao" ref="bookDao"></property>
       ```
 
-  - 构造器注入
+  - 构造器注入(必须有全部参数构造器, 可以没有空参构造器)
 
-    - 简单类型
+    - 简单类型(**用constructor-arg标签**)
 
     - 引用类型
 
@@ -279,13 +279,13 @@ ctx.registerShutdownHook()
               <constructor-arg name="userDao" ref="userDao"></constructor-arg>
           </bean>
       
-          <!--  按类型注入  -->
+          <!--  按类型注入 不靠谱的解决方法 -->
           <bean id="userService" class="com.xxx.spring.servcie.impl.UserServiceImpl">
               <constructor-arg type="com.xxx.spring.dao.UserDao" ref="userDao"></constructor-arg>
               <constructor-arg type="java.lang.String" value="root"></constructor-arg>
           </bean>
       
-          <!--  按参数位置  -->
+          <!--  按参数位置 费力的解决方法 -->
           <bean id="userService" class="com.xxx.spring.servcie.impl.UserServiceImpl">
               <constructor-arg index="0" ref="userDao"></constructor-arg>
               <constructor-arg index="1" value="root"></constructor-arg>
@@ -294,5 +294,12 @@ ctx.registerShutdownHook()
           <bean id="userDao" class="com.xxx.spring.dao.impl.UserDaoImpl"/>
       ```
 
-      
+#### 依赖注入方式选择
+
+1. 强制依赖使用构造器进行, 使用setter有概率不进行注入导致null对象出现
+2. 可选依赖使用setter注入进行,灵活性强
+3. spring倡导使用构造器,第三方框架内部大多数采用构造器注入进行数据初始化,相对严谨
+4. 如果有必要可以二者一起用
+5. 根据实际情况, 没有setter方法就只能用构造器
+6. 自己开发的模块使用setter注入(简单好用)
 
