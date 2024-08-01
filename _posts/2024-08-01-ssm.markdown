@@ -1,5 +1,4 @@
----
-
+### 
 
 layout:     post
 title:      "SSM框架"
@@ -9,7 +8,6 @@ author:     "zangxin"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
 tags:
----
 
 **SSM**
 
@@ -664,3 +662,153 @@ public class JdbcConfig {
 ##### 5.注解开发总结
 
 ![1630134786448](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630134786448.png)
+
+### 1.7 spring整合mysbatis
+
+整合依赖
+
+```xml
+<!--整合mybatis专用包: mybatis-spring spring-jdbc-->
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis-spring</artifactId>
+    <version>2.1.1</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-jdbc</artifactId>
+    <version>5.3.30</version>
+</dependency>
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis</artifactId>
+    <version>3.5.6</version>
+</dependency>
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.0.33</version>
+</dependency>
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.0.33</version>
+</dependency>
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.16</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>5.3.30</version>
+</dependency>
+```
+
+mybatis配置类
+
+```java
+public class MybatisConfig {
+    // 构造sessionFactory, 数据源采用自动装配
+    @Bean
+    public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource) {
+        SqlSessionFactoryBean ssfb = new SqlSessionFactoryBean();
+        ssfb.setTypeAliasesPackage("com.xxx.bean");
+        ssfb.setDataSource(dataSource);
+        return ssfb;
+    }
+	// mapper扫描
+    @Bean
+    public MapperScannerConfigurer mapperScannerConfigurer() {
+        MapperScannerConfigurer msc = new MapperScannerConfigurer();
+        msc.setBasePackage("com.xxx.dao");
+        return msc;
+    }
+}
+```
+
+jdbc数据源
+
+```java
+public class JdbcConfig {
+    // 普通类型
+    @Value("${jdbc.driver-class-name}")
+    private String driver;
+    @Value("${jdbc.url}")
+    private String url;
+    @Value("${jdbc.username}")
+    private String username;
+    @Value("${jdbc.password}")
+    private String password;
+
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource ds = new DruidDataSource();
+        ds.setDriverClassName(driver);
+        ds.setUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        return ds;
+    }
+}
+```
+
+spring核心配置类
+
+```java
+@Configuration
+@ComponentScan("com.xxx")
+@PropertySource("classpath:jdbc.properties")
+@Import({JdbcConfig.class, MybatisConfig.class})
+public class SpringConfig {}
+```
+
+测试
+
+```java
+ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+AccountService accountService = ctx.getBean(AccountService.class);
+Account account = accountService.findById(1);
+System.out.println("account = " + account);
+```
+
+### 1.8 Junit整合
+
+依赖
+
+```xml
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.12</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-test</artifactId>
+    <version>5.3.30</version>
+</dependency>
+```
+
+指定类运行器(@RunWith)和spring配置位置(@ContextConfiguration)
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SpringConfig.class)
+public class AccountServiceImplTest {
+    @Autowired
+    private AccountService accountService;
+    
+    @Test
+    public void findById() {
+        System.out.println(accountService.findById(1));
+    }
+    
+    @Test
+    public void findAll() {
+        System.out.println(accountService.findAll());
+    }
+}	
+```
+
