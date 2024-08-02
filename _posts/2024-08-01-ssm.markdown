@@ -1576,3 +1576,62 @@ public class AccountServiceImpl implements AccountService {
 ```
 
 ![1630254257628](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630254257628.png)
+
+## 2. SpringMVC
+
+### 2.1概述
+
+springmvc <---> 和servlet等价, 都是表现层技术
+
+表现层: springmvc/servlet
+
+业务层:..
+
+dao层: jdbc/mybatis/hibernate
+
+springmvc是一种表现层框架技术
+
+springmvc用于进行表现层功能开发
+
+### 2.2 springmvc quickstart
+
+1.依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-webmvc</artifactId>
+    <version>5.3.30</version>
+</dependency>
+<!--javax.servlet-api使用tomcat10的 scope provide-->
+```
+
+2.创建springMVC控制器(等同于Servlet)
+
+```java
+@Controller
+public class UserController {
+    @RequestMapping("/save")
+    @ResponseBody
+    public String save() {
+        System.out.println("user save");
+        return "{'module':'springmvc'}";
+    }
+}
+```
+
+3.spring配置类
+
+```java
+@Configuration
+@ComponentScan("com.xxx")
+public class SpringMvcConfig {}
+```
+
+4.初始化Servlet容器, 加在springMVC环境, 并设置MVC技术处理的请求
+
+```
+
+```
+
+5.
