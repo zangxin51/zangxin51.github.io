@@ -1689,4 +1689,85 @@ public class ServletContainerInitConfig extends AbstractDispatcherServletInitial
 2. 执行createServletApplicationContext()方法, 创建WebApplicationContext对象
 3. 加载SpringMVCConfig配置类型(包扫描)
 4. 执行ComponentScan加载对应的bean
-5. 加载UserController, 美个@RequestMapping的名称对应一个具体方法
+5. 加载UserController, 每个@RequestMapping的名称对应一个具体方法
+6. 执行getServletMappings方法，设定SpringMVC拦截请求的路径规则
+
+单次请求过程
+
+1. 发送请求`http://localhost/save`
+2. web容器发现该请求满足SpringMVC拦截规则，将请求交给SpringMVC处理
+3. 解析请求路径/save
+4. 由/save匹配执行对应的方法save(）
+   * 上面的第五步已经将请求路径和方法建立了对应关系，通过/save就能找到对应的save方法
+5. 执行save()
+6. 检测到有@ResponseBody直接将save()方法的返回值作为响应体返回给请求方
+
+
+
+### 2.3 bean加载与控制(分容器加载)
+
+SpringMVC相关bean (表现层bean)
+
+Spring控制的bean
+
+- 业务bean (Service)
+- 功能bean (DataSource等)
+
+因功能不同, 如何避免Spring错误加载到SpringMVC的bean--加载Spring控制的bean的时候排除掉SpringMVC控制的bean
+
+spring包扫描dao和service
+
+方式一: 精确扫描Service和dao
+
+方式二: 扫描所有包,排除controller
+
+```java
+@Configuration
+//@ComponentScan({"com.xxx.service", "com.xxx.dao"})
+@ComponentScan(value = "com.xxx",
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ANNOTATION,
+                classes = Controller.class
+        )
+)
+@PropertySource("classpath:jdbc.properties")
+@Import({JdbcConfig.class, MybatisConfig.class})
+public class SpringConfig {}
+
+```
+
+SpringMVC扫描controller
+
+```java
+@Configuration
+@ComponentScan("com.xxx.controller")
+public class SpringMvcConfig {}
+```
+
+注册Spring和SpringMVC到web容器中
+
+```java
+public class ServletContainersInitConfig1 extends AbstractAnnotationConfigDispatcherServletInitializer {
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class[]{SpringConfig.class};
+    }
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class[]{SpringMvcConfig.class};
+    }
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+}
+```
+
+### 知识点1：@ComponentScan
+
+| 名称     | @ComponentScan                                               |
+| -------- | ------------------------------------------------------------ |
+| 类型     | 类注解                                                       |
+| 位置     | 类定义上方                                                   |
+| 作用     | 设置spring配置类扫描路径，用于加载使用注解格式定义的bean     |
+| 相关属性 | excludeFilters:排除扫描路径中加载的bean,需要指定类别(type)和具体项(classes)<br/>includeFilters:加载指定的bean，需要指定类别(type)和具体项(classes) |
