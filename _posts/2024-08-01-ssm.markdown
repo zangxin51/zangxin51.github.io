@@ -1194,5 +1194,29 @@ System.out.println("isSuccess = " + isSuccess);
 
 ### 1.10 Spring事务
 
+事务作用: 在数据库层面保障一系列的数据库操作同时成功/失败
 
+Spring事务作用: 在数据层或业务层保障一系列的数据库操作同时成功/失败
+
+Spring事务接口: 
+
+```java
+public interface PlatformTransactionManager extends TransactionManager {
+	void commit(TransactionStatus status) throws TransactionException;
+	void rollback(TransactionStatus status) throws TransactionException;
+}
+```
+
+案例: 银行账户转账
+
+需求:实现任务两个账户间转账操作
+
+需求微缩: A账户减钱, B账户价钱
+
+分析:
+
+1. 数据层: 指定账户减钱outMoney, 指定账户价钱(inMoney)
+2. 业务层提供转账操作(transfer), 调用减钱和价钱操作
+3. 提供两个账号和操作金额执行转账操作
+4. 基于Spring整合Mybatis环境搭建上述操作
 
