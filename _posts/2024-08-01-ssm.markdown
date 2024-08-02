@@ -1593,21 +1593,44 @@ springmvc是一种表现层框架技术
 
 springmvc用于进行表现层功能开发
 
-### 2.2 springmvc quickstart
+### 2.2 springmvc quickstart(注意依赖版本号)
 
-1.依赖
+**1.依赖 jdk1.8 + tomcat8(本地tomcat) tomcat10跑不起来, spring依赖使用5.3.0以下的**
 
 ```xml
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-webmvc</artifactId>
-    <version>5.3.30</version>
-</dependency>
-<dependency>
-    <groupId>javax.servlet</groupId>
-    <artifactId>javax.servlet-api</artifactId>
-    <version>3.1.0</version>
-</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>5.2.10.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.2.10.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <port>80</port>
+                    <path>/</path>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 ```
 
 2.创建springMVC控制器(等同于Servlet)
@@ -1628,7 +1651,7 @@ public class UserController {
 
 ```java
 @Configuration
-@ComponentScan("com.xxx")
+@ComponentScan("com.xxx.controller")
 public class SpringMvcConfig {}
 ```
 
@@ -1645,13 +1668,11 @@ public class ServletContainerInitConfig extends AbstractDispatcherServletInitial
         ctx.register(SpringMvcConfig.class);
         return ctx;
     }
-
     // 设置哪些请求归属springmvc处理
     @Override
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }
-
     // 加载spring容器配置
     @Override
     protected WebApplicationContext createRootApplicationContext() {
@@ -1660,3 +1681,12 @@ public class ServletContainerInitConfig extends AbstractDispatcherServletInitial
 }
 ```
 
+入门案例工作流程分析
+
+启动服务的过程
+
+1. 服务启动, 执行ServletContainerInitConfig类型, 初始web化容器
+2. 执行createServletApplicationContext()方法, 创建WebApplicationContext对象
+3. 加载SpringMVCConfig配置类型(包扫描)
+4. 执行ComponentScan加载对应的bean
+5. 加载UserController, 美个@RequestMapping的名称对应一个具体方法
