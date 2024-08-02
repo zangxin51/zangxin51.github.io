@@ -1603,7 +1603,11 @@ springmvc用于进行表现层功能开发
     <artifactId>spring-webmvc</artifactId>
     <version>5.3.30</version>
 </dependency>
-<!--javax.servlet-api使用tomcat10的 scope provide-->
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>3.1.0</version>
+</dependency>
 ```
 
 2.创建springMVC控制器(等同于Servlet)
@@ -1630,8 +1634,29 @@ public class SpringMvcConfig {}
 
 4.初始化Servlet容器, 加在springMVC环境, 并设置MVC技术处理的请求
 
+定义一个servlet容器启动的配置类, 在里面加在spring的配置(有了这个就可以删除web.xml文件)
+
+```java
+public class ServletContainerInitConfig extends AbstractDispatcherServletInitializer {
+    // 加载springmvc容器
+    @Override
+    protected WebApplicationContext createServletApplicationContext() {
+        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
+        ctx.register(SpringMvcConfig.class);
+        return ctx;
+    }
+
+    // 设置哪些请求归属springmvc处理
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+
+    // 加载spring容器配置
+    @Override
+    protected WebApplicationContext createRootApplicationContext() {
+        return null;
+    }
+}
 ```
 
-```
-
-5.
