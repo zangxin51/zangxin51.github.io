@@ -1213,12 +1213,12 @@ public interface PlatformTransactionManager extends TransactionManager {
 
 需求:实现任务两个账户间转账操作
 
-需求微缩: A账户减钱, B账户价钱
+需求微缩: A账户减钱, B账户加钱
 
 分析:
 
-1. 数据层: 指定账户减钱outMoney, 指定账户价钱(inMoney)
-2. 业务层提供转账操作(transfer), 调用减钱和价钱操作
+1. 数据层: 指定账户减钱outMoney, 指定账户加钱(inMoney)
+2. 业务层提供转账操作(transfer), 调用加钱和减钱操作
 3. 提供两个账号和操作金额执行转账操作
 4. 基于Spring整合Mybatis环境搭建上述操作
 
