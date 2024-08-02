@@ -1413,3 +1413,166 @@ INSERT INTO `tbl_account` VALUES (1,'tom',900),(2,'jerry',1100);
 
 事务的统一管理必须使用同一个数据源
 
+#### 4.事务配置
+
+![1630250069844](C:\Users\32929\Desktop\cai\backend\ssm\课程笔记\基础框架8笔记\Spring笔记\spring_day03\assets\1630250069844.png)
+
+上面这些属性都可以在`@Transactional`注解的参数上进行设置。
+
+* readOnly：true只读事务，false读写事务，增删改要设为false,查询设为true。
+
+* timeout:设置超时时间单位秒，在多长时间之内事务没有提交成功就自动回滚，-1表示不设置超时时间。
+
+* rollbackFor:当出现指定异常进行事务回滚
+
+* noRollbackFor:当出现指定异常不进行事务回滚
+
+  * 思考:出现异常事务会自动回滚，这个是我们之前就已经知道的
+
+  * noRollbackFor是设定对于指定的异常不回滚，这个好理解
+
+  * rollbackFor是指定回滚异常，对于异常事务不应该都回滚么，为什么还要指定?
+
+    * 这块需要更正一个知识点，并不是所有的异常都会回滚事务，比如下面的代码就不会回滚
+
+```java
+public interface AccountService {
+    /**
+     * 转账操作
+     * @param out 传出方
+     * @param in 转入方
+     * @param money 金额
+     */
+    //配置当前接口方法具有事务
+    public void transfer(String out,String in ,Double money) throws IOException;
+}
+
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AccountDao accountDao;
+	@Transactional
+    public void transfer(String out,String in ,Double money) throws IOException{
+        accountDao.outMoney(out,money);
+        //int i = 1/0; //这个异常事务会回滚
+        if(true){
+            throw new IOException(); //这个异常事务就不会回滚
+        }
+        accountDao.inMoney(in,money);
+    }
+
+}
+```
+
+出现这个问题的原因是，Spring的事务只会对`Error异常`和`RuntimeException异常`及其子类进行事务回滚，其他的异常类型是不会回滚的，对应IOException不符合上述条件所以不回滚
+    
+
+* 此时就可以使用rollbackFor属性来设置出现IOException异常不回滚
+
+```java
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AccountDao accountDao;
+	 @Transactional(rollbackFor = {IOException.class})
+    public void transfer(String out,String in ,Double money) throws IOException{
+        accountDao.outMoney(out,money);
+        //int i = 1/0; //这个异常事务会回滚
+        if(true){
+            throw new IOException(); //这个异常事务就不会回滚
+        }
+        accountDao.inMoney(in,money);
+    }
+
+}
+```
+
+* rollbackForClassName等同于rollbackFor,只不过属性为异常的类全名字符串
+
+* noRollbackForClassName等同于noRollbackFor，只不过属性为异常的类全名字符串
+
+* isolation设置事务的隔离级别
+
+  * DEFAULT   :默认隔离级别, 会采用数据库的隔离级别
+  * READ_UNCOMMITTED : 读未提交
+  * READ_COMMITTED : 读已提交
+  * REPEATABLE_READ : 重复读取
+  * SERIALIZABLE: 串行化
+
+介绍完上述属性后，还有最后一个事务的传播行为，为了讲解该属性的设置，我们需要完成下面的案例。
+
+#### 5.案例: 转账业务追加日志
+
+需求: 实现任意两个账户之间转账操作, 并对每次转账操作在数据库进行留痕
+
+需求微缩: A账户减钱, B账户价钱, 数据库要记录日志
+
+分析:
+
+1. 基于转账操作案例添加日志模块,实现数据库中记录日志
+2. 业务层转账操作(transfer), 调用减钱, 价钱与记录日志功能
+
+预期效果:
+
+无论转账是否成功, 均进行转账日志留痕
+
+新增表 tbl_log
+
+```sql
+create table if not exists spring_db.tbl_log
+(
+    info        varchar(100) null comment '日志信息',
+    create_date datetime     null comment '创建时间',
+    id          int auto_increment
+        primary key
+)
+    comment '转账日记记录表' collate = utf8mb4_unicode_ci;
+```
+
+在logService和AccountService都加上@Transactional注解后, 发现失败后tbl_log日志和tbl_account的金额都会滚
+
+这样就不满足要求: 无论转账是否成功, 均进行转账日志留痕, 要实现该功能需要事务传播性功能: 
+
+propagation = Propagation.*REQUIRES_NEW*
+
+```java
+public interface LogService {
+    @Transactional
+    void log(String out, String in, Double money);
+}
+```
+
+```java
+public interface AccountService {
+    @Transactional
+    void transfer(String out, String in, Double money);
+}
+```
+
+```java
+@Service
+public class AccountServiceImpl implements AccountService {
+    @Autowired
+    private AccountDao accountDao;
+    @Autowired
+    private LogService logService;
+    @Override
+    public void transfer(String out, String in, Double money) {
+        try {
+            accountDao.outMoney(out, money);
+            int i = 1/0;
+            accountDao.inMoney(in, money);
+        } catch (Exception e) {
+            // 这里异常必须抛出去,否则事务不生效
+            throw new RuntimeException(e);
+        } finally {
+            logService.log(out, in, money);
+        }
+    }
+}
+
+```
+
+![1630254257628](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630254257628.png)
