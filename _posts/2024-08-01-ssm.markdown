@@ -397,10 +397,10 @@ com.mysql.cj.jdbc.Driver 是 mysql-connector-java 6以及以上中的
 mysql配置(jdbc8.0)
 
 ```properties
-driver-class-name=com.mysql.cj.jdbc.Driver
-url=jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
-username=root
-password=root
+jdbc.driver-class-name=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+jdbc.username=root
+jdbc.password=root
 ```
 
 #### 1.配置文件管理数据源对象
@@ -1194,6 +1194,8 @@ System.out.println("isSuccess = " + isSuccess);
 
 ### 1.10 Spring事务
 
+#### 1.Spring事务概念
+
 事务作用: 在数据库层面保障一系列的数据库操作同时成功/失败
 
 Spring事务作用: 在数据层或业务层保障一系列的数据库操作同时成功/失败
@@ -1207,7 +1209,7 @@ public interface PlatformTransactionManager extends TransactionManager {
 }
 ```
 
-案例: 银行账户转账
+#### 2.案例: 银行账户转账(事务quickstart)
 
 需求:实现任务两个账户间转账操作
 
@@ -1219,4 +1221,195 @@ public interface PlatformTransactionManager extends TransactionManager {
 2. 业务层提供转账操作(transfer), 调用减钱和价钱操作
 3. 提供两个账号和操作金额执行转账操作
 4. 基于Spring整合Mybatis环境搭建上述操作
+
+结果分析:
+
+1. 程序正常执行时, 账号金额A加B减
+2. 程序出现异常时, 转账失败, 但是之前操作成功, 异常之后操作失败, 业务整体失败
+
+使用Spring事务quickstart
+
+1.在业务层上添加Spring事务管理
+
+```java
+@Transactional
+void transfer(String out, String in, Double money);
+```
+
+@Transactional通常加在接口方法上, 而不是实现类上, 降低耦合
+
+注解式事务可以添加业务方法上表示当前方法开启事务, 也可以添加到接口上, 表示当前接口中所有方法开启事务
+
+2.设置事务管理器
+
+```java
+// 定义事务管理器, mybatis使用的是jdbc事务管理器
+@Bean
+public PlatformTransactionManager transactionManager(DataSource dataSource) {
+    DataSourceTransactionManager tm = new DataSourceTransactionManager();
+    tm.setDataSource(dataSource);
+    return tm;
+}
+```
+
+3.开启注解式事务驱动
+
+```java
+@Configuration
+@ComponentScan("com.xxx")
+@Import({MybatisConfig.class,  JdbcConfig.class})
+@PropertySource("classpath:jdbc.properties")
+@EnableTransactionManagement // 开启注解事务
+public class SpringConfig {}
+```
+
+案例代码
+
+dao
+
+```java
+public interface AccountDao {
+    @Update("update tbl_account set money = money + #{money}  where name = #{name}")
+    void inMoney(@Param("name") String name, @Param("money") Double money);
+
+    @Update("update tbl_account set money = money - #{money}  where name = #{name}")
+    void outMoney(@Param("name") String name, @Param("money") Double money);
+}
+```
+
+service
+
+```java
+public interface AccountService {
+    @Transactional
+    void transfer(String out, String in, Double money);
+}
+```
+
+```java
+@Service
+public class AccountServiceImpl implements AccountService {
+    @Autowired
+    private AccountDao accountDao;
+
+    @Override
+    public void transfer(String out, String in, Double money) {
+        accountDao.outMoney(out, money);
+        int i = 1/0;
+        accountDao.inMoney(in, money);
+    }
+}
+```
+
+测试类
+
+```java
+public class App {
+    public static void main(String[] args) {
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+        AccountService accountService = ctx.getBean(AccountService.class);
+        accountService.transfer("tom","jerry",100.0);
+    }
+}
+```
+
+bean
+
+```java
+public class Account {
+    private Integer id;
+    private String name;
+    private Double money;
+}
+```
+
+配置类
+
+```java
+public class JdbcConfig {
+    // 普通类型
+    @Value("${jdbc.driver-class-name}")
+    private String driver;
+    @Value("${jdbc.url}")
+    private String url;
+    @Value("${jdbc.username}")
+    private String username;
+    @Value("${jdbc.password}")
+    private String password;
+    // 定义数据源
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource ds = new DruidDataSource();
+        ds.setDriverClassName(driver);
+        ds.setUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        return ds;
+    }
+    // 定义事务管理器
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource) {
+        DataSourceTransactionManager tm = new DataSourceTransactionManager();
+        tm.setDataSource(dataSource);
+        return tm;
+    }
+}
+```
+
+```java
+public class MybatisConfig {
+    // 构造sessionFactory, 数据源采用自动装配
+    @Bean
+    public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource) {
+        SqlSessionFactoryBean ssfb = new SqlSessionFactoryBean();
+        ssfb.setTypeAliasesPackage("com.xxx.bean");
+        ssfb.setDataSource(dataSource);
+        return ssfb;
+    }
+    // mapper扫描
+    @Bean
+    public MapperScannerConfigurer mapperScannerConfigurer() {
+        MapperScannerConfigurer msc = new MapperScannerConfigurer();
+        msc.setBasePackage("com.xxx.dao");
+        return msc;
+    }
+}
+```
+
+```java
+@Configuration
+@ComponentScan("com.xxx")
+@Import({MybatisConfig.class,  JdbcConfig.class})
+@PropertySource("classpath:jdbc.properties")
+@EnableTransactionManagement // 开启注解事务
+public class SpringConfig {}
+
+```
+
+```properties
+jdbc.driver-class-name=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/spring_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+jdbc.username=root
+jdbc.password=root
+```
+
+```sql
+create schema if not exists spring_db collate utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS `tbl_account`;
+CREATE TABLE `tbl_account` (
+  `id` int(11) NOT NULL,
+  `name` varchar(35) DEFAULT NULL,
+  `money` double DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+INSERT INTO `tbl_account` VALUES (1,'tom',900),(2,'jerry',1100);
+```
+
+#### 3.spring事务角色
+
+事务管理员: 发起事务方, 在Spring中通常指代业务层开始事务的方法
+
+事务协调员: 加入事务方, 在Spring中通常指代数据层方法, 也可是业务层方法
+
+事务的统一管理必须使用同一个数据源
 
