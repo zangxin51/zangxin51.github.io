@@ -1958,5 +1958,91 @@ http://localhost/user/save3?hobby=唱&hobby=跳&hobby=篮球
     public String save3(String hobby[]) {}
 ```
 
+6.集合参数
 
+传参与数组没有区别, 就是需要在形参前加@RequestParam
+
+```http
+http://localhost/user/save4?hobby=唱&hobby=跳&hobby=篮球 
+```
+
+```java
+public String save4(@RequestParam List<String> hobby) {
+```
+
+#### 2.4.5 json参数传递 (@RequestBody)
+
+
+
+```http
+
+```
+
+```java
+@Configuration
+@ComponentScan("com.xxx.controller")
+@EnableWebMvc // 开启webmvc注解
+public class SpringMvcConfig implements WebMvcConfigurer {}
+```
+
+1.集合参数传递
+
+http://localhost/user/save5
+body: ["sing","dance","rap","basketball","6666"]
+
+```java
+@RequestMapping("/save5")
+@ResponseBody
+public String save5(@RequestBody List<String> hobby) {}
+```
+
+2.对象参数传递
+
+```http
+http://localhost/user/save6
+{
+    "name":"张三",
+    "age":22,
+    "address":{
+        "privince":"广东",
+        "city":"深圳"
+    }
+}
+```
+
+```
+@RequestMapping("/save6")
+@ResponseBody
+public String save6(@RequestBody User user) {}
+```
+
+3.对象集合参数传递
+
+```http
+http://localhost/user/save7
+[
+    {
+    "name":"张三",
+    "age":22,
+    "address":{
+        "privince":"广东",
+        "city":"深圳"
+    }
+},
+{
+    "name":"李四",
+    "age":34,
+    "address":{
+        "privince":"北京",
+        "city":"北京"
+    }
+}
+]
+```
+
+```java
+@RequestMapping("/save7")
+@ResponseBody
+public String save7(@RequestBody List<User> user) {}
+```
 
