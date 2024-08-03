@@ -2274,3 +2274,353 @@ public class UserController {
 - 类型: 形参注解
 - 位置: SpringMVC控制器方法形参定义面前
 - 作用: 绑定路径参数与处理器方法形参之间的关系, 要求路径参数名与形参名一一对应
+
+三个注解`@RequestBody`、`@RequestParam`、`@PathVariable`,这三个注解之间的区别和应用分别是什么?
+
+* 区别
+  * @RequestParam用于接收url地址传参或表单传参
+  * @RequestBody用于接收json数据
+  * @PathVariable用于接收路径参数，使用{参数名称}描述路径参数
+* 应用
+  * 后期开发中，发送请求参数超过1个时，以json格式为主，@RequestBody应用较广
+  * 如果发送非json格式数据，选用@RequestParam接收请求参数
+  * 采用RESTful进行开发，当参数数量较少时，例如1个，可以采用@PathVariable接收请求路径变量，通常用于传递id值
+
+#### 2.6.3简化版本RESTful风格
+
+利用@RestController, @GetMapping, @PostMapping等注解
+
+```java
+@RestController
+@RequestMapping("/books")
+public class BookController {
+    @PostMapping
+    public String save(@RequestBody Book book) {
+        System.out.println("book save ... book=" + book);
+        return "{'module':'book save'}";
+    }
+
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable Integer id) {
+        System.out.println("book delete ... " + id);
+        return "{'module':'book delete'}";
+    }
+
+    @PutMapping
+    public String update(@RequestBody Book book) {
+        System.out.println("book update ... " + book);
+        return "{'module':'book update'}";
+    }
+
+    @GetMapping("/{id}")
+    public String getById(@PathVariable Integer id) {
+        System.out.println("book getById ... " + id);
+        return "{'module':'book getById'}";
+    }
+
+    @GetMapping
+    public String getAll() {
+        System.out.println("book getAll ... ");
+        return "{'module':'book getAll'}";
+    }
+}	
+```
+
+#### 2.6.4 基于RESTFul的案例(完整配置版)
+
+图书的增删改查(只有Controller和视图层)
+
+![image-20240803223459454](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240803223459454.png)
+
+maven依赖
+
+```xml
+<properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!--这里必须打成war,否则部署不上-->
+    <packaging>war</packaging>
+</properties>
+<dependencies>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.5</version>
+    </dependency>
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>5.2.10.RELEASE</version>
+    </dependency>
+</dependencies>
+```
+
+SpringMVC配置类
+
+```java
+@Configuration
+@ComponentScan("com.xxx.controller")
+@EnableWebMvc
+public class SpringMvcConfig implements WebMvcConfigurer {
+    // 处理response乱码问题
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> converter : converters) {
+            if (StringHttpMessageConverter.class.isAssignableFrom(converter.getClass())) {
+                ((StringHttpMessageConverter) converter).setDefaultCharset(Charset.forName("UTF-8"));
+            }
+        }
+    }
+    // 处理静态资源
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 当访问uri匹配到/pages/**的时候,走/pages目录下的内容
+        registry.addResourceHandler("/pages/**").addResourceLocations("/pages/");
+        registry.addResourceHandler("/css/**").addResourceLocations("/css/");
+        registry.addResourceHandler("/js/**").addResourceLocations("/js/");
+        registry.addResourceHandler("/plugins/**").addResourceLocations("/plugins/");
+    }
+}
+```
+
+Web容器初始化配置
+
+```java
+public class ServletContainerInitConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return null;
+    }
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class[]{SpringMvcConfig.class};
+    }
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+    @Override
+    protected Filter[] getServletFilters() {
+        CharacterEncodingFilter filter = new CharacterEncodingFilter("UTF-8", true);
+        return new Filter[]{filter};
+    }
+}
+```
+
+domain实体类
+
+```java
+public class Book {
+    private Integer id;
+    private String type;
+    private String name;
+    private String description;
+    // getter setter...
+} 
+```
+
+controller
+
+```java
+@RestController
+@RequestMapping("/books")
+public class BookController {
+    private static final List<Book> BOOK_LIST = new ArrayList<>();
+
+    static {
+        Book book1 = new Book(1, "轻小说", "刀剑神域", "sword artist");
+        Book book2 = new Book(2, "数学", "偏微分方程", "PDE, 姜萍同款");
+        Collections.addAll(BOOK_LIST, book1, book2);
+    }
+
+    @GetMapping("/{id}")
+    public Book getById(@PathVariable Integer id) {
+        return BOOK_LIST.get(id);
+    }
+
+    @PostMapping
+    public String save(@RequestBody Book book) {
+        book.setId(BOOK_LIST.size());
+        BOOK_LIST.add(book);
+        System.out.println("BookController.save");
+        return "{'msg':'book save success'}";
+    }
+
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable Integer id) {
+        System.out.println("BookController.delete");
+        boolean isSuccess = (BOOK_LIST.remove(id.intValue()) != null);
+        return "{'msg':'book delete success id='" + id + ", isSuccess:" + isSuccess + "}";
+    }
+
+    @GetMapping()
+    public List<Book> getAll() {
+        return BOOK_LIST;
+    }
+}
+```
+
+前端html(css/js/plugins略,到时候代码上传到github去)
+
+这里用的技术是vue2+elementUI
+
+```html
+<!DOCTYPE html>
+
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <title>SpringMVC案例</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="hold-transition">
+    <div id="app">
+        <div class="content-header">
+            <h1>图书管理</h1>
+        </div>
+
+        <div class="app-container">
+            <div class="box">
+                <div class="filter-container">
+                    <el-input placeholder="图书名称" v-model="searchBookId" style="width: 200px;"
+                              class="filter-item"></el-input>
+                    <el-button type="primary" class="butT" @click="getById()">查询</el-button>
+                    <el-button type="primary" class="butT" @click="openSave()">新建</el-button>
+                </div>
+
+                <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                    <el-table-column type="index" align="center" label="序号"></el-table-column>
+                    <el-table-column prop="type" label="图书类别" align="center"></el-table-column>
+                    <el-table-column prop="name" label="图书名称" align="center"></el-table-column>
+                    <el-table-column prop="description" label="描述" align="center"></el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <el-button type="primary" size="mini">编辑</el-button>
+                            <el-button size="mini" type="danger" @click="removeById(scope.$index)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="pagination-container">
+                    <el-pagination
+                            class="pagiantion"
+                            @current-change="handleCurrentChange"
+                            :current-page="pagination.currentPage"
+                            :page-size="pagination.pageSize"
+                            layout="total, prev, pager, next, jumper"
+                            :total="pagination.total">
+                    </el-pagination>
+                </div>
+                <!-- 新增标签弹层 -->
+                <div class="add-form">
+                    <el-dialog title="新增图书" :visible.sync="dialogFormVisible">
+                        <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                 label-width="100px">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="图书类别" prop="type">
+                                        <el-input v-model="formData.type"/>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="图书名称" prop="name">
+                                        <el-input v-model="formData.name"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="描述">
+                                        <el-input v-model="formData.description" type="textarea"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button @click="dialogFormVisible = false">取消</el-button>
+                            <el-button type="primary" @click="saveBook()">确定</el-button>
+                        </div>
+                    </el-dialog>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            searchBookId: null,
+            dataList: [],//当前页要展示的分页列表数据
+            formData: {},//表单数据
+            dialogFormVisible: false,//增加表单是否可见
+            dialogFormVisible4Edit: false,//编辑表单是否可见
+            pagination: {},//分页模型数据，暂时弃用
+        },
+        mounted() {
+            this.getById()
+        },
+        methods: {
+            // 重置表单
+            resetForm() {
+                //清空输入框
+                this.formData = {};
+            },
+            // 弹出添加窗口
+            openSave() {
+                this.dialogFormVisible = true;
+                this.resetForm();
+            },
+            //添加
+            saveBook() {
+                axios.post("/books", this.formData).then((res) => {
+                    this.dialogFormVisible = false
+                    window.location.reload(true)
+                });
+            },
+            removeById(index) {
+                let isDel = confirm("是否删除")
+                if (isDel) {
+                    axios.delete("/books/" + index).then((res) => {
+                        if (res.status == 200){
+                            alert("删除成功")
+                            window.location.reload(true)
+                        }
+                    });
+                }
+            },
+            // getById 或getAll, 根据bookId是否有值
+            getById() {
+                let url = this.searchBookId == null ? '' : this.searchBookId;
+                axios.get("/books/" + url).then((res) => {
+                    if (this.searchBookId) {
+                        console.log(res)
+                        this.dataList = [res.data];
+                    } else {
+                        this.dataList = res.data
+                    }
+                });
+            }
+        }
+    })
+</script>
+</html>
+```
+
