@@ -1876,3 +1876,87 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 }
 ```
 
+#### 2.4.4 5种参数传递方式
+
+1.形参和请求参数一样
+
+```java
+// http://localhost/user/save?name=张三&age=23
+public String save(String name, Integer age) {
+```
+
+2.形参和请求参数不一致(@RequestParam注解)
+
+```http
+http://localhost/user/save?name=张三&age=23	
+```
+
+```java
+ public String save(@RequestParam("name") String username, Integer age) {
+```
+
+3.实体类形参接收请求参数
+
+```http
+POST http://localhost/user/save1
+name:张三
+age:33
+```
+
+```java
+@RequestMapping("/save1")
+@ResponseBody
+public String save1(User user) {
+    System.out.println("user save ... username=" + user);
+    return "{'info':'success,'user':" + user + "}";
+}	
+```
+
+```java
+public class User {
+    private String name;
+    private String age;
+} // setter方法必须	
+```
+
+4.嵌套实体对象接收请求参数
+
+```http
+http://localhost/user/save2?name=张三&age=23&address.province=广东&address.city=深圳
+```
+
+```java
+@RequestMapping("/save2")
+@ResponseBody
+public String save2(User user) {}
+```
+
+```java
+public class User {
+    private String name;
+    private String age;
+	// 地址实体类
+    private Address address;
+    // setter方法和address的getter方法必须
+}
+```
+
+```java
+public class Address {
+    private String province;
+    private String city;
+}
+```
+
+5.数组参数
+
+```http
+http://localhost/user/save3?hobby=唱&hobby=跳&hobby=篮球	
+```
+
+```java
+    public String save3(String hobby[]) {}
+```
+
+
+
