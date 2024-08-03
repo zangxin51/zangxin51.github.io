@@ -2205,3 +2205,72 @@ http://localhost/user/
 
 根据REST风格对资源进行访问称为==RESTful==。
 
+#### 2.6.2 RESTful quickstart
+
+依赖
+```xml
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.13.5</version>
+</dependency>
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>3.1.0</version>
+    <scope>provided</scope>
+</dependency>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-webmvc</artifactId>
+    <version>5.2.10.RELEASE</version>
+</dependency>
+```
+
+controller
+
+```java
+@Controller
+public class UserController {
+    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    @ResponseBody
+    public String save() {
+        System.out.println("user save ... ");
+        return "{'module':'user save'}";
+    }
+
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public String delete(@PathVariable Integer id) {
+        System.out.println("user delete ... " + id);
+        return "{'module':'user delete'}";
+    }
+
+    @RequestMapping(value = "/users", method = RequestMethod.PUT)
+    @ResponseBody
+    public String update(@RequestBody User user) {
+        System.out.println("user update ... " + user);
+        return "{'module':'user update'}";
+    }
+
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getById(@PathVariable Integer id) {
+        System.out.println("user getById ... " + id);
+        return "{'module':'user getById'}";
+    }
+
+    @RequestMapping(value = "/users/", method = RequestMethod.GET)
+    @ResponseBody
+    public String getAll() {
+        System.out.println("user getAll ... ");
+        return "{'module':'user getAll'}";
+    }
+}
+```
+
+@PathVariable注解
+
+- 类型: 形参注解
+- 位置: SpringMVC控制器方法形参定义面前
+- 作用: 绑定路径参数与处理器方法形参之间的关系, 要求路径参数名与形参名一一对应
