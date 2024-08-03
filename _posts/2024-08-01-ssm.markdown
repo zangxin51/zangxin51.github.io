@@ -2092,10 +2092,116 @@ public interface Converter<S, T> {
 
 ### 2.5响应
 
+#### 2.5.1四种响应方式
+
 响应页面
 
 响应数据
 
 - 文本数据
 - json数据
+
+```java
+@Controller
+public class UserController {
+    // 响应页面/跳转页面
+    @RequestMapping("/toPage")
+    public String toPage() {
+        System.out.println("跳转页面");
+        return "page.jsp";
+    }
+    // 响应纯文本数据
+    @RequestMapping("/toText")
+    @ResponseBody
+    public String toText() {
+        System.out.println("返回纯文本数据");
+        return "reponse text";
+    }
+    // 响应pojo对象
+    @RequestMapping("/toJsonPojo")
+    @ResponseBody
+    public User toJsonPOJO() {
+        System.out.println("返回json对象数据");
+        User user = new User();
+        user.setName("张三");
+        user.setAge(22);
+        return user;
+    }
+    // 响应pojo对象集合
+    @RequestMapping("/toJsonPojoList")
+    @ResponseBody
+    public List<User> toJsonPOJOList() {
+        List<User> userList = new ArrayList<>();
+        System.out.println("返回json对象数据集合");
+        for (int i = 0; i < 3; i++) {
+            User user = new User();
+            user.setName("张三" + i);
+            user.setAge(10 * i);
+            userList.add(user);
+        }
+        return userList;
+    }
+}
+```
+
+#### 2.5.2 @ResponseBody注解  响应json数据
+
+- 方法注解: 位置SpringMVC控制器方法上面 
+
+- 作用: 设置当前控制器返回值作为响应体
+
+public interface HttpMessageConverter\<T> {} 接口定义了将对象转为json数据
+
+```java
+public interface HttpMessageConverter<T> {
+    boolean canRead(Class<?> var1, @Nullable MediaType var2);
+
+    boolean canWrite(Class<?> var1, @Nullable MediaType var2);
+
+    List<MediaType> getSupportedMediaTypes();
+
+    T read(Class<? extends T> var1, HttpInputMessage var2) throws IOException, HttpMessageNotReadableException;
+
+    void write(T var1, @Nullable MediaType var2, HttpOutputMessage var3) throws IOException, HttpMessageNotWritableException;
+}		
+```
+
+### 2.6 REST风格
+
+#### 2.6.1 简介
+
+REST: Representational State Transfer, 表现形式状态转换
+
+传统风格资源描述形式
+
+```http
+http://localhost/user/getById?id=1
+http://localhost/user/saveUser
+```
+
+REST风格资源描述形式
+
+```http
+http://localhost/user/1
+http://localhost/user/
+```
+
+优点
+
+- 隐藏资源的访问行为, 无法通过地址得知对资源是什么操作
+- 书写简化
+
+按照REST风格访问资源时使用==行为动作==区分对资源进行了何种操作
+
+* `http://localhost/users`	查询全部用户信息 GET（查询）
+* `http://localhost/users/1`  查询指定用户信息 GET（查询）
+* `http://localhost/users`    添加用户信息    POST（新增/保存）
+* `http://localhost/users`    修改用户信息    PUT（修改/更新）
+* `http://localhost/users/1`  删除用户信息    DELETE（删除）
+
+通过路径+请求方式=确定访问行为(增/删/改/查)
+
+描述模块的名称通常使用复数，也就是加s的格式描述，表示此类资源，而非单个资源，例如:users、books、accounts......
+
+根据REST风格对资源进行访问称为==RESTful==。
 
