@@ -2046,3 +2046,11 @@ http://localhost/user/save7
 public String save7(@RequestBody List<User> user) {}
 ```
 
+总结:
+
+@RequestParam与@RequestBody的区别
+
+@RequestParam用于接收url地址传参,和表单传参 application/x-www-form-urlencoded
+
+@RequestBody用于接收json数据[application/json]
+
