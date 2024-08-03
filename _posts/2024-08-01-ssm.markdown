@@ -2054,3 +2054,5 @@ public String save7(@RequestBody List<User> user) {}
 
 @RequestBody用于接收json数据[application/json]
 
+#### 2.4.6日期类型参数传递
+
