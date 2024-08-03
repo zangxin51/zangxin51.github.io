@@ -1771,3 +1771,108 @@ public class ServletContainersInitConfig1 extends AbstractAnnotationConfigDispat
 | 位置     | 类定义上方                                                   |
 | 作用     | 设置spring配置类扫描路径，用于加载使用注解格式定义的bean     |
 | 相关属性 | excludeFilters:排除扫描路径中加载的bean,需要指定类别(type)和具体项(classes)<br/>includeFilters:加载指定的bean，需要指定类别(type)和具体项(classes) |
+
+### 2.4请求
+
+#### 2.4.1请求路径
+
+```java
+@Controller
+@RequestMapping("/book")
+public class BookController {
+    @RequestMapping("/save")
+    @ResponseBody
+    public String save() {
+        System.out.println("book save ...");
+        return "{'info':'success}";
+    }
+}	
+```
+
+#### 2.4.2 请求方式
+
+
+
+```java
+@Controller
+@RequestMapping("/user")
+public class UserController {
+    @RequestMapping("/save")
+    @ResponseBody
+    public String save(String name, Integer age) {
+        System.out.println("user save ... name=" + name);
+        return "{'info':'success,'name':" + name + ",age=" + age + "}";
+    }
+}
+```
+
+GET传参
+
+普通参数:url地址传参, 地址参数名与形参变量名相同,定义形参即可接收参数
+
+```
+http://localhost/user/save?name=zhangsan&age=23
+```
+
+![image-20240803102848840](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240803102848840.png)
+
+POST请求传参
+
+```
+http://localhost/user/save
+```
+
+![image-20240803103002813](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240803103002813.png)
+
+#### 2.4.3请求乱码问题
+
+get请求: **请求行**编码格式与tomcat的请求行解码方式不一致就会导致, 解决方法: 将tomcat uriencoding修改为utf-8
+
+post请求: **请求体**乱码, 修改后端默认解码字符集: request.setCharacterEncoding("UTF-8"), 这一行代码的意思是设置解析请求体使用的字符集
+
+```java
+// Springmvc解决请求体乱码问题, 设置一个过滤器
+public class ServletContainerInitConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
+    // 处理post请求乱码
+    @Override
+    protected Filter[] getServletFilters() {
+        CharacterEncodingFilter filter = new CharacterEncodingFilter("UTF-8", true);
+        return new Filter[]{filter};
+    }
+    // 略去其他三个方法
+}
+```
+
+响应乱码问题: 浏览器在接收响应信息时,使用了不同的字符集或者是不支持中文的字符集就会出现乱码
+
+response.setContentType("text/html;charset=utf-8"), 设置响应头ContentType: text/html;charset=utf-8, 告知浏览器用该方式解析响应
+
+Springmvc默认的ContentType字符集为iso-8859-1
+
+```java
+// org.springframework.http.converter.StringHttpMessageConverter
+static {
+        DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+}
+```
+
+
+
+```java
+// 将默认的iso-iso-8859-1修改为UTF-8
+@Configuration
+@ComponentScan("com.xxx.controller")
+@EnableWebMvc
+public class SpringMvcConfig implements WebMvcConfigurer {
+    //    通过@EnableWebMVC配置的时候起作用，
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> httpMessageConverter : converters) {
+            if (StringHttpMessageConverter.class.isAssignableFrom(httpMessageConverter.getClass())) {
+                ((StringHttpMessageConverter) httpMessageConverter).setDefaultCharset(Charset.forName("UTF-8"));
+            }
+        }
+    }
+}
+```
+
