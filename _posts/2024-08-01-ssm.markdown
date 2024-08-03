@@ -2054,5 +2054,48 @@ public String save7(@RequestBody List<User> user) {}
 
 @RequestBody用于接收json数据[application/json]
 
-#### 2.4.6日期类型参数传递
+#### 2.4.6日期类型参数传递(@DateTimeFormat注解使用)
+
+```http
+http://localhost/book/dateParam?date=2022-1-1&date2=2022/1/1&date3=2022/1/1 08:30:30
+```
+
+```java
+@RequestMapping("/dateParam")
+@ResponseBody
+public String dateParam(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+                        @DateTimeFormat(pattern = "yyyy/MM/dd") Date date2,
+                        @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm:ss") Date date3) {
+    System.out.println("dateParam yyyy-MM-dd ..." + date);
+    System.out.println("dateParam yyyy/MM/dd ..." + date2);
+    System.out.println("dateParam yyyy/MM/dd HH:mm:ss ..." + date3);
+    return "{'info':'success,date:" + date + "}";
+}
+```
+
+#### 2.4.7类型转换器
+
+```java
+@FunctionalInterface
+public interface Converter<S, T> {
+	@Nullable
+	T convert(S source);
+
+}
+```
+
+请求参数年龄数据: String-->Integer
+
+日期格式转换: String --> Date
+
+@EnableWebMvc注解功能之一: 根据类型匹配对应的类型转换器
+
+### 2.5响应
+
+响应页面
+
+响应数据
+
+- 文本数据
+- json数据
 
