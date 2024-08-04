@@ -2816,7 +2816,7 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 }
 ```
 
-表与实体类
+#### 2.7.3表与实体类
 
 ```sql
 DROP TABLE IF EXISTS `tbl_book`;
@@ -2848,7 +2848,206 @@ public class Book {
 }
 ```
 
+#### 2.7.4 dao层(自动代理)
+
+```java
+public interface BookDao {
+    @Insert("insert into tbl_book(id, type, name, description) values (null,#{type},#{name},#{description})")
+    void save(Book book);
+
+    @Update("update tbl_book set type=#{type},name=#{name},description=#{description} where id=#{id}")
+    void update(Book book);
+
+    @Delete("delete from tbl_book where id=#{id}")
+    void delete(Integer id);
+
+    @Select("select id, type, name, description from tbl_book where id = #{id}")
+    Book getById(Integer id);
+
+    @Select("select id, type, name, description from tbl_book")
+    List<Book> getAll();
+}
+```
+
+#### 2.7.5service层及单元测试
+
+```java
+public interface BookService {
+    /**
+     * 保存
+     *
+     * @param book
+     * @return
+     */
+    boolean save(Book book);
+
+    /**
+     * 修改
+     *
+     * @param book
+     * @return
+     */
+    boolean update(Book book);
+
+    /**
+     * 根据id删除
+     *
+     * @param id
+     * @return
+     */
+    boolean delete(Integer id);
+
+    /**
+     * 按id查询
+     *
+     * @param id
+     * @return
+     */
+    Book getById(Integer id);
+
+    /**
+     * 查询全部
+     *
+     * @return
+     */
+    List<Book> getAll();
+}
+```
+
+实现类
+
+```java
+@Service
+@Transactional(rollbackFor = Exception.class)
+public class BookServiceImpl implements BookService {
+    @Autowired
+    private BookDao bookDao;
+    @Override
+    public boolean save(Book book) {
+        bookDao.save(book);
+        return true;
+    }
+    @Override
+    public boolean update(Book book) {
+        bookDao.update(book);
+        return true;
+    }
+    @Override
+    public boolean delete(Integer id) {
+        bookDao.delete(id);
+        return true;
+    }
+    @Override
+    public Book getById(Integer id) {
+        return bookDao.getById(id);
+    }
+    @Override
+    public List<Book> getAll() {
+        return bookDao.getAll();
+    }
+}
+```
+
+service层接口测试
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SpringConfig.class)
+public class BookServiceImplTest {
+    @Autowired
+    private BookService bookService;
+
+    @Test
+    public void getById() {
+        Book book = bookService.getById(1);
+        Assert.assertNotNull(book);
+        System.out.println(book);
+    }
+
+    @Test
+    public void getAll() {
+        List<Book> bookList = bookService.getAll();
+        Assert.assertNotNull(bookList);
+        Assert.assertTrue(!bookList.isEmpty());
+        System.out.println("bookList = " + bookList);
+    }
+}
+```
 
 
 
+#### 2.7.6controller层及表现层接口测试(idea HttpClient)
+
+```java
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    @Autowired
+    private BookService bookService;
+
+    @PostMapping
+    public boolean save(@RequestBody Book book) {
+        return bookService.save(book);
+    }
+
+    @PutMapping
+    public boolean update(@RequestBody Book book) {
+        return bookService.update(book);
+    }
+
+    @DeleteMapping("/{id}")
+    public boolean delete(@PathVariable Integer id) {
+        return bookService.delete(id);
+    }
+
+    @GetMapping("/{id}")
+    public Book getById(@PathVariable Integer id) {
+        return bookService.getById(id);
+    }
+
+    @GetMapping
+    public List<Book> getAll() {
+        return bookService.getAll();
+    }
+}
+```
+
+表现层接口测试
+
+```java
+# springmvc_08_ssm
+###
+GET http://localhost/books
+
+###
+GET http://localhost/books/1
+
+###
+PUT http://localhost/books
+Content-Type: application/json
+
+{
+  "id": 1,
+  "type": "文学",
+  "name": "老人与海",
+  "description": "海明威代表作, 一个人可以被消灭,但是不能被打败-修改test"
+}
+
+###
+POST http://localhost/books
+Content-Type: application/json
+
+{
+  "id": null,
+  "type": "文学",
+  "name": "浮士德",
+  "description": "与魔鬼交易, 重活一世"
+}
+
+###
+DELETE http://localhost/books/7
+```
+
+#### 2.7.7表现层与前端数据传输协议定义
 
