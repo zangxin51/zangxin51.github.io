@@ -2,7 +2,7 @@
 layout:     post
 title:      "Maven"
 subtitle:   "Maven subtitle"
-date:       2024-08-01 21:18:00
+date:       2024-08-04 21:18:00
 author:     "zangxin"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
@@ -10,4 +10,12 @@ tags:
 ---
 
 # maven
+
+## 1.分模块开发与设计
+
+分模块开发的意义
+
+- 将原始模块按功能拆分成若干个子模块, 方便模块之间的相互调用, 接口共享
+
+
 
