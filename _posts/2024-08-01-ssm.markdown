@@ -27,6 +27,7 @@ Spring Boot
 ### 1.1spring 架构
 
 ![image-20240801091412451](\img\md-img\image-20240801091412451.png)
+![image-20240801091412451](../img/md-img/image-20240801091412451.png)
 
 ### 1.2 IOC
 
