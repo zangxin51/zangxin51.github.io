@@ -26,7 +26,6 @@ Spring Boot
 
 ### 1.1spring 架构
 
-![image-20240801091412451](\img\md-img\image-20240801091412451.png)
 ![image-20240801091412451](../img/md-img/image-20240801091412451.png)
 
 ### 1.2 IOC
@@ -489,7 +488,7 @@ BookDao bookDao1 = ctx.getBean(BookDao.class);
 bookDao1.add();
 ```
 
-![1629984980781](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1629984980781.png)
+![1629984980781](..\img\md-img\2024-08-01-ssm\1629984980781.png)
 
 BeanFactory创建完毕后,所有bean均为延迟加载, ApplicationContext默认为非懒加载
 
@@ -511,9 +510,9 @@ bookDao.add();
 
 ### 1.5 容器总结
 
-![1629986510487](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1629986510487.png)
+![1629986510487](..\img\md-img\2024-08-01-ssm\1629986510487.png)
 
-![1629986848563](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1629986848563.png)
+![1629986848563](..\img\md-img\2024-08-01-ssm\1629986848563.png)
 
 ### 1.6 注解开发
 
@@ -662,7 +661,7 @@ public class JdbcConfig {
 
 ##### 5.注解开发总结
 
-![1630134786448](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630134786448.png)
+![1630134786448](..\img\md-img\2024-08-01-ssm\1630134786448.png)
 
 ### 1.7 spring整合mysbatis
 
@@ -1416,7 +1415,7 @@ INSERT INTO `tbl_account` VALUES (1,'tom',900),(2,'jerry',1100);
 
 #### 4.事务配置
 
-![1630250069844](C:\Users\32929\Desktop\cai\backend\ssm\课程笔记\基础框架8笔记\Spring笔记\spring_day03\assets\1630250069844.png)
+![1630250069844](./../img/md-img/2024-08-01-ssm/1630250069844.png)
 
 上面这些属性都可以在`@Transactional`注解的参数上进行设置。
 
@@ -1576,7 +1575,7 @@ public class AccountServiceImpl implements AccountService {
 
 ```
 
-![1630254257628](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630254257628.png)
+![1630254257628](./../img/md-img/1630254257628.png)
 
 ## 2. SpringMVC
 
@@ -1815,7 +1814,7 @@ GET传参
 http://localhost/user/save?name=zhangsan&age=23
 ```
 
-![image-20240803102848840](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240803102848840.png)
+![image-20240803102848840](./../img/md-img/2024-08-01-ssm/image-20240803102848840-1722776189307-3.png)
 
 POST请求传参
 
@@ -1823,7 +1822,7 @@ POST请求传参
 http://localhost/user/save
 ```
 
-![image-20240803103002813](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240803103002813.png)
+![image-20240803103002813](./../img/md-img/2024-08-01-ssm/image-20240803103002813-1722776193602-5.png)
 
 #### 2.4.3请求乱码问题
 
@@ -2331,7 +2330,7 @@ public class BookController {
 
 图书的增删改查(只有Controller和视图层)
 
-![image-20240803223459454](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240803223459454.png)
+![image-20240803223459454](./../img/md-img/2024-08-01-ssm/image-20240803223459454-1722776223286-7.png)
 
 maven依赖
 
@@ -3063,7 +3062,7 @@ DELETE http://localhost/books/7
 
 统一数返回结果数据格式: 错误码code,数据data对象,消息对象msg
 
-![1630654293972](C:\Users\32929\Desktop\cai\backend\ssm\课程笔记\基础框架8笔记\SpringMVC笔记\SpringMVC_day02\assets\1630654293972.png)
+![1630654293972](./../img/md-img/2024-08-01-ssm/1630654293972.png)
 
 ```java
 public class Result{
@@ -3260,7 +3259,7 @@ GET http://localhost/books/1
 
 代码目录
 
-![image-20240804132452409](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240804132452409.png)
+![image-20240804132452409](./../img/md-img/2024-08-01-ssm/image-20240804132452409-1722776258889-10.png)
 
 思路: 定义系统异常和业务异常类, 对应业务场景, 把异常抛出去, 然后通过异常处理器在表现层捕捉, 在异常通知对应的异常类型方法进行处理, 获取异常错误码,和错误信息, 最后响应给客户端
 
@@ -3614,7 +3613,7 @@ GET http://localhost/books/-1
 
 2.8.1拦截器概念
 
-![1630676280170](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630676280170.png)
+![1630676280170](./../img/md-img/1630676280170.png)
 
 (1)浏览器发送一个请求会先到Tomcat的web服务器
 
@@ -3651,7 +3650,7 @@ GET http://localhost/books/-1
 - 归属不同：Filter属于Servlet技术，Interceptor属于SpringMVC技术
 - 拦截内容不同：Filter对所有访问进行增强，Interceptor仅针对SpringMVC的访问进行增强
 
-![1630676903190](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630676903190.png)
+![1630676903190](./../img/md-img/1630676903190.png)
 
 #### 2.8.1拦截器quickstart
 
@@ -3711,7 +3710,7 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 
 #### 2.8.2拦截器执行流程
 
-![1630679464294](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630679464294.png)
+![1630679464294](./../img/md-img/1630679464294.png)
 
 #### 2.8.3拦截器的三个方法
 
@@ -3787,7 +3786,7 @@ public void addInterceptors(InterceptorRegistry registry) {
 * 当拦截器中出现对原始处理器的拦截，后面的拦截器均终止运行
 * 当拦截器运行中断，仅运行配置在前面的拦截器的afterCompletion操作
 
-![1630680579735](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\2024-08-01-ssm\1630680579735.png)
+![1630680579735](./../img/md-img/1630680579735.png)
 
 
 
