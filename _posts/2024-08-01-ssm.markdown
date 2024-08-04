@@ -3373,3 +3373,239 @@ GET http://localhost/books/-1
   "msg": "请勿进行非法操作"
 }
 ```
+
+#### 2.7.8.4前端页面
+
+前端页面的 增 删 改 查
+
+```java
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <title>SpringMVC案例</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="hold-transition">
+    <div id="app">
+        <div class="content-header">
+            <h1>图书管理</h1>
+        </div>
+
+        <div class="app-container">
+            <div class="box">
+                <div class="filter-container">
+                    <el-input placeholder="图书名称" v-model="searchBookName" style="width: 200px;"
+                              class="filter-item"></el-input>
+                    <el-button type="primary" class="butT" @click="getByName()">查询</el-button>
+                    <el-button type="primary" class="butT" @click="resetSearch()">重置</el-button>
+                    <el-button type="primary" class="butT" @click="openSave()">新建</el-button>
+                </div>
+
+                <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                    <el-table-column type="index" align="center" label="序号"></el-table-column>
+                    <el-table-column prop="type" label="图书类别" align="center"></el-table-column>
+                    <el-table-column prop="name" label="图书名称" align="center"></el-table-column>
+                    <el-table-column prop="description" label="描述" align="center"></el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <el-button type="primary" size="mini" @click="openEdit(scope.row.id)">编辑</el-button>
+                            <el-button size="mini" type="danger" @click="removeById(scope.row.id)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="pagination-container">
+                    <el-pagination
+                            class="pagiantion"
+                            @current-change="handleCurrentChange"
+                            :current-page="pagination.currentPage"
+                            :page-size="pagination.pageSize"
+                            layout="total, prev, pager, next, jumper"
+                            :total="pagination.total">
+                    </el-pagination>
+                </div>
+                <!-- 新增标签弹层 -->
+                <div class="add-form">
+                    <el-dialog title="新增图书" :visible.sync="dialogFormVisible">
+                        <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                 label-width="100px">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="图书类别" prop="type">
+                                        <el-input v-model="formData.type"/>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="图书名称" prop="name">
+                                        <el-input v-model="formData.name"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="描述">
+                                        <el-input v-model="formData.description" type="textarea"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button @click="dialogFormVisible = false">取消</el-button>
+                            <el-button type="primary" @click="saveBook()">确定</el-button>
+                        </div>
+                    </el-dialog>
+                </div>
+                <!-- 编辑标签弹层 -->
+                <div class="add-form">
+                    <el-dialog title="编辑图书" :visible.sync="dialogFormVisible4Edit">
+                        <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                                 label-width="100px">
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="图书类别" prop="type">
+                                        <el-input v-model="formData.type"/>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="图书名称" prop="name">
+                                        <el-input v-model="formData.name"/>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="描述">
+                                        <el-input v-model="formData.description" type="textarea"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                            <el-button type="primary" @click="editSaveBook()">确定</el-button>
+                        </div>
+                    </el-dialog>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            searchBookName: '',
+            dataList: [],//当前页要展示的分页列表数据
+            formData: {},//表单数据
+            dialogFormVisible: false,//增加表单是否可见
+            dialogFormVisible4Edit: false,//编辑表单是否可见
+            pagination: {},//分页模型数据，暂时弃用
+        },
+        created() {
+            this.getById()
+        },
+        methods: {
+            // 重置表单
+            resetForm() {
+                //清空输入框
+                this.formData = {};
+            },
+            // 弹出添加窗口
+            openSave() {
+                this.dialogFormVisible = true;
+                this.resetForm();
+            },
+            //添加
+            saveBook() {
+                axios.post("/books", this.formData).then((res) => {
+                    console.log(res)
+                    if (res.data.code == 20011) {
+                        this.$message.success("添加成功")
+                        this.dialogFormVisible = false;
+                    } else if (res.data.code != 20011) {
+                        this.$message.error(res.data.msg)
+                    }
+                }).finally(() => {
+                    this.getById()
+                });
+            },
+            // 弹出编辑窗口, 然后掉后端接口getById回显数据
+            openEdit(bookId) {
+                this.dialogFormVisible4Edit = true;
+                axios.get("/books/" + bookId).then((res) => {
+                    this.formData = res.data.data
+                })
+            },
+            // 编辑保存书籍
+            editSaveBook() {
+                axios.put("/books", this.formData).then((res) => {
+                    if (res.data.code == 20031) {
+                        this.dialogFormVisible4Edit = false;
+                        this.$message.success("修改成功")
+                    } else {
+                        this.$message.error(res.data.msg)
+                    }
+                }).finally(() => {
+                    this.getById()
+                })
+            },
+            // 删除
+            removeById(bookId) {
+                this.$confirm("是否确认删除?", "提示", {
+                    type: 'info'
+                }).then(() => {
+                    axios.delete("/books/" + bookId).then((res) => {
+                        if (res.data.code == 20021) {
+                            this.$message.success("删除成功")
+                            this.getById()
+                        } else {
+                            this.$message.error("删除失败")
+                        }
+                    })
+                }).catch(() => {
+                    this.$message.error("取消删除")
+                })
+            },
+            // getById 或getAll, 根据bookId是否有值
+            getById(bookId) {
+                console.log('bookId=' + bookId)
+                // 如果bookId不为空,就把id传给后端,调用getById,为空时就不传递id,调用getAll
+                axios.get("/books/" + (!bookId ? '' : bookId)).then((res) => {
+                    if (!bookId) {
+                        this.dataList = res.data.data
+                    } else {
+                        this.dataList = [res.data.data];
+                    }
+                });
+            },
+            // 按书名查找
+            getByName() {
+                if (!this.searchBookName) {
+                    return
+                } else {
+                    axios.get('/books/search/' + this.searchBookName).then((res) => {
+                        this.dataList = res.data.data
+                    });
+                }
+            },
+            // 重置查询
+            resetSearch() {
+                this.searchBookName = '';
+                this.getById();
+            }
+        }
+    })
+</script>
+</html>
+```
+
