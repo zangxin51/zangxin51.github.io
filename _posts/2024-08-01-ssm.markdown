@@ -11,6 +11,8 @@ tags:
 
 **SSM**
 
+视频[地址](https://www.bilibili.com/video/BV1Fi4y1S7ix)
+
 ## 1.spring
 
 用途: 简化javaweb开发
