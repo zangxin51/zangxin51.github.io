@@ -2624,3 +2624,231 @@ public class BookController {
 </html>
 ```
 
+### 2.7 SSM整合
+
+1.创建工程
+
+2.SSM整合
+
+- spring
+  - springConfig
+- mybatis
+  - MybatisConfig
+  - JdbcConfig
+  - jdbc.properties
+- SpringMVC
+  - ServletConfig
+  - SpringMvcConfig
+
+3.功能模块
+
+- 表与实体类
+- dao (接口+自动代理)
+- servic(接口+实现类)
+  - 业务层接口测试(Junit)
+- Controller
+  - 表现层接口测试(postman)
+
+#### 2.7.1maven依赖
+
+```xml
+<packaging>war</packaging>
+<dependencies>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>5.2.10.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>5.2.10.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis-spring</artifactId>
+        <version>2.1.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.5.6</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.5</version>
+    </dependency>
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.1.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.2.6</version>
+    </dependency>
+    <dependency>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>8.0.33</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>5.2.10.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+#### 2.7.2配置类
+
+Spring配置
+
+```java
+@Configuration
+@ComponentScan({"com.xxx.service"})
+@PropertySource("classpath:jdbc.properties")
+@Import({JdbcConfig.class, MybatisConfig.class})
+@EnableTransactionManagement // 开启注解事务
+public class SpringConfig {
+}
+```
+
+```java
+public class JdbcConfig {
+    @Value("${jdbc.driver-class-name}")
+    private String driver;
+    @Value("${jdbc.url}")
+    private String url;
+    @Value("${jdbc.username}")
+    private String username;
+    @Value("${jdbc.password}")
+    private String password;
+
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource dataSource = new DruidDataSource();
+        dataSource.setDriverClassName(driver);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    // jdbc事务管理器
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource) {
+        DataSourceTransactionManager tm = new DataSourceTransactionManager();
+        tm.setDataSource(dataSource);
+        return tm;
+    }
+}
+```
+
+```java
+public class MybatisConfig {
+    @Bean
+    public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource) {
+        SqlSessionFactoryBean ssfb = new SqlSessionFactoryBean();
+        ssfb.setDataSource(dataSource);
+        ssfb.setTypeAliasesPackage("com.xxx.domain");
+        return ssfb;
+    }
+
+    @Bean
+    public MapperScannerConfigurer mapperScannerConfigurer() {
+        MapperScannerConfigurer msc = new MapperScannerConfigurer();
+        msc.setBasePackage("com.xxx.dao");
+        return msc;
+    }
+}
+```
+
+springmvc配置
+
+```java
+public class ServletConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class[]{SpringConfig.class};
+    }
+
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class[]{SpringMvcConfig.class};
+    }
+
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+
+    @Override
+    protected Filter[] getServletFilters() { // 过滤器,用utf-8解析请求参数
+        CharacterEncodingFilter filter = new CharacterEncodingFilter("UTF-8", true);
+        return new Filter[]{filter};
+    }
+}
+```
+
+```java
+@Configuration
+@ComponentScan("com.xxx.controller")
+@EnableWebMvc
+public class SpringMvcConfig implements WebMvcConfigurer {
+    // 设置响应头ContentType: text/html;charset=utf-8, 告知浏览器用该方式解析响应
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> converter : converters) {
+            if (StringHttpMessageConverter.class.isAssignableFrom(converter.getClass())) {
+                ((StringHttpMessageConverter) converter).setDefaultCharset(Charset.forName("UTF-8"));
+            }
+        }
+    }
+}
+```
+
+表与实体类
+
+```sql
+DROP TABLE IF EXISTS `tbl_book`;
+CREATE TABLE `tbl_book`
+(
+    `id`          int(11) NOT NULL AUTO_INCREMENT,
+    `type`        varchar(20)  DEFAULT NULL,
+    `name`        varchar(50)  DEFAULT NULL,
+    `description` varchar(255) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+);
+INSERT INTO `tbl_book`
+VALUES (1, '文学', '老人与海', '海明威代表作, 一个人可以被消灭,但是不能被打败-修改test'),
+       (2, '文学', '月亮与六便士', '艺术之于生命'),
+       (3, '哲学', '斐多篇', '苏格拉底论灵魂不朽'),
+       (4, '哲学', '存在与时间', '此在自始至终都处于沉沦状态,芸芸众生'),
+       (5, '数学', '代数几何', '仿佛来自虚空'),
+       (8, '文学', '浮士德', '与魔鬼交易, 重活一世');
+```
+
+实体类
+
+```java
+public class Book {
+    private Integer id;
+    private String type;
+    private String name;
+    private String description;
+}
+```
+
+
+
+
+
