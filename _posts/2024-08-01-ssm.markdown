@@ -2813,7 +2813,16 @@ public class SpringMvcConfig implements WebMvcConfigurer {
             }
         }
     }
-}
+
+    // 处理静态资源
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 请求匹配/pages/**时转发到/pages目录下
+        registry.addResourceHandler("/pages/**").addResourceLocations("/pages/");
+        registry.addResourceHandler("/css/**").addResourceLocations("/css/");
+        registry.addResourceHandler("/js/**").addResourceLocations("/js/");
+        registry.addResourceHandler("/plugins/**").addResourceLocations("/plugins/");
+    }
 ```
 
 #### 2.7.3表与实体类
@@ -3139,7 +3148,228 @@ GET http://localhost/books/1
 
 #### 2.7.8异常处理器
 
+#### 2.7.8.1异常的种类及出现异常的原因:
 
+- 框架内部抛出的异常：因使用不合规导致
+- 数据层抛出的异常：因外部服务器故障导致（例如：服务器访问超时）
+- 业务层抛出的异常：因业务逻辑书写错误导致（例如：遍历业务书写操作，导致索引异常等）
+- 表现层抛出的异常：因数据收集、校验等规则导致（例如：不匹配的数据类型间导致异常）
+- 工具类抛出的异常：因工具类书写不严谨不够健壮导致（例如：必要释放的连接长期未释放等）
 
+看完上面这些出现异常的位置，你会发现，在我们开发的任何一个位置都有可能出现异常，而且这些异常是不能避免的。所以我们就得将异常进行处理。
 
+1. 各个层级均出现异常，异常处理代码书写在哪一层?
 
+   ==所有的异常均抛出到表现层进行处理==
+
+2. 异常的种类很多，表现层如何将所有的异常都处理到呢?
+
+   ==异常分类==
+
+3. 表现层处理异常，每个方法中单独书写，代码书写量巨大且意义不强，如何解决?
+
+   ==AOP==
+
+#### 2.7.8.2 SpringMVC的统一异常处理
+
+对于上面这些问题及解决方案，SpringMVC已经为我们提供了一套解决方案:
+
+* 异常处理器:
+
+  * 集中的、统一的处理项目中出现的异常
+
+  ```java
+  @RestControllerAdvice // 标识当前类为REST风格对应的异常处理器
+  public class ProjectExceptionAdvice {
+      // 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+      @ExceptionHandler(Exception.class)
+      public Result doException(Exception ex) {
+          System.out.println("catch a ex! " + ex);
+          return new Result(666, null,"catch a exception.");
+      }
+  }
+  ```
+
+配置包扫描的时候, 确保SpringMvcConfig能够扫到该类
+
+在程序getById方法中加个异常,调用该方法后结果如下
+
+```java
+###
+GET http://localhost/books/1
+{
+  "data": null,
+  "code": 666,
+  "msg": "catch a exception."
+}
+```
+
+这样, 就算后端服务出了异常, 也能按照和前端约好的数据格式返回给前端了
+
+**知识点1：@RestControllerAdvice**
+
+| 名称 | @RestControllerAdvice              |
+| ---- | ---------------------------------- |
+| 类型 | ==类注解==                         |
+| 位置 | Rest风格开发的控制器增强类定义上方 |
+| 作用 | 为Rest风格开发的控制器类做增强     |
+
+**说明:**此注解自带@ResponseBody注解与@Component注解，具备对应的功能
+
+**知识点2：@ExceptionHandler**
+
+| 名称 | @ExceptionHandler                                            |
+| ---- | ------------------------------------------------------------ |
+| 类型 | ==方法注解==                                                 |
+| 位置 | 专用于异常处理的控制器方法上方                               |
+| 作用 | 设置指定异常的处理方案，功能等同于控制器方法，<br/>出现异常后终止原始控制器执行,并转入当前方法执行 |
+
+**说明：**此类方法可以根据处理的异常不同，制作多个方法分别处理对应的异常
+
+2.7.8.2 项目异常处理方案
+
+异常的分类的必要性 如果对每一个异常都进行配置一个异常处理器, 异常太多, 无法面面俱到,也比较繁琐.
+
+如果只使用一个异常的话, 也无法区分出到底是哪个层面出现异常, 定位问题
+
+项目异常分类
+
+- 业务异常
+  - 规范的用户行为产生的异常
+  - 不规范的用户行为产生的异常
+- 系统异常
+  - 项目运行过程中可以预计但是无法避免的异常
+- 其他异常
+  - 编程人员未预期到的异常
+
+项目异常处理方案
+
+- 业务异常(Business Exception)
+  - 发送对应消息传递给用户, 提醒规范操作
+- 系统异常(System Exception)
+  - 发送固定消息传递给用户, 安抚用户
+  - 发送特定消息给运维人员, 提醒用户
+  - 记录日志
+- 其他异常(Exception)
+  - 发送固定消息传递给用户, 安抚用户
+  - 发送特定消息给运编程人员, 提醒维护(纳入预期范围内)
+  - 记录日志
+
+#### 2.7.8.3异常处理实现
+
+代码目录
+
+![image-20240804132452409](C:\Users\32929\Documents\GitHub\zangxin51.github.io\img\md-img\image-20240804132452409.png)
+
+思路: 定义系统异常和业务异常类, 对应业务场景, 把异常抛出去, 然后通过异常处理器在表现层捕捉, 在异常通知对应的异常类型方法进行处理, 获取异常错误码,和错误信息, 最后响应给客户端
+
+1.定义业务异常和系统异常
+
+```java
+public class BusinessException extends RuntimeException{
+    private Integer code;
+
+    public BusinessException(Integer code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public BusinessException(Integer code, String message, Throwable cause) {
+        super(message, cause);
+        this.code = code;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+}
+```
+
+```java
+public class SystemException extends RuntimeException{
+    private Integer code;
+
+    public SystemException(Integer code,String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public SystemException(Integer code, String message, Throwable cause) {
+        super(message, cause);
+        this.code = code;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+}
+```
+
+2.定义异常错误码
+
+```java
+public class Code {
+    // 异常错误码
+    public static final Integer SYSTEM_ERR = 50001;
+    public static final Integer SYSTEM_TIMEOUT_ERR = 50002;
+    public static final Integer BUSINESS_ERR = 50003;
+
+    public static final Integer SYSTEM_UNKNOW_ERR = 50009;
+}
+```
+
+3.定义表现层异常通知类异常处理方法
+
+```java
+@RestControllerAdvice
+public class ProjectExceptionAdvice {
+    // 兜底异常,处理其他异常
+    @ExceptionHandler(Exception.class)
+    public Result doException(Exception ex) {
+        // 记录日志,  发送消息给运维, 发送邮件给开发人员, ex对象发送给开发人员
+        return new Result(Code.SYSTEM_UNKNOW_ERR, null, "系统繁忙, 请稍后再试!");
+    }
+
+    @ExceptionHandler(SystemException.class)
+    public Result doSystemException(SystemException ex) {
+        return new Result(ex.getCode(), null, ex.getMessage());
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public Result doBusinessException(BusinessException ex) {
+        return new Result(ex.getCode(), null, ex.getMessage());
+    }
+}
+```
+
+4.使用异常场景
+
+```java
+// 根据id获取book
+public Book getById(Integer id) {
+    // 传入的id值不规范, 抛出业务异常, 让异常处理器捕捉
+    if (id < 0) {
+        throw new BusinessException(Code.BUSINESS_ERR, "请勿进行非法操作");
+    }
+    return bookDao.getById(id);
+}
+```
+
+5.Test
+
+```json
+GET http://localhost/books/-1
+{
+  "data": null,
+  "code": 50003,
+  "msg": "请勿进行非法操作"
+}
+```
