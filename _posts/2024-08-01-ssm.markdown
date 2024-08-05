@@ -4268,15 +4268,103 @@ enterprise:
 数组数据在数据书写位置的下方使用减号作为数据开始符号，每行书写一个数据，减号与数据间空格分隔，例如
 
 ```yaml
-enterprise:
-  name: itcast
-  age: 16
-  tel: 4006184000
-  subject:
-    - Java
-    - 前端
-    - 大数据
+server:
+  port: 80
+logging:
+  level:
+    root: info
+
+person:
+  name: zhangsan
+  age: 33
+  gender: female
+  hobbies:
+    - sing
+    - dance
+    - rap
+    - basketball
+  address: sh
 ```
 
-### 
+#### 2.2.2 yaml数据读取
+
+##### 2.2.2.1  使用 @Value注解
+
+使用 `@Value("表达式")` 注解可以从配合文件中读取数据，注解中用于读取属性名引用方式是：`${一级属性名.二级属性名……}`
+
+##### 2.2.2.2  Environment对象
+
+上面方式读取到的数据特别零散，`SpringBoot` 还可以使用 `@Autowired` 注解注入 `Environment` 对象的方式读取数据。这种方式 `SpringBoot` 会将配置文件中所有的数据封装到 `Environment` 对象中，如果需要使用哪个数据只需要通过调用 `Environment` 对象的 `getProperty(String name)` 方法获取。
+
+##### 2.2.2.3  自定义对象
+
+`SpringBoot` 还提供了将配置文件中的数据封装到我们自定义的实体类对象中的方式。具体操作如下：
+
+* 将实体类 `bean` 的创建交给 `Spring` 管理。
+
+  在类上添加 `@Component` 注解
+
+* 使用 `@ConfigurationProperties` 注解表示加载配置文件
+
+  在该注解中也可以使用 `prefix` 属性指定只加载指定前缀的数据
+
+* 在 `BookController` 中进行注入
+
+实体类对象如下
+
+```java
+@ConfigurationProperties(prefix = "person")
+@Component
+@Data
+public class Person {
+    private String name;
+    private Integer age;
+    private String gender;
+    private String[] hobbies;
+    private String address;
+}
+```
+
+yaml数据读取代码演示
+
+```java
+@RestController
+@RequestMapping("/books")
+public class BookController {
+    @Value("${person.name}")
+    private String personName;
+
+    @Value("${person.age}")
+    private Integer age;
+
+    @Value("${person.hobbies[0]}")
+    private String firstHobby;
+
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private Person person;
+
+    @GetMapping("/{id}")
+    public String getById(@PathVariable Integer id) {
+        System.out.println("id ==>" + id);
+        System.out.println("----------------------------------------");
+        System.out.println(environment.getProperty("server.port"));
+        System.out.println(environment.getProperty("logging.level.root"));
+        System.out.println(environment.getProperty("person.name"));
+        System.out.println(environment.getProperty("person.age"));
+        System.out.println(environment.getProperty("person.gender"));
+        System.out.println(environment.getProperty("person.hobbies"));
+        System.out.println(environment.getProperty("person.address"));
+        System.out.println(environment.getProperty("person.girlfriend"));
+        System.out.println("----------------------------------------");
+        System.out.println("person = " + person);
+        return "hello, spring boot!1" + personName + " " + age + " " + firstHobby;
+
+    }
+}
+```
+
+### 2.2.3 yaml多环境配置
 
