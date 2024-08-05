@@ -485,15 +485,109 @@ jar包的版本定义中，有两个工程版本用的比较多:
 
 对于这些版本，大家只需要简单认识下即可。
 
-### 6.多环境配置与应用
+## 6.多环境配置与应用
 
-### 5.1 多环境开发
+### 6.1 多环境开发
 
 ![1630983617755](./../img/md-img/2024-08-04-maven/1630983617755.png)
 
 
 
+- maven提供配置多种环境的设定, 帮助开发者使用过程中快速切换环境
 
+比如各种环境的数据库不一致, 需要切换数据库
+
+quickstart
+
+1. 定义多环境
+
+   ```xml
+   <!--配置多环境-->
+   <profiles>
+       <!--开发环境-->
+       <profile>
+           <id>env_dev</id>
+           <properties>
+               <jdbc.url>jdbc:mysql://127.0.0.1:3306/spring_db</jdbc.url>
+           </properties>
+           <!--设置为默认环境-->
+           <activation>
+               <activeByDefault>true</activeByDefault>
+           </activation>
+       </profile>
+       <!--测试环境-->
+       <profile>
+           <id>env_test</id>
+           <properties>
+               <jdbc.url>jdbc:mysql://test/spring_db</jdbc.url>
+           </properties>
+       </profile>
+       <!--生成环境-->
+       <profile>
+           <id>env_prod</id>
+           <properties>
+               <jdbc.url>jdbc:mysql://prod/spring_db</jdbc.url>
+           </properties>
+       </profile>
+   </profiles>
+   ```
+
+2. 使用多环境(构建)
+
+   ```shel
+   mvn 指令 -P 环境id
+   ```
+
+   范例:(指令优先级高于activeByDefault标签定义的默认优先级)
+
+   ```shell
+   mvn install -P env_prod
+   ```
+
+   
+
+6.2跳过测试
+
+- 应用场景
+  - 功能更新中但功能没有开发完毕
+  - 快速打包
+  - ...
+
+**quickstart**
+
+跳过测试指令
+
+- ```shell
+  mvn 指令 -D skipTests		
+  ```
+
+- ```shell
+  mvn package -D skipTests
+  ```
+
+> 执行的命令生命周期包含test配置该功能才有效, compile就没有test阶段
+
+细粒度控制跳过测试
+
+```xml
+<plugins>
+    <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.12.4</version>
+        <configuration>
+            <skipTests>false</skipTests>
+            <!--包含参与测试的内容-->
+            <includes>**/User*Test.java</includes>
+            <!--排除不参与测试的内容-->
+            <excludes>**/BookService*Test.java</excludes>
+        </configuration>
+    </plugin>
+</plugins>
+```
+
+## 7.私服
+
+### 7.1私服简介
 
 
 
