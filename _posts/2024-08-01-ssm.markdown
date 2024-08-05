@@ -3797,3 +3797,42 @@ preHandle：与配置顺序相同，必定运行
 postHandle:与配置顺序相反，可能不运行
 
 afterCompletion:与配置顺序相反，可能不运行。
+
+
+
+## 3.SpringBoot
+
+### 3.1quickstart
+
+1. 创建新模块, 选择Spring Initializer, 并配置模块基础信息, jdk,maven
+
+2. 选择当前模块需要使用的技术集
+
+   勾选Web下面的Spring Web
+
+3. 开发控制器类
+
+   ```java
+   @RestController
+   @RequestMapping("/book")
+   public class BookController {
+       @GetMapping("/{id}")
+       public String getById(@PathVariable Integer id) {
+           System.out.println("id ==>" + id);
+           return "hello, spring boot!";
+       }
+   }
+   ```
+
+4. 运行Application类的main方法
+
+   ```java
+   @SpringBootApplication
+   public class Application {
+       public static void main(String[] args) {
+           SpringApplication.run(Application.class, args);
+       }
+   }
+   ```
+
+   
