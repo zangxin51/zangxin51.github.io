@@ -47,6 +47,74 @@ tags:
 - 声明优先: 当资源在相同层级被依赖时, 配置顺序靠前的覆盖配置顺序靠后的
 - 特殊优先: 当同级资源配置了相同资源的不同版本, 后配置覆盖先配置的(pom.xml中dependency顺序)
 
+==依赖传递==。
+
+​	
+
+![1630853726532](./../img/md-img/2024-08-04-maven/1630853726532.png)
+
+**说明:**A代表自己的项目；B,C,D,E,F,G代表的是项目所依赖的jar包；D1和D2 E1和E2代表是相同jar包的不同版本
+
+(1) A依赖了B和C,B和C有分别依赖了其他jar包，所以在A项目中就可以使用上面所有jar包，这就是所说的依赖传递
+
+(2) 依赖传递有直接依赖和间接依赖
+
+* 相对于A来说，A直接依赖B和C,间接依赖了D1,E1,G，F,D2和E2
+* 相对于B来说，B直接依赖了D1和E1,间接依赖了G
+* 直接依赖和间接依赖是一个相对的概念
+
+(3)因为有依赖传递的存在，就会导致jar包在依赖的过程中出现冲突问题，具体什么是冲突?Maven是如何解决冲突的?
+
+这里所说的==依赖冲突==是指项目依赖的某一个jar包，有多个不同的版本，因而造成类包版本冲突。
+
+情况一: 在`maven_02_ssm`的pom.xml中添加两个不同版本的Junit依赖:
+
+```xml
+<dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+![1630820964663](./../img/md-img/2024-08-04-maven/1630820964663.png)
+
+通过对比，会发现一个结论
+
+* 特殊优先：当同级配置了相同资源的不同版本，后配置的覆盖先配置的。
+
+情况二: 路径优先：当依赖中出现相同的资源时，层级越深，优先级越低，层级越浅，优先级越高
+
+* A通过B间接依赖到E1
+* A通过C间接依赖到E2
+* A就会间接依赖到E1和E2,Maven会按照层级来选择，E1是2度，E2是3度，所以最终会选择E1
+
+情况三: 声明优先：当资源在相同层级被依赖时，配置顺序靠前的覆盖配置顺序靠后的
+
+* A通过B间接依赖到D1
+* A通过C间接依赖到D2
+* D1和D2都是两度，这个时候就不能按照层级来选择，需要按照声明来，谁先声明用谁，也就是说B在C之前声明，这个时候使用的是D1，反之则为D2
+
+但是对应上面这些结果，大家不需要刻意去记它。因为不管Maven怎么选，最终的结果都会在Maven的`Dependencies`面板中展示出来，展示的是哪个版本，也就是说它选择的就是哪个版本，如:
+
+![1630853443920](./../img/md-img/2024-08-04-maven/1630853443920.png)
+
+如果想更全面的查看Maven中各个坐标的依赖关系，可以点击Maven面板中的`show Dependencies`
+
+![1630853519736](./../img/md-img/2024-08-04-maven/1630853519736.png)
+
+在这个视图中就能很明显的展示出jar包之间的相互依赖关系。
+
 ### 3.可选依赖和排除依赖
 
 依赖传递介绍完以后，我们来思考一个问题，
@@ -129,3 +197,151 @@ tags:
 * `A依赖B,B依赖C`,`C`通过依赖传递会被`A`使用到，现在要想办法让`A`不去依赖`C`
 * 可选依赖是在B上设置`<optional>`,`A`不知道有`C`的存在，
 * 排除依赖是在A上设置`<exclusions>`,`A`知道有`C`的存在，主动将其排除掉。
+
+### 4.继承与聚合
+
+### 4.1聚合
+
+聚合: 将多个模块组织成一个整体, 同时进行项目构建的过程称为聚合
+
+聚合工程: 通常是一个不具有业务功能的空工程(仅有一个pom文件, 用来管理子模块的版本号, 每次版本升级都需要更新parent的版本号)
+
+作用: 使用聚合工程可以将多个工程编组, 通过对聚合工程进行构建, 实现对所包含的模块进行通过构建
+
+- 当工程中某个模块发生更新(变更时), 必须保障工程中与已更新模块关联的模块同步更新, 此时可以使用聚合工程来解决批量模块同步构建的问题
+
+聚合工程开发
+
+1. 创建maven工程, 设置打包类型为pom
+
+   ```xml
+   <packaging>pom</packaging>
+   ```
+
+> 每个maven工程都有对应的打包方式, 默认为jar, web工程的打包方式为war包
+
+2.设置当前聚合工程所包含的子模块名称
+
+```xml
+<modules>
+    <module>../../maven_02_ssm/maven_02_ssm</module>
+    <module>../../maven_03_pojo</module>
+    <module>../../maven_04_dao/maven_04_dao</module>
+</modules>
+```
+
+> 聚合工程中所包含的模块在进行构建时会根据模块间的依赖关系设置构建顺序, 与聚合工程中模块的配置书写位置无关, 参与聚合的工程无法向上感知是否参与聚合, 只能向下配置哪些模块参与了本工程的聚合
+
+### 4.2继承
+
+简化配置文件, 抽取共同的配置统一管理, 这个统一的配置就是父工程
+
+概念: 继承描述的两个工程的关系, 与java中的继承相似, 子工程可以继承父工程中的配置信息, 常见于依赖关系的继承
+
+作用:
+
+- 简化配置, 抽取重复的, 统一管理配置版本号
+- 简化版本冲突
+
+### 4.3 继承quickstart
+
+1. 创建maven模块, 设置打包类型为pom
+
+   ```xml
+   <packaging>pom</packaging>
+   ```
+
+2. 在父工程中配置依赖关系(子工程将沿用工程中的依赖关系)
+
+   ```xml
+   <dependencies>
+       <dependency>
+           <groupId>org.springframework</groupId>
+           <artifactId>spring-webmvc</artifactId>
+           <version>5.2.10.RELEASE</version>
+       </dependency>
+       ......
+   <dependencies>
+   ```
+
+3. 配置子工程中可选依赖关系
+
+   ```xml
+   <!--定义可选依赖-->
+   <dependencyManagement>
+       <dependencies>
+           <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <version>4.12</version>
+               <scope>test</scope>
+           </dependency>
+           <dependency>
+               <groupId>org.example</groupId>
+               <artifactId>maven_03_pojo</artifactId>
+               <version>1.0-SNAPSHOT</version>
+           </dependency>
+       </dependencies>
+   </dependencyManagement>
+   ```
+
+4. 在子工程中配置当前工程中所继承的父工程
+
+   ```xml
+   <parent>
+       <groupId>org.example</groupId>
+       <artifactId>maven_01_parent</artifactId>
+       <version>1.0-SNAPSHOT</version>
+       <relativePath>../maven_01_parent/pom.xml</relativePath>
+   </parent>
+   ```
+
+5. 在子工程中配置使用父工程中可选依赖的坐标
+
+   ```xml
+   <dependencies>
+       <dependency>
+           <groupId>org.example</groupId>
+           <artifactId>maven_03_pojo</artifactId>
+       </dependency>
+   </dependencies>
+   ```
+
+   > 不用配置版本号
+
+### 4.4聚合和继承的区别
+
+- 作用
+  - 聚合用于快速构建项目
+  - 继承用于快速配置
+- 相同点
+  - 聚合与继承的pom.xml文件打包方式均为pom, 可以将两种关系制作到同一个pom中
+  - 聚合与继承均属于设计型模块, 并无实际的模块内容
+- 不同点
+  - 聚合是在当前模块中配置关系, 聚合可以感知到参与的模块有哪些
+  - 继承是在子模块中配置关系, 父模块无法感知哪些子模块继承了自己
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
