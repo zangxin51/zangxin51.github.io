@@ -5415,3 +5415,523 @@ class Mybatisplus02DqlApplicationTests {
 除了上面介绍的这几种查询条件构建方法以外还会有很多其他的方法，比如isNull,isNotNull,in,notIn等等方法可供选择，具体参考官方文档的条件构造器来学习使用，具体的网址为:
 
 `https://mp.baomidou.com/guide/wrapper.html#abstractwrapper`
+
+### 4.3.5映射匹配兼容性
+
+前面我们已经能从表中查询出数据，并将数据封装到模型类中，这整个过程涉及到一张表和一个模型类:
+
+![1631030296965](./../img/md-img/2024-08-01-ssm/1631030296965.png)
+
+之所以数据能够成功的从表中获取并封装到模型对象中，原因是表的字段列名和模型类的属性名一样。
+
+那么问题就来了:
+
+#### 问题1:表字段与编码属性设计不同步
+
+当表的列名和模型类的属性名发生不一致，就会导致数据封装不到模型对象，这个时候就需要其中一方做出修改，那如果前提是两边都不能改又该如何解决?
+
+MP给我们提供了一个注解`@TableField`,使用该注解可以实现模型类属性名和表的列名之间的映射关系
+
+![1631030550100](./../img/md-img/2024-08-01-ssm/1631030550100.png)
+
+#### 问题2:编码中添加了数据库中未定义的属性
+
+当模型类中多了一个数据库表不存在的字段，就会导致生成的sql语句中在select的时候查询了数据库不存在的字段，程序运行就会报错，错误信息为:
+
+==Unknown column '多出来的字段名称' in 'field list'==
+
+具体的解决方案用到的还是`@TableField`注解，它有一个属性叫`exist`，设置该字段是否在数据库表中存在，如果设置为false则不存在，生成sql语句查询的时候，就不会再查询该字段了。
+
+![1631031054206](./../img/md-img/2024-08-01-ssm/1631031054206.png)
+
+#### 问题3：采用默认查询开放了更多的字段查看权限
+
+查询表中所有的列的数据，就可能把一些敏感数据查询到返回给前端，这个时候我们就需要限制哪些字段默认不要进行查询。解决方案是`@TableField`注解的一个属性叫`select`，该属性设置默认是否需要查询该字段的值，true(默认值)表示默认查询该字段，false表示默认不查询该字段。
+
+![1631031270558](./../img/md-img/2024-08-01-ssm/1631031270558.png)
+
+#### 知识点1：@TableField
+
+| 名称     | @TableField                                                  |
+| -------- | ------------------------------------------------------------ |
+| 类型     | ==属性注解==                                                 |
+| 位置     | 模型类属性定义上方                                           |
+| 作用     | 设置当前属性对应的数据库表中的字段关系                       |
+| 相关属性 | value(默认)：设置数据库表字段名称<br/>exist:设置属性在数据库表字段中是否存在，默认为true，此属性不能与value合并使用<br/>select:设置属性是否参与查询，此属性与select()映射配置不冲突 |
+
+#### 问题4:表名与编码开发设计不同步
+
+该问题主要是表的名称和模型类的名称不一致，导致查询失败，这个时候通常会报如下错误信息:
+
+==Table 'databaseName.tableNaem' doesn't exist==,翻译过来就是数据库中的表不存在。
+
+![1631031828378](./../img/md-img/2024-08-01-ssm/1631031828378.png)
+
+解决方案是使用MP提供的另外一个注解`@TableName`来设置表与模型类之间的对应关系。
+
+![1631031915632](./../img/md-img/2024-08-01-ssm/1631031915632.png)
+
+#### 知识点2：@TableName
+
+| 名称     | @TableName                    |
+| -------- | ----------------------------- |
+| 类型     | ==类注解==                    |
+| 位置     | 模型类定义上方                |
+| 作用     | 设置当前类对应于数据库表关系  |
+| 相关属性 | value(默认)：设置数据库表名称 |
+
+#### 代码演示
+
+接下来我们使用案例的方式把刚才的知识演示下:
+
+##### 步骤1:修改数据库表user为tbl_user
+
+直接查询会报错，原因是MP默认情况下会使用模型类的类名首字母小写当表名使用。
+
+![1631032123894](./../img/md-img/2024-08-01-ssm/1631032123894.png)
+
+##### 步骤2:模型类添加@TableName注解
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    private Long id;
+    private String name;
+    private String password;
+    private Integer age;
+    private String tel;
+}
+```
+
+##### 步骤3:将字段password修改成pwd
+
+直接查询会报错，原因是MP默认情况下会使用模型类的属性名当做表的列名使用
+
+![1631032283147](./../img/md-img/2024-08-01-ssm/1631032283147.png)
+
+##### 步骤4：使用@TableField映射关系
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    private Long id;
+    private String name;
+    @TableField(value="pwd")
+    private String password;
+    private Integer age;
+    private String tel;
+}
+```
+
+##### 步骤5:添加一个数据库表不存在的字段
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    private Long id;
+    private String name;
+    @TableField(value="pwd")
+    private String password;
+    private Integer age;
+    private String tel;
+    private Integer online;
+}
+```
+
+直接查询会报错，原因是MP默认情况下会查询模型类的所有属性对应的数据库表的列，而online不存在
+
+![1631032450558](./../img/md-img/2024-08-01-ssm/1631032450558.png)
+
+##### 步骤6：使用@TableField排除字段
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    private Long id;
+    private String name;
+    @TableField(value="pwd")
+    private String password;
+    private Integer age;
+    private String tel;
+    @TableField(exist=false)
+    private Integer online;
+}
+```
+
+##### 步骤7:查询时将pwd隐藏
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    private Long id;
+    private String name;
+    @TableField(value="pwd",select=false)
+    private String password;
+    private Integer age;
+    private String tel;
+    @TableField(exist=false)
+    private Integer online;
+}
+```
+
+### 4.4DML控制编程
+
+#### 4.4.1 id生成策略
+
+#### 知识点1：@TableId
+
+| 名称     | @TableId                                                     |
+| -------- | ------------------------------------------------------------ |
+| 类型     | ==属性注解==                                                 |
+| 位置     | 模型类中用于表示主键的属性定义上方                           |
+| 作用     | 设置当前类中主键属性的生成策略                               |
+| 相关属性 | value(默认)：设置数据库表主键名称<br/>type:设置主键属性的生成策略，值查照IdType的枚举值 |
+
+#### 4.1.2 代码演示
+
+##### AUTO策略
+
+###### 步骤1:设置生成策略为AUTO
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    private String name;
+    @TableField(value="pwd",select=false)
+    private String password;
+    private Integer age;
+    private String tel;
+    @TableField(exist=false)
+    private Integer online;
+}
+```
+
+###### 步骤2:删除测试数据并修改自增值
+
+* 删除测试数据
+
+  ![1631211291677](./../img/md-img/2024-08-01-ssm/1631211291677.png)
+
+* 因为之前生成主键ID的值比较长，会把MySQL的自动增长的值变的很大，所以需要将其调整为目前最新的id值。
+
+![1631211080703](./../img/md-img/2024-08-01-ssm/1631211080703.png)
+
+###### 步骤3:运行新增方法  
+
+会发现，新增成功，并且主键id也是从5开始
+
+![1631211383421](./../img/md-img/2024-08-01-ssm/1631211383421.png)
+
+经过这三步的演示，会发现`AUTO`的作用是==使用数据库ID自增==，在使用该策略的时候一定要确保对应的数据库表设置了ID主键自增，否则无效。
+
+接下来，我们可以进入源码查看下ID的生成策略有哪些?
+
+打开源码后，你会发现并没有看到中文注释，这就需要我们点击右上角的`Download Sources`,会自动帮你把这个类的java文件下载下来，我们就能看到具体的注释内容。因为这个技术是国人制作的，所以他代码中的注释还是比较容易看懂的。
+
+<img src="./../img/md-img/image-20240806172114801.png" alt="image-20240806172114801" style="zoom:80%;" align="left"/>
+
+
+
+从源码中可以看到，除了AUTO这个策略以外，还有如下几种生成策略:
+
+* NONE: 不设置id生成策略
+* INPUT:用户手工输入id
+* ASSIGN_ID:雪花算法生成id(可兼容数值型与字符串型)
+* ASSIGN_UUID:以UUID生成算法作为id生成策略
+* 其他的几个策略均已过时，都将被ASSIGN_ID和ASSIGN_UUID代替掉。
+
+**拓展:**
+
+分布式ID是什么?
+
+* 当数据量足够大的时候，一台数据库服务器存储不下，这个时候就需要多台数据库服务器进行存储
+* 比如订单表就有可能被存储在不同的服务器上
+* 如果用数据库表的自增主键，因为在两台服务器上所以会出现冲突
+* 这个时候就需要一个全局唯一ID,这个ID就是分布式ID。
+
+##### INPUT策略
+
+###### 步骤1:设置生成策略为INPUT
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    @TableId(type = IdType.INPUT)
+    private Long id;
+    private String name;
+    @TableField(value="pwd",select=false)
+    private String password;
+    private Integer age;
+    private String tel;
+    @TableField(exist=false)
+    private Integer online;
+}
+```
+
+**注意:**这种ID生成策略，需要将表的自增策略删除掉
+
+![1631212246124](./../img/md-img/2024-08-01-ssm/1631212246124.png)
+
+###### 步骤2:添加数据手动设置ID
+
+```java
+@SpringBootTest
+class Mybatisplus03DqlApplicationTests {
+
+    @Autowired
+    private UserDao userDao;
+	
+    @Test
+    void testSave(){
+        User user = new User();
+        //设置主键ID的值
+        user.setId(666L);
+        user.setName("黑马程序员");
+        user.setPassword("itheima");
+        user.setAge(12);
+        user.setTel("4006184000");
+        userDao.insert(user);
+    }
+}
+```
+
+###### 步骤3:运行新增方法
+
+如果没有设置主键ID的值，则会报错，错误提示就是主键ID没有给值:
+
+![1631212469974](./../img/md-img/2024-08-01-ssm/1631212469974.png)
+
+如果设置了主键ID,则数据添加成功，如下:
+
+![1631212421137](./../img/md-img/2024-08-01-ssm/1631212421137.png)
+
+##### ASSIGN_ID策略
+
+###### 步骤1:设置生成策略为ASSIGN_ID
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    @TableId(type = IdType.ASSIGN_ID)
+    private Long id;
+    private String name;
+    @TableField(value="pwd",select=false)
+    private String password;
+    private Integer age;
+    private String tel;
+    @TableField(exist=false)
+    private Integer online;
+}
+```
+
+###### 步骤2:添加数据不设置ID
+
+```java
+@Test
+void testInsert() {
+    User user = new User(null, "hyy", "123", 23, "2324324234", 1);
+    int rows = userDao.insert(user);
+    Assertions.assertTrue(rows > 0);
+}
+```
+
+**注意:**这种生成策略，不需要手动设置ID，如果手动设置ID，则会使用自己设置的值。
+
+###### 步骤3:运行新增方法  
+
+![1631242753467](./../img/md-img/2024-08-01-ssm/1631242753467.png)
+
+生成的ID就是一个Long类型的数据。
+
+##### ASSIGN_UUID策略
+
+###### 步骤1:设置生成策略为ASSIGN_UUID
+
+使用uuid需要注意的是，主键的类型不能是Long，而应该改成String类型
+
+```java
+@Data
+@TableName("tbl_user")
+public class User {
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
+    private String name;
+    @TableField(value="pwd",select=false)
+    private String password;
+    private Integer age;
+    private String tel;
+    @TableField(exist=false)
+    private Integer online;
+}
+```
+
+###### 步骤2:修改表的主键类型
+
+![1631243694870](./../img/md-img/2024-08-01-ssm/1631243694870.png)
+
+主键类型设置为varchar，长度要大于32，因为UUID生成的主键为32位，如果长度小的话就会导致插入失败。
+
+###### 步骤3:添加数据不设置ID
+
+```java
+@SpringBootTest
+class Mybatisplus03DqlApplicationTests {
+
+    @Autowired
+    private UserDao userDao;
+	
+    @Test
+    void testSave(){
+        User user = new User();
+        user.setName("黑马程序员");
+        user.setPassword("itheima");
+        user.setAge(12);
+        user.setTel("4006184000");
+        userDao.insert(user);
+    }
+}
+```
+
+###### 步骤4:运行新增方法
+
+![1631243810974](./../img/md-img/2024-08-01-ssm/1631243810974.png)
+
+
+
+接下来我们来聊一聊雪花算法:
+
+雪花算法(SnowFlake),是Twitter官方给出的算法实现 是用Scala写的。其生成的结果是一个64bit大小整数，它的结构如下图:
+
+![1631243987800](./../img/md-img/2024-08-01-ssm/1631243987800.png)
+
+1. 1bit,不用,因为二进制中最高位是符号位，1表示负数，0表示正数。生成的id一般都是用整数，所以最高位固定为0。
+2. 41bit-时间戳，用来记录时间戳，毫秒级
+3. 10bit-工作机器id，用来记录工作机器id,其中高位5bit是数据中心ID其取值范围0-31，低位5bit是工作节点ID其取值范围0-31，两个组合起来最多可以容纳1024个节点
+4. 序列号占用12bit，每个节点每毫秒0开始不断累加，最多可以累加到4095，一共可以产生4096个ID
+
+#### 4.4.3 ID生成策略对比
+
+介绍了这些主键ID的生成策略，我们以后该用哪个呢?
+
+* NONE: 不设置id生成策略，MP不自动生成，约等于INPUT,所以这两种方式都需要用户手动设置，但是手动设置第一个问题是容易出现相同的ID造成主键冲突，为了保证主键不冲突就需要做很多判定，实现起来比较复杂
+* AUTO:数据库ID自增,这种策略适合在数据库服务器只有1台的情况下使用,不可作为分布式ID使用
+* ASSIGN_UUID:可以在分布式的情况下使用，而且能够保证唯一，但是生成的主键是32位的字符串，长度过长占用空间而且还不能排序，查询性能也慢
+* ASSIGN_ID:可以在分布式的情况下使用，生成的是Long类型的数字，可以排序性能也高，但是生成的策略和服务器时间有关，如果修改了系统时间就有可能导致出现重复主键
+* 综上所述，每一种主键策略都有自己的优缺点，根据自己项目业务的实际情况来选择使用才是最明智的选择。
+
+#### 4.4.4 简化配置
+
+前面我们已经完成了表关系映射、数据库主键策略的设置，接下来对于这两个内容的使用，我们再讲下他们的简化配置:
+
+##### 模型类主键策略设置
+
+对于主键ID的策略已经介绍完，但是如果要在项目中的每一个模型类上都需要使用相同的生成策略，如:![1631245676125](./../img/md-img/2024-08-01-ssm/1631245676125.png)
+
+确实是稍微有点繁琐，我们能不能在某一处进行配置，就能让所有的模型类都可以使用该主键ID策略呢?
+
+答案是肯定有，我们只需要在配置文件中添加如下内容:
+
+```yml
+mybatis-plus:
+  global-config:
+    db-config:
+    	id-type: assign_id
+```
+
+配置完成后，每个模型类的主键ID策略都将成为assign_id.
+
+##### 数据库表与模型类的映射关系
+
+MP会默认将模型类的类名名首字母小写作为表名使用，假如数据库表的名称都以`tbl_`开头，那么我们就需要将所有的模型类上添加`@TableName`，如:
+
+![1631245757169](./../img/md-img/2024-08-01-ssm/1631245757169.png)
+
+配置起来还是比较繁琐，简化方式为在配置文件中配置如下内容:
+
+```yml
+mybatis-plus:
+  global-config:
+    db-config:
+    	table-prefix: tbl_
+```
+
+设置表的前缀内容，这样MP就会拿 `tbl_`加上模型类的首字母小写，就刚好组装成数据库的表名。
+
+#### 4.4.5 批量Batch操作
+
+先来看下问题:
+
+![1631246166514](./../img/md-img/2024-08-01-ssm/1631246166514.png)
+
+之前添加了很多商品到购物车，过了几天发现这些东西又不想要了，该怎么办呢?
+
+很简单删除掉，但是一个个删除的话还是比较慢和费事的，所以一般会给用户一个批量操作，也就是前面有一个复选框，用户一次可以勾选多个也可以进行全选，然后删一次就可以将购物车清空，这个就需要用到`批量删除`的操作了。
+
+具体该如何实现多条删除，我们找找对应的API方法
+
+```java
+/**
+ * 删除（根据ID或实体 批量删除）
+ *
+ * @param idList 主键ID列表或实体列表(不能为 null 以及 empty)
+ * @since 3.5.7
+ */
+default int deleteByIds(@Param(Constants.COLL) Collection<?> idList) {
+    return deleteByIds(idList, true);
+}
+```
+
+翻译方法的字面意思为:删除（根据ID 批量删除）,参数是一个集合，可以存放多个id值。
+
+> 需求:根据传入的id集合将数据库表中的数据删除掉。
+
+```java
+@Test
+void testBatchDel() {
+    List<Long> ids = 		       List.of(1820750681303367681L,1820753108895211521L,1820752458442514433L);
+    int rows = userDao.deleteByIds(ids);
+    Assertions.assertEquals(3,rows);
+}
+```
+
+执行成功后，数据库表中的数据就会按照指定的id进行删除。
+
+除了按照id集合进行批量删除，也可以按照id集合进行批量查询，还是先来看下API
+
+```java
+/**
+ * 查询（根据ID 批量查询）
+ *
+ * @param idList 主键ID列表(不能为 null 以及 empty)
+ */
+List<T> selectBatchIds(@Param(Constants.COLL) Collection<? extends Serializable> idList);
+```
+
+方法名称翻译为:查询（根据ID 批量查询），参数是一个集合，可以存放多个id值。
+
+> 需求：根据传入的ID集合查询用户信息
+
+```java
+    @Test
+    void testBatchSelect() {
+        List<User> users = userDao.selectBatchIds(List.of(1, 2, 3));
+        Assertions.assertEquals(3,users.size());
+    }
+
+```
+
+查询结果就会按照指定传入的id值进行查询
+
+<img src="./../img/md-img/2024-08-01-ssm/image-20240806173701220.png" alt="image-20240806173701220" style="zoom:80%;" />
+
+#### 4.4.6 逻辑删除
