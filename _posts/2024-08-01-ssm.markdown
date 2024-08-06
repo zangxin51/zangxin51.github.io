@@ -4788,7 +4788,7 @@ spring:
 
 MybatisPlus (简称MP) 是基于MybatisPlus基础框架上开发的增强型工具, 简化开发, 提高效率
 
-### 1.quickstart
+### 4.1.quickstart
 
 - SpringBoot整合Mybatis开发过程(概要)
   - 创建Spring工程
@@ -4800,7 +4800,7 @@ MybatisPlus (简称MP) 是基于MybatisPlus基础框架上开发的增强型工�
 
 
 
-#### 1.1添加MybatisPlus依赖(重要)
+#### 4.1.1添加MybatisPlus依赖(重要)
 
 注意SpringBoot3需要的mybatis-spring的版本也要大于3, 否则启动不了
 
@@ -4823,7 +4823,7 @@ MybatisPlus (简称MP) 是基于MybatisPlus基础框架上开发的增强型工�
 </dependency>
 ```
 
-#### 1.2准备数据
+#### 4.1.2准备数据
 
 sql
 
@@ -4854,7 +4854,7 @@ public class User {
 }
 ```
 
-#### 1.3 dao层(核心: 继承BaseMapper接口)
+#### 4.1.3 dao层(核心: 继承BaseMapper接口)
 
 ```java
 @Mapper
@@ -4862,7 +4862,14 @@ public interface UserDao extends BaseMapper<User> {
 }
 ```
 
-#### 1.4配置数据源
+> **说明:**Dao接口要想被容器扫描到，有两种解决方案:
+>
+> * 方案一:在Dao接口上添加`@Mapper`注解，并且确保Dao处在引导类所在包或其子包中
+>   * 该方案的缺点是需要在每一Dao接口中添加注解
+> * 方案二:在引导类上添加`@MapperScan`注解，其属性为所要扫描的Dao所在包
+>   * 该方案的好处是只需要写一次，则指定包下的所有Dao接口都能被扫描到，`@Mapper`就可以不写。
+
+#### 4.1.4配置数据源
 
 ```yaml
 spring:
@@ -4873,7 +4880,7 @@ spring:
     password: root
 ```
 
-#### 1.5测试
+#### 4.1.5测试
 
 ```java
 @SpringBootTest
@@ -4888,5 +4895,299 @@ class UserDaoTest {
 }
 ```
 
+### 4.2 Mybatis简介
 
+![Relationship Between MyBatis and MyBatis-Plus](./../img/md-img/2024-08-01-ssm/relationship-with-mybatis.png)
 
+MP的特性:
+
+- 无侵入：只做增强不做改变，不会对现有工程产生影响
+- 强大的 CRUD 操作：内置通用 Mapper，少量配置即可实现单表CRUD 操作
+- 支持 Lambda：编写查询条件无需担心字段写错
+- 支持主键自动生成
+- 内置分页插件
+- ……
+
+### 4.3标准数据层开发
+
+![1631012722948](./../img/md-img/2024-08-01-ssm/1631012722948.png)
+
+#### 4.3.1基本crud
+
+```java
+@SpringBootTest
+class UserDaoTest {
+    @Autowired
+    private UserDao userDao;
+
+    @Test
+    void testSave() {
+        User user = new User(null,"hyy","123hyy",25,"312321323");
+        int insert = userDao.insert(user);
+        Assertions.assertEquals(1,insert);
+    }
+
+    @Test
+    void testDel() {
+        int rows = userDao.deleteById(1820685750235181058L);
+        Assertions.assertEquals(1,rows);
+    }
+
+    @Test
+    void testUpdate() {
+        User user = new User(1L, "zhangsan333", "1234", null, null);
+        int rows = userDao.updateById(user);
+        Assertions.assertEquals(1,rows);
+    }
+
+    @Test
+    void testGetById() {
+        User user = userDao.selectById(1L);
+        Assertions.assertNotNull(user);
+        Assertions.assertNotNull(user.getName());
+    }
+
+    @Test
+    void testGetAll() {
+        List<User> users = userDao.selectList(null);
+        System.out.println(users);
+    }
+}
+```
+
+#### 4.3.2分页
+
+1.添加MP分页拦截器
+
+```java
+@SpringBootConfiguration
+public class MpConfig {
+    @Bean
+    public MybatisPlusInterceptor mpInterceptor() {
+        // 1.定义MP拦截器
+        MybatisPlusInterceptor mpInterceptor = new MybatisPlusInterceptor();
+        // 2.添加分页拦截器
+        mpInterceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+        return mpInterceptor;
+    }
+}
+```
+
+2.测试
+
+```java
+@Test
+void testGetByPage() {
+    // 开启分页拦截器
+    IPage page = new Page(2, 3);
+    userDao.selectPage(page, null);
+    System.out.println("pageNum=" + page.getCurrent());
+    System.out.println("pageSize=" + page.getSize());
+    System.out.println("totalRows=" + page.getTotal());
+    System.out.println("totalPages=" + page.getPages());
+    System.out.println("数据=" + page.getRecords());
+}
+```
+
+3.开启MP日志, 查看SQL
+
+```yaml
+# 开启mp日志
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+```
+
+#### 4.3.3.条件查询
+
+##### 4.3.3.1  LambdaQueryWrapper表达查询
+
+```java
+@Test
+void testGetAllByLambda() {
+    // 方式二 lambda格式查询
+//        QueryWrapper<User> lqw = new QueryWrapper<>();
+//        lqw.lambda().lt(User::getAge, 25);
+    // 方式三
+    LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<>();
+    lqw.lt(User::getAge, 40)
+            .gt(User::getAge,22)
+            .eq(User::getPassword,"123hyy");
+    List<User> users = userDao.selectList(lqw);
+    Assertions.assertTrue(users != null && !users.isEmpty());
+}
+
+@Test
+void testGetAll() {
+    // 方式一按条件查询
+    QueryWrapper<User> qw = new QueryWrapper<>();
+    qw.le("age", 30);
+    List<User> users = userDao.selectList(qw);
+    Assertions.assertTrue(users != null && !users.isEmpty());
+}
+
+```
+
+* 测试的时候，控制台打印的日志比较多，速度有点慢而且不利于查看运行结果，所以接下来我们把这个日志处理下:
+
+  * 取消初始化spring日志打印，resources目录下添加logback.xml，名称固定，内容如下:
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+    </configuration>
+    ```
+
+    **说明:**logback.xml的配置内容，不是我们学习的重点，如果有兴趣可以自行百度查询。
+
+  * 取消MybatisPlus启动banner图标
+
+    
+
+    application.yml添加如下内容:
+
+    ```yml
+    # mybatis-plus日志控制台输出
+    mybatis-plus:
+      configuration:
+        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+      global-config:
+        banner: off # 关闭mybatisplus启动图标
+    ```
+
+  * 取消SpringBoot的log打印
+
+    application.yml添加如下内容:
+
+    ```yml
+    spring:
+      main:
+        banner-mode: off # 关闭SpringBoot启动图标(banner)
+    ```
+
+解决控制台打印日志过多的相关操作可以不用去做，一般会被用来方便我们查看程序运行的结果。
+
+##### 4.3.3.2 条件查询null值判断
+
+先来看一张图，
+
+![1631023641992](./../img/md-img/2024-08-01-ssm/1631023641992.png)
+
+* 我们在做条件查询的时候，一般会有很多条件可以供用户进行选择查询。
+* 这些条件用户可以选择使用也可以选择不使用，比如我要查询价格在8000以上的手机
+* 在输入条件的时候，价格有一个区间范围，按照需求只需要在第一个价格输入框中输入8000
+* 后台在做价格查询的时候，一般会让 price>值1 and price <值2
+* 因为前端没有输入值2，所以如果不处理的话，就会出现 price>8000 and price < null问题
+* 这个时候查询的结果就会出问题，具体该如何解决?
+
+![1631024145264](./../img/md-img/2024-08-01-ssm/1631024145264.png)
+
+> 需求:查询数据库表中，根据输入年龄范围来查询符合条件的记录
+>
+> 用户在输入值的时候，
+>
+> ​	如果只输入第一个框，说明要查询大于该年龄的用户
+>
+> ​	如果只输入第二个框，说明要查询小于该年龄的用户
+>
+> ​    如果两个框都输入了，说明要查询年龄在两个范围之间的用户
+
+思考第一个问题：后台如果想接收前端的两个数据，该如何接收?
+
+我们可以使用两个简单数据类型，也可以使用一个模型类，但是User类中目前只有一个age属性,如:
+
+```java
+@Data
+public class User {
+    private Long id;
+    private String name;
+    private String password;
+    private Integer age;
+    private String tel;
+}
+```
+
+使用一个age属性，如何去接收页面上的两个值呢?这个时候我们有两个解决方案
+
+方案一:添加属性age2,这种做法可以但是会影响到原模型类的属性内容
+
+```java
+@Data
+public class User {
+    private Long id;
+    private String name;
+    private String password;
+    private Integer age;
+    private String tel;
+    private Integer age2;
+}
+```
+
+方案二:新建一个模型类,让其继承User类，并在其中添加age2属性，UserQuery在拥有User属性后同时添加了age2属性。
+
+```java
+@Data
+public class User {
+    private Long id;
+    private String name;
+    private String password;
+    private Integer age;
+    private String tel;
+}
+
+@Data
+public class UserQuery extends User {
+    private Integer age2;
+}
+```
+
+环境准备好后，我们来实现下刚才的需求：
+
+```java
+@SpringBootTest
+class Mybatisplus02DqlApplicationTests {
+
+    @Autowired
+    private UserDao userDao;
+    
+    @Test
+    void testGetAll(){
+        //模拟页面传递过来的查询数据
+        UserQuery uq = new UserQuery();
+        uq.setAge(10);
+        uq.setAge2(30);
+        LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<User>();
+        if(null != uq.getAge2()){
+            lqw.lt(User::getAge, uq.getAge2());
+        }
+        if( null != uq.getAge()) {
+            lqw.gt(User::getAge, uq.getAge());
+        }
+        List<User> userList = userDao.selectList(lqw);
+        System.out.println(userList);
+    }
+}
+```
+
+上面的写法可以完成条件为非空的判断，但是问题很明显，如果条件多的话，每个条件都需要判断，代码量就比较大，来看MP给我们提供的简化方式：
+
+```java
+@Test
+void testNullValueQuery() {
+    UserQuery uq = new UserQuery();
+    uq.setAge(30);
+    uq.setAgeUpper(null);
+    // null判断
+    LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<>();
+    lqw.ge(null != uq.getAge(), User::getAge, uq.getAge())
+            .le(null != uq.getAgeUpper(), User::getAge, uq.getAgeUpper());
+    List<User> users = userDao.selectList(lqw);
+    System.out.println("users = " + users);
+}
+```
+
+lt()方法
+
+![1631025068317](./../img/md-img/2024-08-01-ssm/1631025068317.png)
+
+condition为boolean类型，返回true，则添加条件，返回false则不添加条件
