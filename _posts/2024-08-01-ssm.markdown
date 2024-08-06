@@ -6270,3 +6270,287 @@ class Mybatisplus03DqlApplicationTests {
 
 ![1631253387845](./../img/md-img/2024-08-01-ssm/1631253387845.png)
 
+## 5，快速开发
+
+### 5.1 代码生成器原理分析
+
+造句:![1631253928893](./../img/md-img/2024-08-01-ssm/1631253928893.png)
+
+我们可以往空白内容进行填词造句，比如:![1631253971409](./../img/md-img/2024-08-01-ssm/1631253971409.png)
+
+在比如:![1631253994782](./../img/md-img/2024-08-01-ssm/1631253994782.png)
+
+观察我们之前写的代码，会发现其中也会有很多重复内容，比如:
+
+![1631254075651](./../img/md-img/2024-08-01-ssm/1631254075651.png)
+
+那我们就想，如果我想做一个Book模块的开发，是不是只需要将红色部分的内容全部更换成`Book`即可，如：
+
+![1631254119948](./../img/md-img/2024-08-01-ssm/1631254119948.png)
+
+所以我们会发现，做任何模块的开发，对于这段代码，基本上都是对红色部分的调整，所以我们把去掉红色内容的东西称之为==模板==，红色部分称之为==参数==，以后只需要传入不同的参数，就可以根据模板创建出不同模块的dao代码。
+
+除了Dao可以抽取模块，其实我们常见的类都可以进行抽取，只要他们有公共部分即可。再来看下模型类的模板：
+
+![1631254344180](./../img/md-img/2024-08-01-ssm/1631254344180.png)
+
+* ① 可以根据数据库表的表名来填充
+* ② 可以根据用户的配置来生成ID生成策略
+* ③到⑨可以根据数据库表字段名称来填充
+
+所以只要我们知道是对哪张表进行代码生成，这些内容我们都可以进行填充。
+
+分析完后，我们会发现，要想完成代码自动生成，我们需要有以下内容:
+
+* 模板: MyBatisPlus提供，可以自己提供，但是麻烦，不建议
+* 数据库相关配置:读取数据库获取表和字段信息
+* 开发者自定义配置:手工配置，比如ID生成策略
+
+### 5.2 代码生成器实现
+
+#### 步骤1:创建一个Maven项目
+
+#### 代码2:导入对应的jar包
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.2</version>
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>mybatisplus_03_generator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencies>
+        <!--spring web-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter-test</artifactId>
+            <version>3.5.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis-spring</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--mybatis plus-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <!--mysql-->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!--test-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <!--代码生成器的两个依赖,mybatis-plus-generator和velocity模板
+		这两个依赖生成完毕后注释掉, 免得测试时启动不了 
+-->
+<!--        <dependency>-->
+<!--            <groupId>com.baomidou</groupId>-->
+<!--            <artifactId>mybatis-plus-generator</artifactId>-->
+<!--            <version>3.4.1</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.velocity</groupId>-->
+<!--            <artifactId>velocity-engine-core</artifactId>-->
+<!--            <version>2.3</version>-->
+<!--        </dependency>-->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+
+```
+
+#### 步骤3:编写引导类
+
+```java
+@SpringBootApplication
+public class Mybatisplus04GeneratorApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(Mybatisplus04GeneratorApplication.class, args);
+    }
+}
+```
+
+#### 步骤4:创建代码生成类
+
+```java
+public class Generator {
+    public static void main(String[] args) {
+        AutoGenerator autoGenerator = new AutoGenerator();
+        // 设置数据源
+        DataSourceConfig datasource = new DataSourceConfig();
+        datasource.setDriverName("com.mysql.cj.jdbc.Driver");
+        datasource.setUrl("jdbc:mysql://localhost:3306/spring_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false");
+        datasource.setUsername("root");
+        datasource.setPassword("root");
+        autoGenerator.setDataSource(datasource);
+
+        // 设置包名相关配置
+        PackageConfig packageConfig = new PackageConfig();
+        // 设置生成的包名
+        packageConfig.setParent("com.example");
+        // 设置生成的实体类包名
+        packageConfig.setEntity("domain");
+        // 设置生成的数据层包名
+        packageConfig.setMapper("dao");
+        // --加入配置
+        autoGenerator.setPackageInfo(packageConfig);
+
+        // 设置全局配置
+        GlobalConfig globalConfig = new GlobalConfig();
+        // 设置代码生成位置
+        globalConfig.setOutputDir("C:\\Users\\32929\\Desktop\\cai\\backend\\ssm\\code\\mybatisplus_03_generator\\src\\main\\java");
+               // globalConfig.setOutputDir(System.getProperty("user.dir")+"/mybatisplus_04_generator/src/main/java");    //设置代码生成位置
+        // 生成完毕是否打开资源管理器
+        globalConfig.setOpen(false);
+        // 生成作者
+        globalConfig.setAuthor("zangxin");
+        // 是否覆盖原始生成的文件
+        globalConfig.setFileOverride(true);
+        // 设置数据层接口名, %s为占位符,指代模块名称
+        globalConfig.setMapperName("%sDao");
+        // 设置Id生成策略
+        globalConfig.setIdType(IdType.ASSIGN_ID);
+        // -加入配置
+        autoGenerator.setGlobalConfig(globalConfig);
+
+        // 策略配置
+        StrategyConfig strategyConfig = new StrategyConfig();
+        // 生成那张表, 不设置默认生成全部
+        strategyConfig.setInclude("tbl_user");
+        // 设置数据库的表名称前缀, 生成时不包含这个tbl_ -->Tbl_User
+        strategyConfig.setTablePrefix("tbl_");
+        // 是否启用RESTful风格
+        strategyConfig.setRestControllerStyle(true);
+        // 设置乐观锁字段
+        strategyConfig.setVersionFieldName("version");
+        // 设置逻辑删除字段
+        strategyConfig.setLogicDeleteFieldName("deleted");
+        // 设置是否启用lombok
+        strategyConfig.setEntityLombokModel(true);
+        // -加入配置
+        autoGenerator.setStrategy(strategyConfig);
+        // -*-执行
+        autoGenerator.execute();
+    }
+}
+
+```
+
+对于代码生成器中的代码内容，我们可以直接从官方文档中获取代码进行修改，
+
+`https://mp.baomidou.com/guide/generator.html`
+
+#### 步骤5:运行程序
+
+运行成功后，会在当前项目中生成很多代码，代码包含`controller`,`service`，`mapper`和`entity`
+
+![1631255110375](./../img/md-img/2024-08-01-ssm/1631255110375.png)
+
+至此代码生成器就已经完成工作，我们能快速根据数据库表来创建对应的类，简化我们的代码开发。
+
+### 5.3 MP中Service的CRUD
+
+回顾我们之前业务层代码的编写，编写接口和对应的实现类:
+
+```java
+public interface UserService{}
+
+@Service
+public class UserServiceImpl implements UserService{}
+```
+
+接口和实现类有了以后，需要在接口和实现类中声明方法
+
+```java
+public interface UserService{
+	public List<User> findAll();
+}
+
+@Service
+public class UserServiceImpl implements UserService{
+    @Autowired
+    private UserDao userDao;
+    
+	public List<User> findAll(){
+        return userDao.selectList(null);
+    }
+}
+```
+
+MP看到上面的代码以后就说这些方法也是比较固定和通用的，那我来帮你抽取下，所以MP提供了一个Service接口和实现类，分别是:`IService`和`ServiceImpl`,后者是对前者的一个具体实现。
+
+以后我们自己写的Service就可以进行如下修改:
+
+```java
+public interface UserService extends IService<User>{}
+
+@Service
+public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService{}
+```
+
+修改以后的好处是，MP已经帮我们把业务层的一些基础的增删改查都已经实现了，可以直接进行使用。
+
+编写测试类进行测试:
+
+```java
+@SpringBootTest
+class Mybatisplus04GeneratorApplicationTests {
+    private IUserService userService;
+    @Test
+    void testFindAll() {
+        List<User> list = userService.list();
+        System.out.println(list);
+    }
+}
+```
+
+**注意:**mybatisplus_04_generator项目中对于MyBatis的环境是没有进行配置，如果想要运行，需要提取将配置文件中的内容进行完善后在运行。(在配置文件中application.yml中加入jdbc配置, 在dao类上加上@Mapper注解)
+
+查看官方文档:`https://mp.baomidou.com/guide/crud-interface.html`,这些提供的方法大家可以参考官方文档进行学习使用，方法的名称可能有些变化，但是方法对应的参数和返回值基本类似。
+
