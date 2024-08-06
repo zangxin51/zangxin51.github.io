@@ -5592,7 +5592,7 @@ public class User {
 | 作用     | 设置当前类中主键属性的生成策略                               |
 | 相关属性 | value(默认)：设置数据库表主键名称<br/>type:设置主键属性的生成策略，值查照IdType的枚举值 |
 
-#### 4.1.2 代码演示
+#### 4.4.1.2 代码演示
 
 ##### AUTO策略
 
@@ -5819,7 +5819,7 @@ class Mybatisplus03DqlApplicationTests {
 3. 10bit-工作机器id，用来记录工作机器id,其中高位5bit是数据中心ID其取值范围0-31，低位5bit是工作节点ID其取值范围0-31，两个组合起来最多可以容纳1024个节点
 4. 序列号占用12bit，每个节点每毫秒0开始不断累加，最多可以累加到4095，一共可以产生4096个ID
 
-#### 4.4.3 ID生成策略对比
+#### 4.4.1.3 ID生成策略对比
 
 介绍了这些主键ID的生成策略，我们以后该用哪个呢?
 
@@ -5829,7 +5829,7 @@ class Mybatisplus03DqlApplicationTests {
 * ASSIGN_ID:可以在分布式的情况下使用，生成的是Long类型的数字，可以排序性能也高，但是生成的策略和服务器时间有关，如果修改了系统时间就有可能导致出现重复主键
 * 综上所述，每一种主键策略都有自己的优缺点，根据自己项目业务的实际情况来选择使用才是最明智的选择。
 
-#### 4.4.4 简化配置
+#### 4.4.1.4 简化配置
 
 前面我们已经完成了表关系映射、数据库主键策略的设置，接下来对于这两个内容的使用，我们再讲下他们的简化配置:
 
@@ -5867,7 +5867,7 @@ mybatis-plus:
 
 设置表的前缀内容，这样MP就会拿 `tbl_`加上模型类的首字母小写，就刚好组装成数据库的表名。
 
-#### 4.4.5 批量Batch操作
+#### 4.4.1.5 批量Batch操作
 
 先来看下问题:
 
@@ -5934,7 +5934,7 @@ List<T> selectBatchIds(@Param(Constants.COLL) Collection<? extends Serializable>
 
 <img src="./../img/md-img/2024-08-01-ssm/image-20240806173701220.png" alt="image-20240806173701220" style="zoom:80%;" />
 
-#### 4.4.6逻辑删除
+#### 4.4.1.6逻辑删除
 
 接下来要讲解是删除中比较重要的一个操作，逻辑删除，先来分析下问题:
 
@@ -6081,9 +6081,9 @@ UPDATE tbl_user SET ==deleted===1 where id = ? AND ==deleted===0
 | 作用     | 标识该字段为进行逻辑删除的字段            |
 | 相关属性 | value：逻辑未删除值<br/>delval:逻辑删除值 |
 
-### 4.4乐观锁
+### 4.4.2乐观锁
 
-#### 4.4.1 概念
+#### 4.4.2.1 概念
 
 在讲解乐观锁之前，我们还是先来分析下问题:
 
@@ -6096,7 +6096,7 @@ UPDATE tbl_user SET ==deleted===1 where id = ? AND ==deleted===0
 
 简单来说，乐观锁主要解决的问题是当要更新一条记录的时候，希望这条记录没有被别人更新。
 
-#### 4.4.2 实现思路
+#### 4.4.2.2 实现思路
 
 乐观锁的实现方式:
 
@@ -6118,7 +6118,7 @@ UPDATE tbl_user SET ==deleted===1 where id = ? AND ==deleted===0
 
 上面所说的步骤具体该如何实现呢?
 
-#### 4.4.3 实现步骤
+#### 4.4.2.3 实现步骤
 
 分析完步骤后，具体的实现步骤如下:
 
@@ -6269,3 +6269,4 @@ class Mybatisplus03DqlApplicationTests {
 `https://mp.baomidou.com/guide/interceptor-optimistic-locker.html#optimisticlockerinnerinterceptor`
 
 ![1631253387845](./../img/md-img/2024-08-01-ssm/1631253387845.png)
+
