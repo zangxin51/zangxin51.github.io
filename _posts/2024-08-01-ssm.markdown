@@ -3861,16 +3861,24 @@ afterCompletion:与配置顺序相反，可能不运行。
    >
    > ```xml
    > <build>
-   >     <plugins>
-   >         <plugin>
-   >             <groupId>org.springframework.boot</groupId>
-   >             <artifactId>spring-boot-maven-plugin</artifactId>
-   >         </plugin>
-   >     </plugins>
+   >  <plugins>
+   >      <plugin>
+   >          <groupId>org.springframework.boot</groupId>
+   >          <artifactId>spring-boot-maven-plugin</artifactId>
+   >      </plugin>
+   >  </plugins>
    > </build>
    > ```
    >
    > 这个打印的时fat jar, 生成对应入口类的信息(main方法的类)
+   >
+   > 非fat jar
+   >
+   > ```cmd
+   > .\\spring_01_quickstart-1.0-SNAPSHOT.jar中没有主清单属性
+   > ```
+   >
+   > 
 
 ### 3.3SpringBoot起步依赖
 
@@ -4367,4 +4375,112 @@ public class BookController {
 ```
 
 ### 2.2.3 yaml多环境配置
+
+<img src="./../img/md-img/image-20240806081333051.png" alt="image-20240806081333051" align="left" height="200px"/>
+
+application.yml
+
+激活dev环境
+
+```yaml
+spring:
+  profiles:
+    active: dev
+```
+
+application-dev.yml
+
+```yaml
+server:
+  port: 80
+```
+
+application-prod.yml
+
+```yaml
+server:
+  port: 81
+```
+
+现在在idea启动Application.main()的话, 使用的是application.yml激活的application-dev.yml dev环境配置文件
+
+还有一种启动方法不用修改spring.profiles.active=dev/prod, 直接在命令行启动时 加上这行配置
+
+```cmd
+#默认dev环境
+java -jar .\springboot_01_quickstart-0.0.1-SNAPSHOT.jar
+# prod环境
+java -jar .\springboot_01_quickstart-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+# 用dev环境且不用dev的80端口
+java -jar .\springboot_01_quickstart-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev --server.port=8080
+```
+
+> 命令行参数的优先度参数比配置文件高
+
+进行测试后就会发现命令行设置的端口号优先级高（也就是使用的是命令行设置的端口号），配置的优先级其实 `SpringBoot` 官网已经进行了说明，参见 :
+
+```
+https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config
+```
+
+进入上面网站后会看到如下页面
+
+![image-20210917193910191](./../img/md-img/2024-08-01-ssm/image-20210917193910191.png)
+
+如果使用了多种方式配合同一个配置项，优先级高的生效。
+
+### 2.2.4 maven与springBoot多环境兼容
+
+在maven中配置属性, 然后application.yml读取maven中的配置
+
+1. application.yml
+
+```yaml
+spring:
+  profiles:
+    active: ${profile.active}
+
+```
+
+2. 在maven中设置属性: profile.active
+
+```xml
+<profiles>
+    <profile>
+        <id>prod</id>
+        <properties>
+            <profile.active>prod</profile.active>
+        </properties>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+    </profile>
+    <profile>
+        <id>test</id>
+        <properties>
+            <profile.active>test</profile.active>
+        </properties>
+    </profile>
+    <profile>
+        <id>dev</id>
+        <properties>
+            <profile.active>dev</profile.active>
+        </properties>
+    </profile>
+</profiles>
+```
+
+3. 添加maven插件(用来解析${profile.active})
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-resources-plugin</artifactId>
+    <version>3.3.1</version>
+    <configuration>
+        <encoding>UTF-8</encoding>
+        <useDefaultDelimiters>true</useDefaultDelimiters>
+    </configuration>
+</plugin>
+```
 
