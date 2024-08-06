@@ -4205,7 +4205,7 @@ server:
 
 3.6.4 yaml
 
-### 2.2  yaml格式
+### 3.7  yaml格式
 
 上面讲了三种不同类型的配置文件，而 `properties` 类型的配合文件之前我们学习过，接下来我们重点学习 `yaml` 类型的配置文件。
 
@@ -4257,7 +4257,7 @@ enterprise:
 
 上面两种后缀名都可以，以后使用更多的还是 `yml` 的。
 
-#### 2.2.1  语法规则
+#### 3.7.1  语法规则
 
 * 大小写敏感
 
@@ -4294,17 +4294,17 @@ person:
   address: sh
 ```
 
-#### 2.2.2 yaml数据读取
+#### 3.7.2 yaml数据读取
 
-##### 2.2.2.1  使用 @Value注解
+##### 3.7.2.1  使用 @Value注解
 
 使用 `@Value("表达式")` 注解可以从配合文件中读取数据，注解中用于读取属性名引用方式是：`${一级属性名.二级属性名……}`
 
-##### 2.2.2.2  Environment对象
+##### 3.7.2.2  Environment对象
 
 上面方式读取到的数据特别零散，`SpringBoot` 还可以使用 `@Autowired` 注解注入 `Environment` 对象的方式读取数据。这种方式 `SpringBoot` 会将配置文件中所有的数据封装到 `Environment` 对象中，如果需要使用哪个数据只需要通过调用 `Environment` 对象的 `getProperty(String name)` 方法获取。
 
-##### 2.2.2.3  自定义对象
+##### 3.7.2.3  自定义对象
 
 `SpringBoot` 还提供了将配置文件中的数据封装到我们自定义的实体类对象中的方式。具体操作如下：
 
@@ -4374,7 +4374,7 @@ public class BookController {
 }
 ```
 
-### 2.2.3 yaml多环境配置
+### 3.8 yaml多环境配置
 
 <img src="./../img/md-img/image-20240806081333051.png" alt="image-20240806081333051" align="left" height="200px"/>
 
@@ -4429,7 +4429,7 @@ https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-featu
 
 如果使用了多种方式配合同一个配置项，优先级高的生效。
 
-### 2.2.4 maven与springBoot多环境兼容
+### 3.9 maven与springBoot多环境兼容
 
 在maven中配置属性, 然后application.yml读取maven中的配置
 
@@ -4482,5 +4482,306 @@ spring:
         <useDefaultDelimiters>true</useDefaultDelimiters>
     </configuration>
 </plugin>
+```
+
+### 3.10  配置文件分类
+
+<img src="./../img/md-img/2024-08-01-ssm/image-20210917194941597.png" alt="image-20210917194941597" style="zoom:70%;" />
+
+有这样的场景，我们开发完毕后需要测试人员进行测试，由于测试环境和开发环境的很多配置都不相同，所以测试人员在运行我们的工程时需要临时修改很多配置，如下
+
+```shell
+java –jar springboot.jar –-spring.profiles.active=test --server.port=85 --server.servlet.context-path=/heima --server.tomcat.connection-timeout=-1 …… …… …… …… ……
+```
+
+针对这种情况，`SpringBoot` 定义了配置文件不同的放置的位置；而放在不同位置的优先级时不同的。
+
+`SpringBoot` 中4级配置文件放置位置：
+
+* 1级：classpath：application.yml  
+* 2级：classpath：config/application.yml
+* 3级：file ：application.yml
+* 4级：file ：config/application.yml 
+
+> ==说明：==级别越高优先级越高
+
+#### 3.10.1  代码演示
+
+在这里我们只演示不同级别配置文件放置位置的优先级。
+
+##### 1  环境准备
+
+创建一个名为 `springboot_06_config_file` 的 `SpringBoot` 工程，目录结构如下
+
+<img src="./../img/md-img/2024-08-01-ssm/image-20210917200241282.png" alt="image-20210917200241282" style="zoom:80%;" />
+
+在 `resources` 下创建一个名为 `config` 的目录，在该目录中创建 `application.yml` 配置文件，而在该配置文件中将端口号设置为 `81`，内容如下
+
+```yaml
+server:
+  port: 81
+```
+
+而在 `resources` 下创建的 `application.yml` 配置文件中并将端口号设置为 `80`，内容如下
+
+```yaml
+server:
+  port: 80
+```
+
+##### 2  验证1级和2级的优先级
+
+运行启动引导类，可以在控制台看到如下日志信息
+
+![image-20210917200805389](./../img/md-img/2024-08-01-ssm/image-20210917200805389.png)
+
+通过这个结果可以得出==类路径下的 `config` 下的配置文件优先于类路径下的配置文件。==
+
+##### 3  验证2级和4级的优先级
+
+要验证4级，按照以下步骤完成
+
+* 将工程打成 `jar` 包
+
+  点击工程的 `package` 来打 `jar` 包
+
+  <img src="./../img/md-img/2024-08-01-ssm/image-20210917201243721.png" alt="image-20210917201243721" style="zoom:80%;" />
+
+* 在硬盘上找到 `jar` 包所在位置
+
+  <img src="./../img/md-img/2024-08-01-ssm/image-20210917201523669.png" alt="image-20210917201523669" style="zoom:70%;" />
+
+* 在 `jar` 包所在位置创建 `config` 文件夹，在该文件夹下创建 `application.yml` 配置文件，而在该配合文件中将端口号设置为 `82` 
+
+* 在命令行使用以下命令运行程序
+
+  ```shell
+  java -jar springboot_06_config_file-0.0.1-SNAPSHOT.jar
+  ```
+
+  运行后日志信息如下
+
+  ![image-20210917201922831](./../img/md-img/2024-08-01-ssm/image-20210917201922831.png)
+
+  通过这个结果可以得出==file： `config` 下的配置文件优先于类路径下的配置文件。==
+
+### 3.11 SpringBoot整合junit
+
+在 `test/java` 下创建 `com.itheima` 包，在该包下创建测试类，将 `BookService` 注入到该测试类中
+
+```java
+@SpringBootTest
+class BookServiceTest {
+
+    @Autowired
+    private BookService bookService;
+    @Test
+    void save() {
+        bookService.save();
+    }
+}
+```
+
+> ==注意：==这里的引导类所在包必须是测试类所在包及其子包。
+>
+> 例如：
+>
+> * 引导类所在包是 `example`
+> * 测试类所在包是 `example`
+>
+> 如果不满足这个要求的话，就需要在使用 `@SpringBootTest` 注解时，使用 `classes` 属性指定引导类的字节码对象。如 `@SpringBootTest(classes = Application.class)`
+
+### 3.12 springboot整合mybatis
+
+#### 1.复习spring整合mybatis
+
+- springConfig
+  - 导入jdbcConfig
+  - 导入MybatisConfig
+- jdbcConfig
+  - 定义数据源, 加载jdbc.properties
+- MybatisConfig
+  - 定义SqlSessionFactoryBean
+  - 定义映射配置路径
+
+#### 2.springboot整合mybatis
+
+1.创建SpringBoot工程, 选择mybatis,mysql, lombok依赖
+
+2.实体类
+
+```java
+@Data
+public class Book {
+    private Integer id;
+    private String type;
+    private String name;
+    private String description;
+}
+```
+
+3.dao层 **设置@Mapper注解**
+
+```java
+@Mapper
+public interface BookDao {
+    @Select("select * from tbl_book where id=#{id}")
+    Book getById(Integer id);
+}
+```
+
+4.配置数据源
+
+```properties
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/spring_db?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+spring.datasource.username=root
+spring.datasource.password=root
+```
+
+5.测试
+
+```java
+@SpringBootTest
+class SpringbootApplicationTest {
+    @Autowired
+    private BookDao bookDao;
+    @Test
+    void getById() {
+        Book book = bookDao.getById(1);
+        System.out.println("book = " + book);
+    }
+
+}
+```
+
+> 如果不想使用默认的hikari数据源, 可以选择druid数据源, 加入配置和maven依赖
+>
+> ```properties
+> spring.datasource.type=com.alibaba.druid.pool.DruidDataSource
+> ```
+>
+> ```xml
+> <dependency>
+>     <groupId>com.alibaba</groupId>
+>     <artifactId>druid</artifactId>
+>     <version>1.2.6</version>
+> </dependency>
+> ```
+>
+> 
+
+### 3.13 SpringBoot改造之前的ssm整合项目
+
+改造之前 `SSM` 时做的三大框架整合的案例用 `SpringBoot` 来实现一下。我们完成这个案例基本是将之前做的拷贝过来，修改成 `SpringBoot` 的即可，主要从以下几部分完成
+
+1. pom.xml
+
+   配置起步依赖，必要的资源坐标(druid)
+
+2. application.yml
+
+   设置数据源、端口等
+
+3. 配置类
+
+   全部删除
+
+4. dao
+
+   设置@Mapper
+
+5. 测试类
+
+6. 页面
+
+   放置在resources目录下的static目录中
+
+#### 3.13.1  创建工程
+
+创建 `SpringBoot` 工程，在创建工程时需要勾选 `web`、`mysql`、`mybatis`，工程目录结构如下
+
+<img src="./../img/md-img/2024-08-01-ssm/image-20210917225019868.png" alt="image-20210917225019868" style="zoom:80%;" align="left"/>
+
+由于我们工程中使用到了 `Druid` ，所以需要导入 `Druid` 的坐标
+
+```xml
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.16</version>
+</dependency>
+```
+
+#### 3.13.2  代码拷贝
+
+将 `springmvc_11_page` 工程中的 `java` 代码及测试代码连同包拷贝到 `springboot_09_ssm` 工程，按照下图进行拷贝
+
+<img src="./../img/md-img/2024-08-01-ssm/image-20210917225715519.png" alt="image-20210917225715519" style="zoom:70%;" />
+
+需要修改的内容如下：
+
+* `Springmvc_11_page` 中 `config` 包下的是配置类，而 `SpringBoot` 工程不需要这些配置类，所以这些可以直接删除
+
+* `dao` 包下的接口上在拷贝到 `springboot_09-ssm` 工程中需要在接口中添加 `@Mapper` 注解
+
+* `BookServiceTest` 测试需要改成 `SpringBoot` 整合 `junit` 的
+
+  ```java
+  @SpringBootTest
+  public class BookServiceTest {
+  
+      @Autowired
+      private BookService bookService;
+  
+      @Test
+      public void testGetById(){
+          Book book = bookService.getById(2);
+          System.out.println(book);
+      }
+  
+      @Test
+      public void testGetAll(){
+          List<Book> all = bookService.getAll();
+          System.out.println(all);
+      }
+  }
+  ```
+
+#### 3.13.3  配置文件
+
+在 `application.yml` 配置文件中需要配置如下内容
+
+* 服务的端口号
+* 连接数据库的信息
+* 数据源
+
+```yaml
+server:
+  port: 80
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ssm_db #?servierTimezone=UTC
+    username: root
+    password: root
+```
+
+### 3.13.4  静态资源
+
+在 `SpringBoot` 程序中是没有 `webapp` 目录的，那么在 `SpringBoot` 程序中静态资源需要放在什么位置呢？
+
+静态资源需要放在 `resources` 下的 `static` 下，如下图所示
+
+<img src="./../img/md-img/2024-08-01-ssm/image-20210917230702072.png" alt="image-20210917230702072" style="zoom:80%;" />
+
+加index.html, 跳转pages/books.html
+
+```html
+<script>
+    document.location.href="pages/books.html"
+</script>
 ```
 
