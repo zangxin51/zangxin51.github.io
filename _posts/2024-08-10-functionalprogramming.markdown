@@ -399,3 +399,112 @@ def：使用了其他函数对象作为参数或者返回值
 
 将易变复杂的逻辑放在外部的函数对象中
 
+24.简单流
+
+```java
+@Test
+void test02() {
+    List<Integer> list = List.of(1, 2, 3, 4, 5);
+    SimpleStream.of(list)
+            .filter(x -> (x & 1) == 1)
+            .map(x -> x * x)
+            .forEach(System.out::println);
+}
+
+class SimpleStream<T> {
+    public static <T> SimpleStream<T> of(Collection<T> collection) {
+        return new SimpleStream<>(collection);
+    }
+
+    private Collection<T> collection;
+
+    private SimpleStream(Collection<T> collection) {
+        this.collection = collection;
+    }
+	// 过滤
+    public SimpleStream<T> filter(Predicate<T> predicate) {
+        List<T> result = new ArrayList<>();
+        for (T t : this.collection) {
+            if (predicate.test(t)) {
+                result.add(t);
+            }
+        }
+        return new SimpleStream<>(result);
+    }
+	// 映射
+    public <U> SimpleStream<U> map(Function<T, U> function) {
+        List<U> result = new ArrayList<>();
+        for (T t : this.collection) {
+            U apply = function.apply(t);
+            result.add(apply);
+        }
+        return new SimpleStream<>(result);
+    }
+    // 遍历
+    public void forEach(Consumer<T> consumer) {
+        for (T t : this.collection) {
+            consumer.accept(t);
+        }
+    }
+}
+```
+
+25.简单流-简化，reduce
+
+```java
+// identity是二元运算的单位元，满足 a * e = e * a = a
+public T reduce(T identity, BinaryOperator<T> binaryOperator) {
+    T pre = identity;
+    for (T t : this.collection) {
+        pre = binaryOperator.apply(pre, t);
+    }
+    return pre;
+}
+
+@Test
+void test03() {
+    List<Integer> list = List.of(1, 2, 3, 4, 5);
+    Integer ret = SimpleStream.of(list)
+            .reduce(0, Integer::sum);
+    System.out.println("ret = " + ret);
+
+    Integer min = SimpleStream.of(list)
+            .reduce(Integer.MAX_VALUE, Integer::min);
+    System.out.println("min = " + min);
+}
+```
+
+26.简单流-收集，collect
+
+```java
+public <C> C collect(Supplier<C> supplier, BiConsumer<C, T> consumer) {
+    C c = supplier.get(); // 创建了容器
+    for (T t : this.collection) {
+        consumer.accept(c, t);
+    }
+    return c;
+}
+
+@Test
+void test04() {
+    List<Integer> list = List.of(1, 2, 3, 4, 5, 5, 6, 6, 7, 7, 7);
+    // 集合
+    HashSet<Integer> ret = SimpleStream.of(list)
+            .collect(HashSet::new, HashSet::add);
+    System.out.println("ret = " + ret);
+    // StringBuilder
+    StringBuilder ret2 = SimpleStream.of(list).collect(StringBuilder::new, StringBuilder::append);
+    System.out.println("ret2 = " + ret2);
+    // StringJoiner
+    StringJoiner ret3 = SimpleStream.of(list)
+            .collect(() -> new StringJoiner("-"),
+                    ((joiner, x) -> joiner.add(x.toString())));
+    System.out.println("ret3 = " + ret3);
+    // Map
+    HashMap<Integer, AtomicInteger> ret4 = SimpleStream.of(list)
+            .collect(HashMap::new, (map, t) -> map.computeIfAbsent(t, k -> new AtomicInteger()).getAndIncrement());
+    System.out.println("ret4 = " + ret4);
+    AtomicInteger atomicInteger = new AtomicInteger();
+}
+```
+
