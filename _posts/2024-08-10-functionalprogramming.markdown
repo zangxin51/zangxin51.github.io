@@ -833,6 +833,8 @@ stream
         .forEach(System.out::println); // 打开阀门 eager
 ```
 
+41.并行流
+
 
 
 
