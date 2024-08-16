@@ -773,6 +773,68 @@ void test08() {
 
 39.三种基本流
 
+基本类型流指 IntStream、LongStream 和 DoubleStream，它们在做数值计算时有更好的性能。
+
+转换成基本流
+
+* mapToInt
+* mapToLong
+* mapToDouble
+* flatMapToInt
+* flatMapToLong
+* flatMapToDouble
+* mapMultiToInt
+* mapMultiToLong
+* mapMultiToDouble
+
+基本流转对象流
+
+* mapToObj
+* boxed
+
+```java
+@Test
+void test09() {
+    IntStream a = IntStream.of(97, 98, 99);
+    LongStream b = LongStream.of(1L, 2L, 3L);
+    DoubleStream c = DoubleStream.of(1.1, 2.2, 3.3);
+
+//        a.mapToObj(Character::toString).forEach(System.out::println);
+    // 转换成包装类型
+//        a.boxed().forEach(System.out::println);
+    // 统计
+/*        IntSummaryStatistics statistics = a.summaryStatistics();
+    System.out.println("statistics.getAverage() = " + statistics.getAverage());
+    System.out.println("statistics.getMax() = " + statistics.getMax());
+    System.out.println("statistics.getMin() = " + statistics.getMin());
+    System.out.println("statistics.getCount() = " + statistics.getCount());
+    System.out.println("statistics.getSum() = " + statistics.getSum());*/
+
+    Stream<Hero> stream = Stream.of(
+            new Hero("令狐冲", 90),
+            new Hero("风清扬", 98)
+    );
+    stream.mapToInt(Hero::strength).forEach(System.out::println);
+```
+
+
+
+40.流的特性
+
+1.一次使用
+
+2.两类操作(中间操作,lazy懒惰；终结操作  eager 迫切)
+
+```java
+Stream<Integer> stream = Stream.of(1, 2, 3, 4);
+stream
+        .map(x -> x + 1) // 接水管 lazy
+        .filter(x -> x >= 2) // 接水管 lazy
+        .forEach(System.out::println); // 打开阀门 eager
+```
+
+
+
 
 
 
