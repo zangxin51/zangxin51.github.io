@@ -543,10 +543,241 @@ Stream.of(
         .forEach(System.out::println);
 ```
 
-29.flatMap 扁平化（降维）
+29.flatMap 扁平化
 
 ```java
+Integer[][] array2D = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9},
+};
+
+Arrays.stream(array2D)
+        .flatMap(array -> Arrays.stream(array))
+        .forEach(System.out::println);
 ```
+
+30、构建流
+
+用已有数据构建出stream对象
+
+集合、数组、对象
+
+```java
+// 1. 从集合构建
+Set.of(1, 2, 3).stream().forEach(System.out::println);
+Map.of("k1",1,"k2",2).entrySet().stream().forEach(System.out::println);
+
+// 2. 从数组构建
+int[] array = {1, 2, 3};
+Arrays.stream(array).forEach(System.out::println);
+
+// 3. 从对象构建
+Stream.of(1,2,3,4,5).forEach(System.out::println);
+```
+
+31、流的合并,跳过，截取
+
+```java
+Stream<Integer> s1 = Stream.of(1, 2, 1,3);
+Stream<Integer> s2 = Stream.of(4, 5, 6,1,2);
+// 合并
+Stream<Integer> concat = Stream.concat(s1, s2);
+concat.skip(2).forEach(System.out::println);
+concat.limit(2).forEach(System.out::println);
+concat.skip(2).limit(2).forEach(System.out::println);
+// 满足条件保留
+concat.takeWhile(x -> x < 3).forEach(System.out::println);
+// 满足条件丢弃
+concat.dropWhile(x->x<3).forEach(System.out::print);
+```
+
+32、整数流的生成方法
+
+```java
+// IntStream.range
+IntStream.range(1, 10).forEach(System.out::println); // [a,b)
+IntStream.rangeClosed(1, 10).forEach(System.out::println); // [a,b]
+// 递推生成，依赖上一个元素
+IntStream.iterate(1, x -> 2 * x + 1).limit(10).forEach(System.out::println);
+// 指定停止条件
+IntStream.iterate(1, x -> x <= 9, x -> x + 2).forEach(System.out::println);
+// 不依赖于任何参数
+IntStream.generate(() -> ThreadLocalRandom.current().nextInt(100)).limit(5).forEach(System.out::println);
+// 更快捷的生成整数流的方法
+ThreadLocalRandom.current().ints(5,0,100).forEach(System.out::println);
+```
+
+33、查找与判断
+
+```java
+        IntStream stream = IntStream.of(1, 2, 3, 4, 5, 6);
+//        System.out.println(stream.filter(x -> (x & 1) == 0).findFirst().orElse(-1));
+        // 找到第一个元素
+//        stream.filter(x -> (x & 1) == 0).findFirst().ifPresent(System.out::println);
+        // 找出任意一个元素,与findFirst区别：并行流下结果有所不同，findFirst按顺序
+//        stream.filter(x->(x&1)==0).findAny().ifPresent(System.out::println);
+
+        // 有一个满足
+//        System.out.println(stream.anyMatch(x -> (x & 1) == 0)); // true
+        // 所有元素必须满足
+//        System.out.println(stream.anyMatch(x -> (x & 1) == 0)); // false
+        // 所有元素都不满足
+        System.out.println(stream.noneMatch(x -> (x & 1) == 0));
+```
+
+34.去重与排序
+
+```java
+// 排序
+Stream.of(
+                new C09SortTest.Hero("令狐冲", 90),
+                new C09SortTest.Hero("风清扬", 98),
+                new C09SortTest.Hero("独孤求败", 100),
+                new C09SortTest.Hero("方证", 92),
+                new C09SortTest.Hero("东方不败", 98),
+                new C09SortTest.Hero("冲虚", 90),
+                new C09SortTest.Hero("向问天", 88),
+                new C09SortTest.Hero("任我行", 92),
+                new C09SortTest.Hero("不戒", 88)
+        ).sorted(Comparator.comparingInt(C09SortTest.Hero::strength)) // 升序
+        .sorted(Comparator.comparingInt(C09SortTest.Hero::strength).reversed()) // 降序
+        // strength一致时，姓名长度长的排在前面
+   .sorted(Comparator.comparing(C09SortTest.Hero::strength).thenComparing(C09SortTest.Hero::name,Comparator.reverseOrder()))
+        .forEach(System.out::println);
+```
+
+35.化简流
+
+```java
+@Test
+void test05() {
+    Stream<Hero> heroStream = Stream.of(
+            new Hero("令狐冲", 90),
+            new Hero("风清扬", 98),
+            new Hero("独孤求败", 100),
+            new Hero("方证", 92),
+            new Hero("东方不败", 98),
+            new Hero("冲虚", 90),
+            new Hero("向问天", 88),
+            new Hero("任我行", 92),
+            new Hero("不戒", 88)
+    );
+    // 无初始值, 找出最大strength
+//        heroStream.reduce((a, b) -> a.strength() > b.strength() ? a : b).ifPresent(System.out::println);
+    // 有初始值
+//        Hero result = heroStream.reduce(new Hero("-", Integer.MIN_VALUE), (a, b) -> a.strength() > b.strength() ? a : b);
+//        System.out.println("result = " + result);
+    // 求总数
+//        Integer ret2 = heroStream.map(hero -> 1).reduce(0, (a, b) -> a + b);
+//        System.out.println("ret2 = " + ret2);
+    // stream统计api
+//        System.out.println("heroStream.count() = " + heroStream.count());
+//        System.out.println(heroStream.max(Comparator.comparing(Hero::strength)));
+//        System.out.println(heroStream.min(Comparator.comparing(Hero::strength)));
+//        System.out.println(heroStream.mapToInt(Hero::strength).sum());
+    System.out.println(heroStream.mapToInt(Hero::strength).average());
+```
+
+36.收集流
+
+```java
+/*创建容器，收集方法*/
+Stream<String> stream = Stream.of("令狐冲", "风清扬", "独孤求败", "方证", "东方不败", "冲虚", "向问天", "任我行", "不戒");
+//     List<String> ret1 = stream.collect(ArrayList::new, ArrayList::add, (a, b) -> {});
+//        System.out.println("ret1 = " + ret1);
+// map
+//   Map<String, Integer> ret2 = stream.collect(HashMap::new, (map, x) -> map.put(x, 1), (a, b) -> {});
+//        System.out.println("ret2 = " + ret2);
+
+//  StringBuilder ret3 = stream.collect(StringBuilder::new, StringBuilder::append, (a, b) -> {});
+//        System.out.println("ret3 = " + ret3);
+StringJoiner ret4 = stream.collect(() -> new StringJoiner("$"), StringJoiner::add, (a, b) -> {});
+System.out.println("ret4 = " + ret4);
+```
+
+37.改善收集流-->收集器Collectors	
+
+```java
+Stream<String> stream = Stream.of("令狐冲", "风清扬", "独孤求败", "方证", "东方不败", "冲虚", "向问天", "任我行", "不戒");
+List<String> list = stream.collect(Collectors.toList());
+String str = stream.collect(Collectors.joining());
+Set<String> set = stream.collect(Collectors.toSet());
+Map<String, Integer> map = stream.collect(Collectors.toMap(x -> x, x -> 1));
+```
+
+38.收集流，下游收集器
+
+```java
+Stream<Hero> stream = Stream.of(
+        new Hero("令狐冲", 90),
+        new Hero("风清扬", 98),
+        new Hero("独孤求败", 100),
+        new Hero("方证", 92),
+        new Hero("东方不败", 98),
+        new Hero("冲虚", 90),
+        new Hero("向问天", 88),
+        new Hero("任我行", 92),
+        new Hero("不戒", 88)
+);
+// 下游收集器 {2=[92, 90, 88], 3=[90, 98, 88, 92], 4=[100, 98]}
+Map<Integer, List<Integer>> ret = stream.collect(Collectors.groupingBy(h -> h.name.length(), Collectors.mapping(Hero::strength, Collectors.toList())));
+System.out.println("ret = " + ret);
+
+```
+
+```java
+@Test
+void test08() {
+    Stream<Hero> stream = Stream.of(
+            new Hero("令狐冲", 90),
+            new Hero("风清扬", 98),
+            new Hero("独孤求败", 100),
+            new Hero("方证", 92),
+            new Hero("东方不败", 98),
+            new Hero("冲虚", 90),
+            new Hero("向问天", 88),
+            new Hero("任我行", 92),
+            new Hero("不戒", 88)
+    );
+    // 映射分组结果
+    // 下游收集器之改变收集的结果的value值
+//        Map<Integer, List<Integer>> ret = stream.collect(Collectors.groupingBy(h -> h.name.length(), Collectors.mapping(Hero::strength, Collectors.toList())));
+//        System.out.println("ret = " + ret);
+    // 在分组中过滤
+    // 需求:根据名字长度分组,分组后过滤strength小于98的
+//        Map<Integer, List<Hero>> ret2 = stream.collect(Collectors.groupingBy(h -> h.name.length(), Collectors.filtering(h -> h.strength >= 98, Collectors.toList())));
+//        System.out.println("ret2 = " + ret2);
+    // flatMapping {2=[方, 证, 冲, 虚, 不, 戒], 3=[令, 狐, 冲, 风, 清, 扬, 向, 问, 天, 任, 我, 行], 4=[独, 孤, 求, 败, 东, 方, 不, 败]}
+//        Map<Integer, List<String>> ret3 = stream.collect(groupingBy(h -> h.name.length(), flatMapping(h -> h.name.chars().mapToObj(Character::toString), toList())));
+//        System.out.println("ret3 = " + ret3);
+    // 根据名字长度分组, 分组后求每组个数 {2=3, 3=4, 4=2}
+//        Map<Integer, Long> ret4 = stream.collect(groupingBy(h -> h.name.length(), counting()));
+//        System.out.println("ret4 = " + ret4);
+    // 根据名字长度分组,分组后求每组strength最小的人
+//        Map<Integer, Optional<Hero>> ret5 = stream.collect(groupingBy(h -> h.name.length(), minBy(Comparator.comparing(Hero::strength))));
+//        System.out.println("ret5 = " + ret5);
+
+    // summingInt(x->int) 需求:根据名字长度分组,分组后求每组的strength和
+//        Map<Integer, Integer> ret6 = stream.collect(groupingBy(hero -> hero.name.length(), summingInt(Hero::strength)));
+//        System.out.println("ret6 = " + ret6);
+    // averagingDouble(x->int) 需求:根据名字长度分组,分组后求每组的平均值
+//        Map<Integer, Double> ret7 = stream.collect(groupingBy(hero -> hero.name.length(), averagingDouble(Hero::strength)));
+//        System.out.println("ret7 = " + ret7);
+
+    // reducing(identity,(p,x)->r) 等价于summingInt
+    Map<Integer, Integer> ret8 = stream.collect(groupingBy(hero -> hero.name.length(), mapping(Hero::strength, reducing(0, (a, b) -> a + b))));
+    System.out.println("ret8 = " + ret8);
+}
+```
+
+39.三种基本流
+
+
+
+
+
+
 
 
 
