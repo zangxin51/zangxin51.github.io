@@ -1,0 +1,66 @@
+---
+layout:     post
+title:      "Redis"
+subtitle:   "Redis"
+date:       2024-08-19 12:29:00
+author:     "zangxin"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+---
+
+Redis
+
+1.redis是一个基于内存的key-value结构数据库
+
+2.基于内存存储，读写性能高
+
+3.适合存储热点数据（热销商品、资讯、新闻）
+
+4.官网：https://redis.io
+
+5.redis下载与安装，安装windows版本的，方便使用
+
+```cmd
+# 启动
+redis-server.exe redis.windows.conf
+# ^C停止
+# 重新打开一个窗口， 启动客户端
+# redis-cli.exe -h localhost -p 6379
+redis-cli.exe
+# 验证
+keys *
+# 设置redis密码，在配置文件redis.windows.conf中，设置密码为123456
+requirepass 123456
+# 重新登陆redis客户端，加上认证参数 -a 
+redis-cli.exe -h localhost -p 6379 -a 123456
+```
+
+6.redis客户端Another Redis Desktop Manager
+
+7.各种数据类型的特点
+
+字符串：
+
+hash：类似java中的hashMap
+
+列表：按照插入顺序排序，可以重复，类似java中的LinkedList
+
+集合：无序集合，没有重复元素，类似中java中的hashSet， 可以求交集，并集
+
+有序集合（zset): 集合中每个元素关联一个分数，根据分数进行升序排序，没有重复元素
+
+<img src="./../img/md-img/2024-08-19-redis/image-20221130190150749-1724043519913-1.png" alt="image-20221130190150749" style="zoom: 67%;" />
+
+8.字符串命令
+
+```shell
+set key value
+get key
+setex key seconds value # 设置过期时间（短信验证码过期时间）
+ttl key # 查询key过期时间
+setnx key value # 只有在key不存在时设置key的值， 分布式锁
+```
+
+
+
