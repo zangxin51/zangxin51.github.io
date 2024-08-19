@@ -58,7 +58,7 @@ hash：类似java中的hashMap
 set key value
 get key
 setex key seconds value # 设置过期时间（短信验证码过期时间）
-ttl key # 查询key过期时间
+ttl key # 查询key存活时间
 setnx key value # 只有在key不存在时设置key的值， 分布式锁
 ```
 
