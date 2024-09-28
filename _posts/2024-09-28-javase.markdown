@@ -1,0 +1,16 @@
+---
+layout:     post
+title:      "JAVA SE"
+subtitle:   ""
+date:       2024-09-29 14:36:00
+author:     "zangxin"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+---
+
+JAVA SE
+
+# 1.java跨平台原理
+
+![image-20240928140844473](./../img/md-img/2024-09-28-javase/image-20240928140844473.png)
