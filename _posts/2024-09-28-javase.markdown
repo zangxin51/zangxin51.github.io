@@ -179,9 +179,27 @@ String result = a % 2 == 0 ? "偶数" : "奇数";
 
 异或：^
 
+8.程序控制流程
+
+分支结构 if-else 和switch-case 根据条件真假，决定执行不同代码
+
+if的三种形式
+
+```java
+if(condition) {}
+if(condition) {} else {} // 非此即彼
+if(condition) {} else if(condition2) {} [else]
+```
+
+switch: 通过比较值是否相等，来决定执行那条分支
 
 
 
+穿透
+
+for
+
+while
 
 
 
