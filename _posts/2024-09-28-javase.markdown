@@ -104,7 +104,54 @@ char-->int
 
 强制类型转换：大-->小
 
-> 类型范围大数据类型不能直接转换成小的类型，需要使用强制类型转换符
+> 类型范围大数据类型不能直接转换成小的类型，因为可能造成窄化时数据损失，需要使用强制类型转换符
+
+```java
+int b = 12;
+byte j = (byte) b;// 强制转换
+print3(j);
+public static void print3(byte a) {}
+```
+
+表达式的自动类型转换：在表达式中，小范围类型变量会自动转换成表达式中大范围的类型，再参与运算。
+
+byte、short、char-->int-->long-->float-->double
+
+表达式结果最终类型是由最高类型决定
+
+byte、short、char是直接转换成int类型参与运算的。
+
+byte + byte的结果是int
+
+6.输入/输出
+
+输入：调用Scanner的API
+
+```java
+Scanner scanner = new Scanner(System.in);
+System.out.println("请输入年龄：");
+int age = scanner.nextInt();
+System.out.println("请输入姓名：");
+String name = scanner.next();
+System.out.println("年龄：" + age + "，姓名：" + name);
+```
+
+7.运算符
+
++-*/%
+
++: 加；连接。能加就加，不能加就连接
+
+++/--：自增运算符
+
++= -= *= /=
+
+```java
+byte b1 = 10;
+byte b2 =  20;
+b1 += b2; // 等价于 b1 = (byte) (b1 + b2) +=自带强制类型转换
+System.out.println(b1);
+```
 
 
 
