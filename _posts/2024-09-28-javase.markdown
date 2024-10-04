@@ -227,7 +227,80 @@ continue:  跳过本次循环
 
 break:结束循环
 
+9.数组
 
+程序中数据存储：变量只能存储一个变量
+
+数组：是一个数据容器，可以用来存储一批同 类型的数据
+
+静态初始化数组
+
+```java
+// 定义一个数组，存储10个名字
+// 静态初始化数组，定义时已经确定数组的长度
+String[] names = {"张三", "李四"};
+String[] names2 = new String[]{"张三", "李四"};
+```
+
+动态初始化数组
+
+```java
+// 数组动态初始化
+// 只确定数组的类型和长度，不指定具体的值
+double[] scores = new double[8]; // 声明后默认值是0.0
+```
+
+动态初始化数组的默认值规则
+
+byte short char int long: 0
+
+float double: 0.0
+
+boolean: false
+
+引用类型：类，接口，数组，String：null
+
+访问数组中的元素
+
+```java
+// 随机获取一个索引值
+int index = (int) (Math.random() * names.length);
+String name = names2[index];
+```
+
+数组的遍历：求和，搜索，求最值
+
+打乱顺序(洗牌)
+
+```java
+for (int i = 0; i < pokers.length; i++) {
+    // 生成一个随机索引，范围在0到扑克牌数组长度之间
+    int index = (int) (Math.random() * pokers.length);
+    // 交换：将当前元素与随机索引处的元素交换位置。
+    String temp = pokers[i];
+    pokers[i] = pokers[index];
+    pokers[index] = temp;
+}
+```
+
+二维数组：
+
+二维数组的元素是一维数组	
+
+```java
+// 静态初始化
+int[][] arr = new int[][]{{1, 3, 5}, {2, 4, 6}};
+// 动态初始化
+int[][] arr2 = new int[2][3];
+arr2[0] = new int[]{1, 2, 3};
+arr2[1] = new int[]{4, 5, 6};
+// 遍历
+for (int i = 0; i < arr.length; i++) {
+    for (int j = 0; j < arr[i].length; j++) {
+        System.out.print(arr[i][j] + " ");
+    }
+}
+```
 
 
 
