@@ -193,13 +193,43 @@ if(condition) {} else if(condition2) {} [else]
 
 switch: 通过比较值是否相等，来决定执行那条分支
 
+if在功能上比switch强，if可以进行区间判断
 
+switch表达式类型只能是byte short int char 枚举 String 不支持float double(小数，java这些类型不精确)，long
 
-穿透
+case给出的值不允许重复，且只能是字面量（常量），不能是变量。
+
+正常使用switch时，一定要写break，否则会出现穿透现象。
+
+合理利用穿透可以简少冗于代码
+
+循环结构
 
 for
 
 while
+
+功能与for一致
+
+知道 循环次数用for，不知道用while
+
+do-while 先执行后判断，至少执行一次
+
+死循环
+
+```java
+while (true) {}
+for (; ; ) {}
+do{} while(true);
+```
+
+continue:  跳过本次循环
+
+break:结束循环
+
+
+
+
 
 
 
