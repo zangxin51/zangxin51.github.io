@@ -482,3 +482,81 @@ note：final修饰基本数据类型变量，变量存储的数值不能改变
 
 final修饰的引用类型变量,变量存储的地址不能被改变,但是地址所指向对象的内容是可以改变的
 
+**单例类**（设计模式）：作用：确保某个类只能创建一个对象。
+
+实现步骤：1.私有构造器，定义一个类变量记住类的一个对象，定义一个类方法，返回对象。（饿汉式）
+
+```java
+public class A {
+    private A() {}
+    private static A instance = new A();
+    public static A getInstance() {
+        return instance;
+    }
+}
+```
+
+懒汉式：用的时候，才开始创建对象。步骤：私有构造器，定义一个静态变量存储对象，提供一个静态方法，保证返回的是同一个对象。
+
+```java
+public class B {
+    private static B instance;
+    private B(){}
+    public static B getInstance() {
+        if (instance == null) {
+            instance = new B();
+        }
+        return instance;
+    }
+}
+```
+
+**枚举类**
+
+```java
+public enum A {
+    X,Y,Z;
+}
+```
+
+反编译后代码：
+
+```java
+public final class A extends java.lang.Enum<A> {
+  public static final A X;
+  public static final A Y;
+  public static final A Z;
+  public static A[] values();
+  public static A valueOf(java.lang.String);
+  static {};
+}
+```
+
+枚举类都是最终类，不能被继承，枚举类的父类是java.lang.Enum
+
+枚举类的第一行只能罗列一些名称，这些名称都是变量，并且每个变量都会记住枚举类的一个对象
+
+枚举类的构造器都是私有的，因此枚举类对外不能创建对象
+
+枚举类很适合做信息分类和标志
+
+**抽象类**：
+
+abstract关键字：修饰类就是抽象类，修饰方法就是抽象方法
+
+抽象类中不一定要有抽象方法，但是抽象方法一定在抽象类中。
+
+抽象类和普通类一样可以有：成员变量，成员方法，构造器。
+
+抽象类不能创建对象，仅作为一种特殊的父类，让子类继承并实现方法。
+
+一个类继承抽象类，必须重写所有的抽象方法或者该类也定义为抽象类 。
+
+有得有失：得到了抽象方法的能力，失去了创建对象的能力，抽象类的使命就是被子类继承。
+
+
+
+
+
+
+
