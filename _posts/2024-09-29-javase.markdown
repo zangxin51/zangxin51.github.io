@@ -628,3 +628,41 @@ static void show() {
 
 2.一个接口继承多个接口，如果多个接口中存在方法签名冲突，则此时不支持多继承，也不支持多实现。
 
+```java
+interface A{
+    void go();
+}
+interface B{
+    String go();
+}
+interface C extends A,B{
+
+}
+```
+
+![image-20241007175220593](./../img/md-img/2024-09-29-javase/image-20241007175220593.png)
+
+3.一个类继承了父类，同时又实现了接口，如果父类和接口中有同名的方法，实现类会优先使用父类的方法
+
+4.一个类实现了多个接口，如果多个接口中存在同名的默认的方法，可以不冲突，只要这个类重写该方法即可
+
+```java
+interface A{
+    default void go() {
+        System.out.println("A go");
+    }
+}
+class Father {
+    void go() {
+        System.out.println("Father go");
+    }
+}
+class Son extends Father implements A{
+    @Override
+    public void go() {
+        A.super.go(); // 在默认继承父类go方法的情况下，调用父接口的方法
+        super.go();
+    }
+}
+```
+
