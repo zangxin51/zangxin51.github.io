@@ -724,7 +724,31 @@ Outer.inner inner = new Outer.inner();
 
 匿名内部类本质就是一个子类，并立即创建出一个子类对象，匿名内部类实际上是有名字的：外部类名$编号数字.class
 
+```java
+Animal a = new Animal() {
+    @Override
+    public void cary() {
+        System.out.println("我是一个匿名内部类");
+    }
+};
+```
+
+反编译后：
+
+```java
+class Test$1 extends Animal {
+    Test$1() {
+    }
+
+    public void cary() {
+        System.out.println("我是一个匿名内部类");
+    }
+}
+```
+
 作用：用于更方便的创建一个子类对象
+
+常见形式：通常作为一个对象参数传输给方法。
 
 
 
