@@ -800,9 +800,41 @@ class Car {
 }
 ```
 
+**String API**
 
+String创建字符串的对象的方式
 
+方式一： String name = "abc"
 
+方式二：构造器
 
+![image-20241008112944469](./../img/md-img/2024-09-29-javase/image-20241008112944469.png)
 
+二者的区别：
 
+只要是以第一种"hello"的方式创建的字符串对象放在常量池中，相同内容只放一个
+
+```java
+String s1 = "hello";
+String s2 = "hello";
+System.out.println(s1 == s2); // true
+
+String s3 = new String("hello");
+System.out.println(s1 == s3); // false
+```
+
+![image-20241008114434449](./../img/md-img/2024-09-29-javase/image-20241008114434449.png)
+
+String 常用方法
+
+![image-20241008114648444](./../img/md-img/2024-09-29-javase/image-20241008114648444.png)
+
+比较相等时使用equals方法，不要使用==方法，==比较的是地址，==为true表示是同一个对象
+
+集合：集合是一种容器，用来装数据的，类似于数组
+
+为什么使用集合？数组大小固定，集合长度可变。
+
+ArrayList：创建对象，增、删、改、查
+
+![image-20241008120418804](./../img/md-img/2024-09-29-javase/image-20241008120418804.png)
