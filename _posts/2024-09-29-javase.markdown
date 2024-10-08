@@ -764,7 +764,43 @@ lambda只能替代**函数式接口**的匿名内部类
 
 静态方法引用：类名::静态方法，在 -> 前后的参数形式一致时可以使用方法应用
 
-实例方法引用：对象名::实例方法
+实例方法引用：对象名::实例方法，与静态方法类似
+
+特定方法引用：
+
+```java
+// 目标：特定类型的方法引用
+// 需求：有一个字符串数组，里面有一些人员名，要求按照姓名的首字母
+String names[] = {"Tom", "Jerry", "Lucy", "Mary", "Alice","曹操", "andy", "chris" };
+Arrays.sort(names, (s1, s2) -> s1.compareToIgnoreCase(s2));
+Arrays.sort(names, String::compareToIgnoreCase);
+System.out.println(Arrays.toString(names));
+```
+
+构造器引用：
+
+```java
+public static void main(String[] args) {
+    // CarFactor cf = name -> new Car(name);
+    CarFactor cf = Car::new; // 构造器引用
+
+    Car c1 = cf.getCar("奔驰");
+
+}
+
+interface CarFactor {
+    Car getCar(String name);
+}
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+class Car {
+    private String name;
+}
+```
+
+
 
 
 
