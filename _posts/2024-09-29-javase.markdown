@@ -870,3 +870,11 @@ BorderLayout：东南西北中
 GridLayout：网格布局管理器
 
 BoxLayout：盒子布局管理器 
+
+常用的事件监听器
+
+点击事件监听器 ActionListener
+
+按键事件监听器 KeyListener
+
+事件的几种常见的写法： 1.提供实现类，2直接使用匿名内部类的对象，3自定义窗口
