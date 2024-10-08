@@ -838,3 +838,35 @@ String 常用方法
 ArrayList：创建对象，增、删、改、查
 
 ![image-20241008120418804](./../img/md-img/2024-09-29-javase/image-20241008120418804.png)
+
+GUI编程
+
+GUI：Graphical User Interface，图形用户界面。
+
+java的gui包
+
+awt（Abstract window tookit) 提供了一组原生的gui组件，依赖于操作系统的本地窗口系统
+
+swing：基于awt，提供了更丰富的gui组件，轻量级组件，不依赖于本地窗口系统
+
+常用的Swing组件：
+
+JFrame：窗口
+
+JPanel：用于组织其他组件的容器
+
+JButton: 按钮组件
+
+JTextField: 输入框
+
+JTable：表格
+
+布局管理器（Layout Manager)
+
+FlowLayout：水平布局管理器
+
+BorderLayout：东南西北中
+
+GridLayout：网格布局管理器
+
+BoxLayout：盒子布局管理器 
