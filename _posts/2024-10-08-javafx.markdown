@@ -9,7 +9,9 @@ catalog: true
 tags:
 ---
 
-java FX
+11javaFX在jdk1.8之后需要手动安装javafx包  
+
+java FX应用的基本结构
 
 ![image-20241008201035284](./../img/md-img/2024-10-08-javafx/image-20241008201035284.png)
 
