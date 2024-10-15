@@ -9,9 +9,36 @@ catalog: true
 tags:
 ---
 
-11javaFX在jdk1.8之后需要手动安装javafx包  
+javaFX在jdk1.8之后需要手动安装javafx包  
 
 java FX应用的基本结构
 
 ![image-20241008201035284](./../img/md-img/2024-10-08-javafx/image-20241008201035284.png)
 
+stage的方法：
+
+Title
+
+
+
+icon
+
+resiziable
+
+x,y,width,height
+
+StageStyle
+
+Modality
+
+event
+
+Node的常用方法：
+
+layoutX layoutY preWidth preHeight 
+
+style visable opacity blendMode
+
+translateX translateY rotate scaleX scaleY scaleZ
+
+ parent scene id
