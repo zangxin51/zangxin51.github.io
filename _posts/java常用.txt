@@ -1,0 +1,12 @@
+1.打jar包，要在根目录执行
+jar cfm EmpTest.jar .\chap04\manifest.mf .\chap04\*.class
+
+manifest.mf：
+Manifest-Version: 1.0
+Main-Class: chap04.EmployeeTest
+
+2.执行jar包
+jar -jar EmpTest.jar
+
+3.生成文档
+java -d docDirectory nameOfPackage1 nameOfPackage2
