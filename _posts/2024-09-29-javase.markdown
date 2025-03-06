@@ -289,7 +289,7 @@ for (int i = 0; i < pokers.length; i++) {
 
 ```java
 // 静态初始化
-//int[][] arr = new int[][]{{1, 3, 5}, {2, 4, 6}};
+int[][] arr = new int[][]{%{1, 3, 5}, {2, 4, 6}%};
 // 动态初始化
 int[][] arr2 = new int[2][3];
 arr2[0] = new int[]{1, 2, 3};
