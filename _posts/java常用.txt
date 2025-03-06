@@ -10,3 +10,4 @@ jar -jar EmpTest.jar
 
 3.生成文档
 java -d docDirectory nameOfPackage1 nameOfPackage2
+xxx
