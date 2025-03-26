@@ -1,0 +1,6 @@
+1.写md时, 文件头部照搬, 改下标题和时间
+2.不用使用{{}}两个大括号, 编译通过不了
+3.图片使用相对路径, 新的文档创建一个新的图片存放目录在img/md-img/项目名称/xxx.png
+4.截图或者复制图片到md文档时, 选择复制文件到上面的那个目录
+5.使用typora时,可以在偏好设置->Image中勾选 use relative path if imgage
+和 选择插入图片规则为 copy image to custome folder并选择应用规则to local images
