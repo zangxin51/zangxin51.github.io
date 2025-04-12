@@ -478,3 +478,234 @@ quick.orange.new.rabbit 没有匹配-消息将会lost
 
 lazy.orange.new.rabbit 可以匹配到 Q2, 消息发送到Q2
 
+```java
+//- topic
+private static final String QUEUE_TOPIC_01 = "queue_topic_01";
+private static final String QUEUE_TOPIC_02 = "queue_topic_02";
+private static final String TOPIC_EXCHANGE = "topicExchange";
+// 路由
+private static final String ROUTING_KEY_03 = "#.queue.#";
+private static final String ROUTING_KEY_04 = "*.queue.*";
+
+// 创建队列
+@Bean
+public Queue queue_topic01() {
+  return new Queue(QUEUE_TOPIC_01);
+}
+@Bean
+public Queue queue_topic02() {
+  return new Queue(QUEUE_TOPIC_02);
+}
+
+@Bean
+public TopicExchange topicExchange() {
+  return new TopicExchange(TOPIC_EXCHANGE);
+}
+
+// 绑定交换机和路由
+@Bean
+public Binding binding_topic01() {
+  return BindingBuilder.bind(queue_topic01()).to(topicExchange()).with(ROUTING_KEY_03);
+}
+
+@Bean
+public Binding binding_topic02() {
+  return BindingBuilder.bind(queue_topic02()).to(topicExchange()).with(ROUTING_KEY_04);
+}
+```
+
+```java
+// topic:发送消息到topic交换机
+public void sendTopic01(Object msg) {
+  log.info("direct:发送消息:#.queue.#: {}", msg);
+  rabbitTemplate.convertAndSend("topicExchange", "#.queue.#", msg);
+}
+
+// topic:发送消息到topic交换机
+public void sendTopic02(Object msg) {
+  log.info("direct:发送消息:*.queue.*: {}", msg);
+  rabbitTemplate.convertAndSend("topicExchange", "*.queue.*", msg);
+}
+```
+
+```java
+// 接收topic消息, topic交换机绑了两个队列--01
+@RabbitListener(queues = {"queue_topic_01"})
+public void receiveTopic01(Object msg) {
+    log.info("[queue_topic_01]接收到消息: {}", msg);
+}
+
+// 接收topic消息, topic交换机绑了两个队列--02
+@RabbitListener(queues = {"queue_topic_02"})
+public void receiveTopic02(Object msg) {
+    log.info("[queue_topic_02]接收到消息: {}", msg);
+}
+```
+
+```java
+@RequestMapping("/mqTopic01")
+@ResponseBody
+public void sendTopic01() {
+    mqSender.sendTopic01("Topic01, I am rabbit mq");
+}
+
+@RequestMapping("/mqTopic02")
+@ResponseBody
+public void sendTopic02() {
+    mqSender.sendTopic02("Topic02, I am rabbit mq");
+}
+```
+
+
+
+#### headers
+
+**1**、**headers** 交换机是一种比较复杂且少见的交换机，不同于 **direct** 和 **topic**，它不关心 路由 **key** 是否匹配，而只关心 **header** 中的 **key-value** 对是否匹配**(**这里的匹配为精确匹配， 包含键和值都必须匹配**)**， 有点类似于 **http** 中的请求头。
+
+**2**、**headers** 头路由模型中，消息是根据 **prop** 即请求头中 **key-value** 来匹配的。 
+
+**3**、绑定的队列**(**也可以理解成消费方**)** 指定的 **headers** 中必须包含一个**"x-match"**的键
+
+ **4**、键**"x-match"**的值有 **2** 个:**all** 和 **any**。
+ **all**:表示绑定的队列**/**消费方 指定的所有 **key-value** 都必须在消息 **header** 中出现并匹配
+
+**any**:表示绑定的队列**/**消费方 指定的 **key-value** 至少有一个在消息 **header** 中出现并匹 配即可
+
+headersExchange特点:  可以携带多个header[k-v], 队列绑定交换机时要指定any/all匹配
+
+案例: 
+
+需求: 
+
+**1)** **给** **headers** **交换机发送消息** **hello everyone,** **让** **QUEUE01** **和** **QUEUE02** **两个队列都接收**
+
+**2)** **给** **headers** **交换机发送消息** **hello queue01,** **让** **QUEUE01** **队列接收**
+
+配置类
+
+```java
+//- headers
+private static final String QUEUE_HEADERS_01 = "queue_header_01";
+private static final String QUEUE_HEADERS_02 = "queue_header_02";
+private static final String HEADERS_EXCHANGE = "headersExchange";
+
+
+@Bean
+public Queue queue_header01() {
+  return new Queue(QUEUE_HEADERS_01);
+}
+
+@Bean
+public Queue queue_header02() {
+  return new Queue(QUEUE_HEADERS_02);
+}
+
+@Bean
+public HeadersExchange headersExchange() {
+  return new HeadersExchange(HEADERS_EXCHANGE);
+}
+
+// 完成队列和交换机的绑定, 同时声明要匹配的k-v, 和以什么方式绑定(all/any)
+@Bean
+public Binding binding_header01() {
+  // 先定义k-v, 因为有多个可以放入map
+  Map<String, Object> map = new HashMap<>();
+  map.put("color", "red");
+  map.put("gender","f");
+  // 只要有任何一个(any)k-v满足就把消息发送到这个队列中
+  return BindingBuilder.bind(queue_header01())
+    .to(headersExchange())
+    .whereAny(map)
+    .match();
+}
+
+@Bean
+public Binding binding_header02() {
+  // 先定义k-v, 因为有多个可以放入map
+  Map<String, Object> map = new HashMap<>();
+  map.put("color", "red");
+  map.put("gender","m");
+  // 全部满足map中的k-v(all),才把消息发送到这个队列中
+  return BindingBuilder.bind(queue_header02())
+    .to(headersExchange())
+    .whereAll(map)
+    .match();
+}
+```
+
+sender
+
+```java
+// headers:发送消息到headers交换机
+public void sendHeaders01(String msg) {
+  log.info("headers:发送消息:color=red,gender=m: {}", msg);
+  // 创建消息属性
+  MessageProperties messageProperties = new MessageProperties();
+  messageProperties.setHeader("color", "red");
+  messageProperties.setHeader("gender", "m");
+  Message message = new Message(msg.getBytes(),messageProperties);
+  // headers交换机不用设置routingKey, 他靠header来过滤消息
+  rabbitTemplate.convertAndSend("headersExchange", "", message);
+}
+
+// headers:发送消息到headers交换机
+public void sendHeaders02(String msg) {
+  log.info("headers:发送消息:color=red,gender=f: {}", msg);
+  // 创建消息属性
+  MessageProperties messageProperties = new MessageProperties();
+  messageProperties.setHeader("color", "red");
+  messageProperties.setHeader("gender", "f");
+  Message message = new Message(msg.getBytes(),messageProperties);
+  // headers交换机不用设置routingKey
+  rabbitTemplate.convertAndSend("headersExchange", "", message);
+}
+```
+
+接收者
+
+```java
+// 接收headers消息, headers交换机绑了两个队列--01
+@RabbitListener(queues = {"queue_header_01"})
+public void receiveHeaders01(Object msg) {
+  log.info("[queue_header_01]接收到消息: {}", msg);
+}
+
+// 接收headers消息, headers交换机绑了两个队列--02
+@RabbitListener(queues = {"queue_header_02"})
+public void receiveHeaders02(Object msg) {
+  log.info("[queue_header_02]接收到消息: {}", msg);
+}
+```
+
+测试
+
+```java
+@RequestMapping("/mqHeaders01")
+@ResponseBody
+public void sendHeaders01() {
+    mqSender.sendHeaders01("Headers01, I am rabbit mq");
+}
+
+@RequestMapping("/mqHeaders02")
+@ResponseBody
+public void sendHeaders02() {
+    mqSender.sendHeaders02("Headers02, I am rabbit mq");
+}
+```
+
+
+
+```java
+2025-04-12 19:33:56.437  INFO 12189 --- [p-nio-80-exec-1] org.xxx.seckill.rabbitmq.MQSender        : headers:发送消息:color=red,gender=m: Headers01, I am rabbit mq
+2025-04-12 19:33:56.472  INFO 12189 --- [ntContainer#7-1] org.xxx.seckill.rabbitmq.MQReceiver      : [queue_header_01]接收到消息: (Body:'[B@6cb9549c(byte[25])' MessageProperties [headers={color=red, gender=m}, contentType=application/octet-stream, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=false, receivedExchange=headersExchange, receivedRoutingKey=, deliveryTag=1, consumerTag=amq.ctag-oo_zQ5p9B6NWSpmfae94_Q, consumerQueue=queue_header_01])
+2025-04-12 19:33:56.472  INFO 12189 --- [ntContainer#8-1] org.xxx.seckill.rabbitmq.MQReceiver      : [queue_header_02]接收到消息: (Body:'[B@711ff813(byte[25])' MessageProperties [headers={color=red, gender=m}, contentType=application/octet-stream, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=false, receivedExchange=headersExchange, receivedRoutingKey=, deliveryTag=1, consumerTag=amq.ctag-jdmLQ6IZ4K-zhHxFIIKWhQ, consumerQueue=queue_header_02])
+2025-04-12 19:34:08.787  INFO 12189 --- [p-nio-80-exec-2] org.xxx.seckill.rabbitmq.MQSender        : headers:发送消息:color=red,gender=f: Headers02, I am rabbit mq
+2025-04-12 19:34:08.806  INFO 12189 --- [tContainer#7-10] org.xxx.seckill.rabbitmq.MQReceiver      : [queue_header_01]接收到消息: (Body:'[B@677ac83c(byte[25])' MessageProperties [headers={color=red, gender=f}, contentType=application/octet-stream, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=false, receivedExchange=headersExchange, receivedRoutingKey=, deliveryTag=1, consumerTag=amq.ctag-T04lxIVVzp7eYNEdlsXS7w, consumerQueue=queue_header_01])
+```
+
+可见: any匹配只要满足任意一个header就可以收到消息
+
+all匹配需要满足所有的header(key=value)才能接收到消息
+
+<img src="../img/md-img/2025-03-26-project-01/截屏2025-04-12 19.42.15.png" alt="截屏2025-04-12 19.42.15" style="zoom:50%;" />
+
