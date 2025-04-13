@@ -78,7 +78,7 @@ firewall-cmd --list-ports
 
 提示不能远程登录, 修改配置,让guest可以远程登录
 
-**-** **在**/etc/rabbitmq** **目录下创建** **rabbitmq.config**, 内容如下
+**-** **在**/etc/rabbitmq **目录下创建** **rabbitmq.config**, 内容如下
 
 ```shell
 [{rabbit,[{loopback_users,[]}]}].
