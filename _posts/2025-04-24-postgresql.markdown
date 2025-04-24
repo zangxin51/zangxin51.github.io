@@ -33,7 +33,7 @@ brew install postgresql@15
 # 配置环境变量
 echo 'export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"' >> ~/.zshrc 
 # 安装目录
-/opt/homebrew/opt/postgrcreatedb mydbesql@15/bin/postgres
+/opt/homebrew/opt/postgresql@15/bin/postgres
 # 运行文件目录
 /opt/homebrew/var/postgresql@15
 # 启动postgres服务
@@ -340,14 +340,101 @@ DELETE FROM weather WHERE city = 'Hayward';
 
 #### 视图
 
-外键
+```sql
+CREATE VIEW myview AS
+    SELECT name, temp_lo, temp_hi, prcp, date, location
+        FROM weather, cities
+        WHERE city = name;
 
-事务
+SELECT * FROM myview;
+```
 
-窗口函数
+#### 外键 
 
-inheritance
+```sql
+CREATE TABLE cities (
+        name     varchar(80) primary key,
+        location point
+);
 
+CREATE TABLE weather (
+        city      varchar(80) references cities(name), --外键
+        temp_lo   int,
+        temp_hi   int,
+        prcp      real,
+        date      date
+);
+```
 
+```sql
+INSERT INTO weather VALUES ('Berkeley', 45, 53, 0.0, '1994-11-28');
 
-Conclusion
+```
+
+插入之前会先校验外键对应表数据是否存在, 如果不存在, 则插入失败, 保证了数据的完整性
+
+```
+ERROR:  insert or update on table "weather" violates foreign key constraint "weather_city_fkey"
+DETAIL:  Key (city)=(Berkeley) is not present in table "cities".
+```
+
+#### 事务
+
+事务的ACID
+
+案例-转账
+
+```sql
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+UPDATE branches SET balance = balance - 100.00
+    WHERE name = (SELECT branch_name FROM accounts WHERE name = 'Alice');
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Bob';
+UPDATE branches SET balance = balance + 100.00
+    WHERE name = (SELECT branch_name FROM accounts WHERE name = 'Bob');
+```
+
+使用事务
+
+```sql
+BEGIN;
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+-- etc etc
+COMMIT;
+```
+
+回滚, 保存点
+
+```sql
+BEGIN;
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+SAVEPOINT my_savepoint;
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Bob';
+-- oops ... forget that and use Wally's account
+ROLLBACK TO my_savepoint;
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Wally';
+COMMIT;
+```
+
+如果在交易过程中，我们决定不想提交（也许我们只是注意到 Alice 的余额变为负数），我们可以发出命令`ROLLBACK`而不是`COMMIT`，这样我们迄今为止的所有更新都将被取消。
+
+PostgreSQL actually treats every SQL statement as being executed within a transaction. If you do not issue a `BEGIN` command, then each individual statement has an implicit `BEGIN` and (if successful) `COMMIT` wrapped around it. A group of statements surrounded by `BEGIN` and `COMMIT` is sometimes called a *transaction block*.
+
+*通过使用保存点*，可以更精细地控制事务中的语句。保存点允许您选择性地丢弃事务的某些部分，同时提交其余部分。使用 定义保存点后`SAVEPOINT`，如果需要，您可以使用 回滚到该保存点`ROLLBACK TO`。在定义保存点和回滚到该保存点之间，事务的所有数据库更改都将被丢弃，但保存点之前的更改将被保留。
+
+回滚到某个保存点后，该保存点仍然有效，因此您可以多次回滚到该保存点。相反，如果您确定不需要再次回滚到某个保存点，则可以将其释放，以便系统释放一些资源。请记住，释放或回滚到某个保存点都会自动释放在该保存点之后定义的所有保存点。
+
+所有这些都发生在事务块内，因此对其他数据库会话不可见。当您提交事务块时，已提交的操作将作为一个单元对其他会话可见，而回滚的操作则完全不可见。
+
+#### 窗口函数
+
+导入postgresql源码目录中src/tutorial的表
+
+#### inheritance
+
+#### Conclusion
