@@ -1,3 +1,14 @@
+---
+layout:     post
+title:      "frontend"
+subtitle:   ""
+date:       2025-04-26 10:25:00
+author:     "zangxin"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+---
+
 # Frontend
 
 ## HTML
