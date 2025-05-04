@@ -2050,7 +2050,7 @@ $.getJSON({
     ```html
     <div id="app">
       <!--  插值表达式,修改message值,这里显示的内容也会改变  -->
-      <h1>{{message}}-{{name}}</h1>
+      <h1>\{{message}}-\{{name}}</h1>
     </div>
     <!--这里的数据不显示,没有绑定到vue上-->
     ```
@@ -2058,7 +2058,7 @@ $.getJSON({
     
 
     ```html
-    <h1>{{message}}-{{name}}</h1>
+    <h1>\{{message}}-\{{name}}</h1>
     <script type="text/javascript">
       let vm = new Vue({
         el: "#app", // 把vue绑定id=app的元素上
@@ -2248,7 +2248,7 @@ v-if会根据的返回值来决定是否动态的创建对应的子组件
 
 ```html
 输入成绩1-100:<input type="text" v-model="score" @blur="checkScore">
-<p>你当前成绩是{{score}}</p>
+<p>你当前成绩是\{{score}}</p>
 <p v-if="score>=90">优秀</p>
 <p v-else-if="score>=70">良好</p>
 <p v-else-if="score>=60">及格</p>
@@ -2266,25 +2266,25 @@ checkScore() {
 ```html
 <!--简单列表渲染-->
 <ul>
-  <li v-for="num in 3">{{num}}</li>
+  <li v-for="num in 3">\{{num}}</li>
 </ul>
 <hr>
 <!--带索引(是数组的索引,并第几个列表)的列表渲染-->
 <ul>
-  <li v-for="(num,index) in 3">{{index}}-{{num}}</li>
+  <li v-for="(num,index) in 3">\{{index}}-\{{num}}</li>
 </ul>
 <hr>
 <!--遍历对象的属性名和属性值,注意value在前面,key在后面-->
 <ul>
-  <li v-for="(value,name) in users[0]">{{name}}--{{value}}</li>
+  <li v-for="(value,name) in users[0]">\{{name}}--\{{value}}</li>
 </ul>
 <hr>
 <!--将对象数组中每个对象对应一行字段,填入表格中
 0	1	alice	23-->
 <table width="200px" border="1" cellpadding="0" cellspacing="0">
   <tr v-for="(user,row) in users">
-    <td>{{row}}</td>
-    <td v-for="value in user">{{value}}</td>
+    <td>\{{row}}</td>
+    <td v-for="value in user">\{{value}}</td>
   </tr>
 </table>
 users: [
@@ -2301,8 +2301,8 @@ users: [
  <!--展示成绩及格(score>60)的学生-->
 <table border="1" width="300px" cellspacing="0" cellpadding="0">
     <tr v-for="(stu,index) in students" v-show="stu.score >= 60">
-        <td>{{index+1}}</td>
-        <td v-for="(value) in stu">{{value}}</td>
+        <td>\{{index+1}}</td>
+        <td v-for="(value) in stu">\{{value}}</td>
     </tr>
 </table>
 students: [
@@ -2349,7 +2349,7 @@ students: [
         // 这里就达成了是用template复用的效果
       // 全局组件属于所有vue实例, 因此可以在所有的vue中使用, (在同一个文件中)
         Vue.component("counter", {
-            template: `<button @click="click">点击次数{{count}}-组件化编程</button>`,
+            template: `<button @click="click">点击次数\{{count}}-组件化编程</button>`,
             // 不能用原来的方式来定义属性,要用return的方法
             data() {
                 return {
@@ -2384,7 +2384,7 @@ students: [
 
 <script type="text/javascript">
   const buttonCounter = Vue.component("counter", {
-    template: `<button @click="click">点击次数{{count}}-组件化编程</button>`,
+    template: `<button @click="click">点击次数\{{count}}-组件化编程</button>`,
     // 不能用原来的方式来定义属性,要用return的方法
     data() {
       return {
@@ -2495,10 +2495,10 @@ students: [
 
   ```html
   <div id="app">
-    <h1>{{message}}</h1>
-    <span id="num">{{count}}</span>
+    <h1>\{{message}}</h1>
+    <span id="num">\{{count}}</span>
     <button @click="count++">点赞👍🏻</button>
-    <h2>{{name}}, 有{{count}}个赞👍🏻</h2>
+    <h2>\{{name}}, 有\{{count}}个赞👍🏻</h2>
   </div>
   
   <script type="text/javascript">
@@ -2521,15 +2521,15 @@ students: [
         console.log("===========beforeCreated============")
         console.log("数据池的数据是否加载?, ", this.name, this.count) // undefined
         // console.log("自定义方法是否加载?, ", this.show()) // no this.show is not a function
-        console.log("用户页面dom是否加载? ", document.getElementById("num")) // yes <span id="num">{{count}}</span>
-        console.log("用户页面dom是完成渲染(解析{{count}? ", document.getElementById("num").innerHTML) // no {{count}}
+        console.log("用户页面dom是否加载? ", document.getElementById("num")) // yes <span id="num">\{{count}}</span>
+        console.log("用户页面dom是完成渲染(解析\{{count}? ", document.getElementById("num").innerHTML) // no \{{count}}
       },
       created() {
         console.log("===========created============")
         console.log("数据池的数据是否加载?, ", this.name, this.count) // yes
         console.log("自定义方法是否加载?, ", this.show()) // yes
         console.log("用户页面dom是否加载? ", document.getElementById("num")) // yes
-        console.log("用户页面dom是完成渲染(解析{{count}? ", document.getElementById("num").innerHTML) // no {{count}}
+        console.log("用户页面dom是完成渲染(解析\{{count}? ", document.getElementById("num").innerHTML) // no \{{count}}
         // 可以发出ajax请求,接受返回数据, 再去更新data数据池的数据,编译内存模板
       },
       beforeMount() { //编译模板
@@ -2537,28 +2537,28 @@ students: [
         console.log("数据池的数据是否加载?, ", this.name, this.count) // yes
         console.log("自定义方法是否加载?, ", this.show()) // yes
         console.log("用户页面dom是否加载? ", document.getElementById("num")) // yes
-        console.log("用户页面dom是完成渲染(解析{{count}? ", document.getElementById("num").innerHTML) // no {{count}}
+        console.log("用户页面dom是完成渲染(解析\{{count}? ", document.getElementById("num").innerHTML) // no \{{count}}
       },
       mounted() {// 挂载模板,至此渲染完成
         console.log("===========mounted============")
         console.log("数据池的数据是否加载?, ", this.name, this.count) // yes
         console.log("自定义方法是否加载?, ", this.show()) // yes
         console.log("用户页面dom是否加载? ", document.getElementById("num")) // yes
-        console.log("用户页面dom是完成渲染(解析{{count}? ", document.getElementById("num").innerHTML) // yes
+        console.log("用户页面dom是完成渲染(解析\{{count}? ", document.getElementById("num").innerHTML) // yes
       },
       beforeUpdate() {// 数据池数据更新前, 可以进行数据验证
         console.log("===========beforeUpdate============")
         console.log("数据池的数据是否加载?, ", this.name, this.count) // yes
         console.log("自定义方法是否加载?, ", this.show()) // yes
         console.log("用户页面dom是否加载? ", document.getElementById("num")) // yes <span id="num">1</span>
-        console.log("用户页面dom是完成渲染(解析{{count}? ", document.getElementById("num").innerHTML) // yes count=0 旧数据
+        console.log("用户页面dom是完成渲染(解析\{{count}? ", document.getElementById("num").innerHTML) // yes count=0 旧数据
       },
       updated() {// 数据池数据更新后
         console.log("===========updated============")
         console.log("数据池的数据是否加载?, ", this.name, this.count) // yes
         console.log("自定义方法是否加载?, ", this.show()) // yes
         console.log("用户页面dom是否加载? ", document.getElementById("num")) // yes <span id="num">1</span>
-        console.log("用户页面dom是完成渲染(解析{{count}? ", document.getElementById("num").innerHTML) // yes count=1 新数据
+        console.log("用户页面dom是完成渲染(解析\{{count}? ", document.getElementById("num").innerHTML) // yes count=1 新数据
       },
     })
   ```
