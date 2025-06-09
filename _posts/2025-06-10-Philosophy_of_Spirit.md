@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      ""Philosophy of Spirit"
+title:      "Philosophy of Spirit"
 subtitle:   ""
 date:       2025-06-10 01:26:00
 author:     "zangxin"
