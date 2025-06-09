@@ -2,7 +2,7 @@
 layout:     post
 title:      ""Philosophy of Spirit"
 subtitle:   ""
-date:       2025-04-13 16:39:00
+date:       2025-06-10 01:26:00
 author:     "zangxin"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
