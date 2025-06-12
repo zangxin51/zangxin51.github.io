@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "面试题"
+title:      "Lesser Logic"
 subtitle:   ""
 date:       2025-06-12 22:59:00
 author:     "zangxin"
