@@ -12,13 +12,19 @@ lang: zh-CN
 # Publish posts or collection documents with a future date.
 future: false
 
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      header-mask: 0.35
+
 # SNS settings
 RSS: false
 weibo_username: 
 zhihu_username: 
 github_username: zangxin51
 twitter_username: 
-#facebook_username:  huxpro
 #linkedin_username:  firstname-lastname-idxxxx
 
 # Build settings
@@ -68,7 +74,7 @@ kramdown:
       start_line: 1
 
 # Disqus settings
-disqus_username: # hux
+disqus_username:
 
 # Netease settings
 netease_comment: false
@@ -79,12 +85,12 @@ netease_comment: false
 
 # Google Analytics
 ga_track_id: #"UA-49627206-1" # Format: UA-xxxxxx-xx
-ga_domain: #huangxuan.me
+ga_domain:
 
 # Sidebar settings
 sidebar: true # whether or not using Sidebar.
 sidebar-about-description: "无言以对"
-sidebar-avatar: #https://github.com/Huxpro.png # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar:
 
 # Featured Tags
 featured-tags: false # whether or not using Feature-Tags

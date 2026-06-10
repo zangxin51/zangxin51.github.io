@@ -4,7 +4,7 @@ title:      "Natural philosophy"
 subtitle:   ""
 date:       2025-06-17 21:03:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 ---

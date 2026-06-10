@@ -4,7 +4,7 @@ title:      "函数式编程"
 subtitle:   "Functional Programming"
 date:       2024-08-10 22:05:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 ---

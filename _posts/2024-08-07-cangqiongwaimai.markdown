@@ -4,7 +4,7 @@ title:      "苍穹外卖项目学习"
 subtitle:   ""
 date:       2024-08-07 14:36:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 hidden: true
 tags:

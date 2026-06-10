@@ -4,7 +4,7 @@ title:      "本地部署deepseek"
 subtitle:   ""
 date:       2025-04-13 16:39:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 ---

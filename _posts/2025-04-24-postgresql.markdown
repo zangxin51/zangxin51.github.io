@@ -4,7 +4,7 @@ title:      "postgreSQL"
 subtitle:   ""
 date:       2025-04-24 12:07:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 

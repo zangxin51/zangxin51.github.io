@@ -4,7 +4,7 @@ title:      "精神现象学"
 subtitle:   "精神现象学_一小时"
 date:       2025-06-01 20:38:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 ---

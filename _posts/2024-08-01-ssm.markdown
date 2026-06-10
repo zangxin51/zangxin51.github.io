@@ -4,7 +4,7 @@ title:      "SSM框架"
 subtitle:   "ssm"
 date:       2024-08-01 11:58:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 ---

@@ -11,7 +11,7 @@
 body {
   .sans-serif;
   font-size: 16px;
-  // Hux mpdify to 16px (Mobile First), and increase to 20px while 768+ width
+  // Use 16px for mobile and increase to 20px at 768px and above.
   color: @gray-dark;
   //-webkit-user-select:text; //对于 Blog 还是先不开启这句。
   overflow-x: hidden;
@@ -124,7 +124,7 @@ hr.small {
   border-width: 4px;
   border-color: white;
 }
-// add by Hux
+// Navbar transition helpers.
 pre,
 .table-responsive {
   // sometimes you should use vendor-feature.
@@ -250,7 +250,7 @@ samp {
       margin-top: 20px;
     }
   }
-  // V1.6 Hux display title by default.
+  // Display titles by default.
   .pager li {
     width: 48%;
     &.next {
@@ -297,9 +297,9 @@ samp {
   }
   /**
    * Animation
-   * HuxBlog-Navbar using genuine Material Design Animation
+   * Navbar animation inspired by Material Design.
    */
-  #huxblog_navbar {
+  #site_navbar {
     /**
      * Sharable code and 'out' function
      */
@@ -532,7 +532,7 @@ samp {
   background-attachment: scroll;
   .background-cover;
   // NOTE: Background images are set within the HTML using inline CSS!
-  margin-bottom: 0px; /* 0 on mobile, modify by Hux */
+  margin-bottom: 0px;
   @media only screen and (min-width: 768px) {
     margin-bottom: 20px; /* response on desktop */
   }
@@ -690,7 +690,7 @@ samp {
   }
 }
 
-// Hux add home-page post-content-preview
+// Home-page post content preview.
 .post-content-preview {
   font-size: 13px;
   font-style: italic;
@@ -846,7 +846,7 @@ img::-moz-selection {
   background: transparent;
 }
 
-/* Hux add tags support */
+/* Tag styles. */
 .d-none {
   display: none !important;
 }
@@ -1007,7 +1007,7 @@ img::-moz-selection {
 
 /* Tags support End*/
 
-/* Hux make all img responsible in post-container */
+/* Responsive images in post content. */
 .post-container img {
   display: block;
   max-width: 100%;
@@ -1015,7 +1015,7 @@ img::-moz-selection {
   margin: 1.5em auto 1.6em auto;
 }
 
-/* Hux Optimize UserExperience */
+/* Interaction refinements. */
 .navbar-default .navbar-toggle {
   &:focus,
   &:hover {
@@ -1026,7 +1026,7 @@ img::-moz-selection {
   }
 }
 
-/* Hux customize Style for navBar button */
+/* Navbar button styles. */
 
 .navbar-default .navbar-toggle {
   border-color: transparent;
@@ -1046,7 +1046,7 @@ img::-moz-selection {
   }
 }
 
-// Hux fullscreen mode in 404.html
+// Fullscreen mode for 404.html.
 
 .page-fullscreen .intro-header {
   position: fixed;

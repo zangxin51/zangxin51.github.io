@@ -4,7 +4,7 @@ title:      "The Mythical Man-Month: Essays on Software Engineering"
 subtitle:   ""
 date:       2025-07-09 21:38:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 ---

@@ -4,7 +4,7 @@ title:      "Philosophy of Spirit"
 subtitle:   ""
 date:       2025-06-10 01:26:00
 author:     "zangxin"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
 ---
