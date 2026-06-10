@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zangxin-blog-v3';
+const CACHE_NAME = 'zangxin-blog-v4';
 const PRECACHE_URLS = [
   '/',
   '/offline.html',
@@ -9,8 +9,7 @@ const PRECACHE_URLS = [
   '/js/zangxin-blog.min.js',
   '/js/simple-jekyll-search.min.js',
   '/img/home-bg.jpg',
-  '/img/404-bg.jpg',
-  '/img/icon_wechat.png'
+  '/img/404-bg.jpg'
 ];
 
 self.addEventListener('install', function (event) {
