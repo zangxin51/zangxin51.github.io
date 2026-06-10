@@ -1,48 +1,58 @@
 ---
 layout: page
-description: "「To be, or not to be, that is the question」"
+description: "记录代码、阅读与思考"
 header-mask: 0.35
 no-catalog: true
 ---
 
-{% for post in paginator.posts %}
-<div class="post-preview">
-    <a href="{{ post.url | prepend: site.baseurl }}">
-        <h2 class="post-title">
-            {{ post.title }}
-        </h2>
-        {% if post.subtitle %}
-        <h3 class="post-subtitle">
-            {{ post.subtitle }}
-        </h3>
-        {% endif %}
-        <div class="post-content-preview">
-            {% if post.lang == 'en' %}
-                {{ post.excerpt | strip_html | strip_newlines | truncate:220 }}
-            {% else %}
-                {{ post.excerpt | strip_html | strip_newlines | truncate:140 }}
-            {% endif %}
-        </div>
-    </a>
-    <p class="post-meta">
-        {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} · {{ post.date | date: "%Y-%m-%d" }}
-    </p>
-</div>
-<hr>
-{% endfor %}
+<section class="home-feed" aria-labelledby="latest-posts">
+    <header class="feed-heading">
+        <span class="feed-kicker">LATEST NOTES</span>
+        <h2 id="latest-posts">最近更新</h2>
+        <p>关于开发实践、技术探索与哲学阅读的个人笔记。</p>
+    </header>
 
-<!-- Pager -->
-{% if paginator.total_pages > 1 %}
-<ul class="pager">
-    {% if paginator.previous_page %}
-    <li class="previous">
-        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; 较新文章</a>
-    </li>
+    {% for post in paginator.posts %}
+    <article class="post-preview">
+        <a class="post-card-link" href="{{ post.url | prepend: site.baseurl }}">
+            <div class="post-card-meta">
+                <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+                {% if post.tags.size > 0 %}
+                <span class="post-card-dot" aria-hidden="true"></span>
+                <span>{{ post.tags | first }}</span>
+                {% endif %}
+            </div>
+            <h2 class="post-title">{{ post.title }}</h2>
+            {% if post.subtitle %}
+            <h3 class="post-subtitle">{{ post.subtitle }}</h3>
+            {% endif %}
+            <div class="post-content-preview">
+                {% if post.lang == 'en' %}
+                    {{ post.excerpt | strip_html | strip_newlines | truncate:220 }}
+                {% else %}
+                    {{ post.excerpt | strip_html | strip_newlines | truncate:140 }}
+                {% endif %}
+            </div>
+            <div class="post-card-footer">
+                <span>阅读全文</span>
+                <span class="post-card-arrow" aria-hidden="true">&rarr;</span>
+            </div>
+        </a>
+    </article>
+    {% endfor %}
+
+    {% if paginator.total_pages > 1 %}
+    <ul class="pager">
+        {% if paginator.previous_page %}
+        <li class="previous">
+            <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; 较新文章</a>
+        </li>
+        {% endif %}
+        {% if paginator.next_page %}
+        <li class="next">
+            <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">更早文章 &rarr;</a>
+        </li>
+        {% endif %}
+    </ul>
     {% endif %}
-    {% if paginator.next_page %}
-    <li class="next">
-        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">更早文章 &rarr;</a>
-    </li>
-    {% endif %}
-</ul>
-{% endif %}
+</section>

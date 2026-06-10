@@ -48,7 +48,11 @@
                     <h1>{{ page.title }}</h1>
                     {% comment %} always create a h2 for keeping the margin {% endcomment %}
                     <h2 class="subheading">{{ page.subtitle }}</h2>
-                    <span class="meta">Posted by {% if page.author %}{{ page.author }}{% else %}{{ site.title }}{% endif %} on {{ page.date | date: "%B %-d, %Y" }}</span>
+                    <span class="meta">
+                        <span>{% if page.author %}{{ page.author }}{% else %}{{ site.title }}{% endif %}</span>
+                        <span aria-hidden="true">·</span>
+                        <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y-%m-%d" }}</time>
+                    </span>
                 </div>
             </div>
         </div>
@@ -106,6 +110,9 @@
         {% else %}
         <div class="site-heading">
         {% endif %}
+          {% if page.url == '/' %}
+          <span class="hero-kicker">CODE · NOTES · THOUGHTS</span>
+          {% endif %}
           <h1>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</h1>
           <span class="subheading">{{ page.description }}</span>
         </div>

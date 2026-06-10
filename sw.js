@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zangxin-blog-v4';
+const CACHE_NAME = 'zangxin-blog-v5';
 const PRECACHE_URLS = [
   '/',
   '/offline.html',
