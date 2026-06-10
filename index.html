@@ -1,6 +1,7 @@
 ---
 layout: page
 description: "「To be, or not to be, that is the question」"
+no-catalog: true
 ---
 
 {% for post in paginator.posts %}
@@ -16,14 +17,14 @@ description: "「To be, or not to be, that is the question」"
         {% endif %}
         <div class="post-content-preview">
             {% if post.lang == 'en' %}
-                {{ post.content | strip_html | truncate:300 }}
+                {{ post.excerpt | strip_html | strip_newlines | truncate:220 }}
             {% else %}
-                {{ post.content | strip_html | truncate:200 }}
+                {{ post.excerpt | strip_html | strip_newlines | truncate:140 }}
             {% endif %}
         </div>
     </a>
     <p class="post-meta">
-        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} on {{ post.date | date: "%B %-d, %Y" }}
+        {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} · {{ post.date | date: "%Y-%m-%d" }}
     </p>
 </div>
 <hr>
@@ -34,12 +35,12 @@ description: "「To be, or not to be, that is the question」"
 <ul class="pager">
     {% if paginator.previous_page %}
     <li class="previous">
-        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Newer Posts</a>
+        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; 较新文章</a>
     </li>
     {% endif %}
     {% if paginator.next_page %}
     <li class="next">
-        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Older Posts &rarr;</a>
+        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">更早文章 &rarr;</a>
     </li>
     {% endif %}
 </ul>

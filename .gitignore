@@ -1,13 +1,36 @@
-_site
-_posts/_draft
-_posts/_archive
-_archive
-node_modules
-.vscode
+# Jekyll output and caches
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+
+# Local dependencies
+node_modules/
+vendor/bundle/
+.bundle/
+
+# Editor settings
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
 *.log
-*.lock
-*.sh
+*.tmp
+*.temp
+
+# OS files
 .DS_Store
-.jekyll-cache
-*/.DS_Store
-*/*/.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local post workspaces
+_posts/_draft/
+_posts/_archive/
+_archive/

@@ -1,7 +1,8 @@
 {
-  "name": "Hux Blog",
-  "short_name": "Hux Blog",
-  "description": "About an engineer & designer who loves web.",
+  "name": "zangxin Blog",
+  "short_name": "zangxin",
+  "description": "记录 Java、Web 开发、数据库与哲学阅读笔记",
+  "lang": "zh-CN",
   "icons": [{
     "src": "icons/128.png",
     "sizes": "128x128",
@@ -14,6 +15,7 @@
   "background_color": "#fff",
   "theme_color": "#000",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait"
 }

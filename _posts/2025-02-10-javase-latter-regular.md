@@ -693,7 +693,7 @@ myDaemonThread.start();
 - TIMED_WAITING
 - TERMINATED
 
-![截屏2025-04-20 10.43.53](../IdeaProjects/zangxin51.github.io/img/md-img/2025-03-26-project-01/截屏2025-04-20 10.43.53.png)
+![截屏2025-04-20 10.43.53](../img/md-img/2025-03-26-project-01/截屏2025-04-20 10.43.53.png)
 
 ### 线程同步机制
 
