@@ -3,17 +3,28 @@
   "short_name": "zangxin",
   "description": "记录 Java、Web 开发、数据库与哲学阅读笔记",
   "lang": "zh-CN",
-  "icons": [{
-    "src": "icons/128.png",
-    "sizes": "128x128",
-    "type": "image/png"
-  }, {
-    "src": "icons/512.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }],
-  "background_color": "#fff",
-  "theme_color": "#000",
+  "icons": [
+    {
+      "src": "icons/128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "background_color": "#f4f6fb",
+  "theme_color": "#5045bb",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
