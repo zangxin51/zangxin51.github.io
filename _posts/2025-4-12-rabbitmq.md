@@ -93,7 +93,6 @@ systemctl restart rabbitmq-server.service
 guest
 
 
-
 ![截屏2025-04-12 12.59.12](../img/md-img/2025-03-26-project-01/截屏2025-04-12 12.59.12.png)
 
 <img src="../img/md-img/2025-03-26-project-01/截屏2025-04-12 13.08.32.png" alt="截屏2025-04-12 13.08.32"  />
@@ -449,7 +448,6 @@ public void sendDirect02() {
 ```
 
 
-
 #### topic
 
 **1**、**direct** 模式会造成路由 **RoutingKey** 太多**,** 而实际开发中往往是按照某个规则来进行路
@@ -555,7 +553,6 @@ public void sendTopic02() {
     mqSender.sendTopic02("Topic02, I am rabbit mq");
 }
 ```
-
 
 
 #### headers
@@ -694,7 +691,6 @@ public void sendHeaders02() {
 ```
 
 
-
 ```java
 2025-04-12 19:33:56.437  INFO 12189 --- [p-nio-80-exec-1] org.xxx.seckill.rabbitmq.MQSender        : headers:发送消息:color=red,gender=m: Headers01, I am rabbit mq
 2025-04-12 19:33:56.472  INFO 12189 --- [ntContainer#7-1] org.xxx.seckill.rabbitmq.MQReceiver      : [queue_header_01]接收到消息: (Body:'[B@6cb9549c(byte[25])' MessageProperties [headers={color=red, gender=m}, contentType=application/octet-stream, contentLength=0, receivedDeliveryMode=PERSISTENT, priority=0, redelivered=false, receivedExchange=headersExchange, receivedRoutingKey=, deliveryTag=1, consumerTag=amq.ctag-oo_zQ5p9B6NWSpmfae94_Q, consumerQueue=queue_header_01])
@@ -708,4 +704,3 @@ public void sendHeaders02() {
 all匹配需要满足所有的header(key=value)才能接收到消息
 
 <img src="../img/md-img/2025-03-26-project-01/截屏2025-04-12 19.42.15.png" alt="截屏2025-04-12 19.42.15" style="zoom:50%;" />
-

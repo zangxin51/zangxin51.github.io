@@ -208,7 +208,6 @@ tags:
   <link rel="stylesheet" href="css/css01.css">
   ```
 
-  
 
 ### CSS语法
 
@@ -314,7 +313,6 @@ tags:
   <script type="text/javascript" src="js01.js"></script>
   ```
 
-  
 
 ### 数据类型
 
@@ -402,7 +400,6 @@ tags:
   }
   ```
 
-  
 
 ### 函数
 
@@ -415,7 +412,7 @@ tags:
     函数体
     return值
     }
-    
+
     调用 fun_name(参数列表){}
     ```
 
@@ -502,7 +499,6 @@ tags:
     }
     ```
 
-    
 
   - 鼠标点击事件onclick
 
@@ -552,7 +548,6 @@ tags:
   }
   ```
 
-  
 
 ### 正则表达式
 
@@ -622,7 +617,6 @@ tags:
   - 使用方法: 1.拿到dom, 2.操作dom
 
 
-
 ## JSON
 
 ### 定义
@@ -652,7 +646,6 @@ tags:
   }
   ```
 
-  
 
   - 元素类型为: string, number, object, array(object), true, false, null
 
@@ -720,7 +713,6 @@ tags:
         $(function(){})
         ```
 
-        
 
   - jquery对象是对dom对象的包装
 
@@ -1231,7 +1223,7 @@ tags:
             this.checked = false;
           });
         });
-        
+
         ```
 
         - // 反选
@@ -1314,7 +1306,6 @@ tags:
        <input type="text" value="用户名" id="b1"/><br>
       ```
 
-      
 
   - 节点遍历
 
@@ -1396,7 +1387,6 @@ tags:
         - $(...).ready ----> $()
 
 
-
 ## ES6新特性
 
 - 全称 ECMAScript 6.0 ,是 JavaScript 的下一个版本标准， 增加了新的语法特性
@@ -1456,7 +1446,6 @@ function fun1({name, age}) {
 ```
 
 
-
 - 模版字符串
 
   - 使用反引号``括起来
@@ -1480,7 +1469,6 @@ function fun1({name, age}) {
   let result1 = `返回结果${sayHello(age)}`
   ```
 
-  
 
 - 声明对象简写
 
@@ -1493,7 +1481,6 @@ function fun1({name, age}) {
   let user = {name, age}
   ```
 
-  
 
 - 对象的方法简写
 
@@ -1511,7 +1498,6 @@ function fun1({name, age}) {
   user.showInfo()
   ```
 
-  
 
   - es6写法(省掉function关键字的的书写)
 
@@ -1527,7 +1513,6 @@ function fun1({name, age}) {
   user.showInfo()
   ```
 
-  
 
 - 对象运算符的扩展
 
@@ -1546,7 +1531,6 @@ function fun1({name, age}) {
     let cat2 = {...cat}
     ```
 
-    
 
   - 合并对象(深拷贝)
 
@@ -1557,7 +1541,6 @@ function fun1({name, age}) {
   {"name": "多啦A梦", "age": 2, "tool_name": "任意门", "color": "black"}
   ```
 
-  
 
 - 箭头函数(lambda)
 
@@ -1573,7 +1556,7 @@ function fun1({name, age}) {
 
     ```javascript
     let fun1 = (n) => n * 2;
-    
+
     let f2 = (n, m) => {
       let sum = 0;
       for (let i = n; i <= m; i++) {
@@ -1584,7 +1567,6 @@ function fun1({name, age}) {
     f2(1,100)
     ```
 
-    
 
   - 函数作为形参
 
@@ -1662,7 +1644,7 @@ f3(user)
         }
       })
     });
-  
+
     p.then((resultData) => {
       return  new Promise((resolve, reject) => {
         $.ajax({
@@ -1719,7 +1701,6 @@ function get(url, data) {
 ```
 
 
-
 // 需求:1.获取用户后,
 // 2获取用户详情中用户女朋友id,
 // 3.根据用户女朋友id获取用户女朋友信息
@@ -1738,7 +1719,6 @@ function getUserInfo() {
   })
 }
 ```
-
 
 
 - 模块化编程
@@ -1773,7 +1753,6 @@ function getUserInfo() {
       }
       ```
 
-      
 
       在use.js导入function.js中
 
@@ -1789,7 +1768,7 @@ function getUserInfo() {
 
       ```javascript
       const {sum} = require("./function");
-      
+
       // 如果导出的名字和方法名一致,可以写成如下
       // module可以省略掉
       exports = {
@@ -1801,7 +1780,6 @@ function getUserInfo() {
       }
       ```
 
-      
 
   - ES6写法
 
@@ -1832,7 +1810,6 @@ function getUserInfo() {
       console.log(sum(1,2))
       ```
 
-      
 
     - // 默认导出
       // 默认导出, 把大括号中内容当做对象导出
@@ -1856,7 +1833,6 @@ function getUserInfo() {
       console.log(my.sum(1, 2))
       ```
 
-      
 
 ## AJAX
 
@@ -1998,7 +1974,6 @@ $.get({
 ```
 
 
-
 - $.post
 
 	- 和get完全一样,只是使用的请求方法不一样, get拼接在url后面...
@@ -2055,7 +2030,6 @@ $.getJSON({
     <!--这里的数据不显示,没有绑定到vue上-->
     ```
 
-    
 
     ```html
     <h1>{message}}-{name}}</h1>
@@ -2116,7 +2090,6 @@ el是elemet的简写,表示绑定哪个元素
     name:<input type="text" v-model="username">
     ```
 
-    
 
   - 快捷记忆, v-model = v和m都绑定
   v-bind = 只绑定视图
@@ -2214,7 +2187,6 @@ el是elemet的简写,表示绑定哪个元素
     }
     ```
 
-    
 
 - 条件渲染v-if/v-show
 
@@ -2229,7 +2201,6 @@ el是elemet的简写,表示绑定哪个元素
     <h1 v-else>不同意上述条款</h1>
     ```
 
-    
 
 - v-show
 
@@ -2335,7 +2306,7 @@ students: [
       <counter></counter>
       <counter></counter>
     </div>
-    
+
     <div id="app2">
         <!--使用组件,多个vue示例可以共同使用counter组件,实现数据隔离/共享-->
         <counter></counter>
@@ -2413,7 +2384,6 @@ students: [
 组件的定义要放在new Vue的前面
 
 
-
 ### vue生命周期和监听函数(钩子函数)
 
 ![lifecycle_zh-CN.W0MNXI0C](../img/md-img/2025-03-26-project-01/lifecycle_zh-CN.W0MNXI0C.png)
@@ -2460,9 +2430,7 @@ students: [
 
 		- 把内存中渲染好的模板结构替换至真实的 dom 结构也就是页面上
 
-		  
-		  
-		
+
 	- mounted
 
 		- 此时，页面渲染好，用户看到的是真实的页面数据， 生命周期创建阶段完毕，进入到了运 行中的阶段
@@ -2500,7 +2468,7 @@ students: [
     <button @click="count++">点赞👍🏻</button>
     <h2>{name}}, 有{count}}个赞👍🏻</h2>
   </div>
-  
+
   <script type="text/javascript">
     let vm = new Vue({
       el: "#app", // 把vue绑定id=app的元素上
@@ -2563,8 +2531,6 @@ students: [
     })
   ```
 
-  
-
 
 - vue-cli脚手架
 
@@ -2586,13 +2552,20 @@ cnpm install webpack@4.41.2 webpack-cli -D
 安装vue-cli
 cnpm install -g @vue/cli@4.0.3
 cnpm install -g @vue/cli-init
+
 #### 查看版本
+
 vue -V
+
 #### 创建vue项目
+
 vue init webpack vue_project_name
+
 #### 运行
+
 npm run dev
-#### 在Intelij idea中配置 
+
+#### 在Intelij idea中配置
 
 run type 选择npm, 选择package.json
 
@@ -2614,6 +2587,7 @@ run type 选择npm, 选择package.json
 ## Axios
 
 ### 是一个基于promise的HTTP库
+
 通常和vue一起使用,实现ajax操作, 底层还是ajax, 作用就像jquery的$.get,$.ajax,$.getJson差不多
 
 ### 安装适配vue2的axios
@@ -2663,7 +2637,6 @@ npm install --save axios@0 vue-axios@2
   }
   ```
 
-  
 
 ### vue3
 
@@ -2716,7 +2689,6 @@ export default request
 ```
 
 
-
 ### 分页时设置请求参数
 
 ```javascript
@@ -2738,7 +2710,6 @@ getPageByName(pn) {
 ```
 
 
-
 ### 设置请求头, 可以在拦截器中设置, 也可以在发送时设置
 
 ```javascript
@@ -2756,7 +2727,6 @@ request.post("/api/furn/",
   console.log("增加成功:", res.data)
 });
 ```
-
 
 
 ### 使用案例
@@ -2796,7 +2766,6 @@ export default {
 ```
 
 
-
 ### axios请求配置
 
 - https://www.axios-http.cn/docs/req_config
@@ -2809,7 +2778,6 @@ export default {
 // 浏览器专属：'blob'
 responseType: 'json', // 默认值
 ```
-
 
 
 ## vue3
@@ -2919,7 +2887,6 @@ module.exports = {
 ```
 
 
-
 ## element-ui
 
 ### elemetUI2对应vue2
@@ -2977,12 +2944,16 @@ cnpm install -g @vue/cli-init
 ```
 
 
-
 #### 查看版本
-vue -V
-#### 创建vue项目
-vue init webpack vue_project_name
-#### 运行
-npm run dev
-#### 在Intelij idea中配置 
 
+vue -V
+
+#### 创建vue项目
+
+vue init webpack vue_project_name
+
+#### 运行
+
+npm run dev
+
+#### 在Intelij idea中配置

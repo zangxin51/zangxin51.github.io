@@ -2036,8 +2036,33 @@ article {
   box-shadow: 0 14px 34px rgba(17, 23, 44, 0.13);
 }
 .layout-post .post-container table {
+  width: 100%;
+  margin: 28px 0;
+  border: 1px solid var(--line);
   border-radius: 12px;
+  border-collapse: separate;
+  border-spacing: 0;
   overflow: hidden;
+}
+.layout-post .post-container table th,
+.layout-post .post-container table td {
+  padding: 12px 14px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.layout-post .post-container table th:last-child,
+.layout-post .post-container table td:last-child {
+  border-right: 0;
+}
+.layout-post .post-container table tr:last-child td {
+  border-bottom: 0;
+}
+.layout-post .post-container table thead th {
+  background: rgba(85, 73, 191, 0.08);
+  color: var(--ink-strong);
+  font-weight: 700;
 }
 .layout-post .side-catalog {
   width: 220px;
@@ -2244,6 +2269,14 @@ footer .fa-stack:hover {
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+  .layout-post .post-container table th,
+  .layout-post .post-container table td {
+    min-width: 120px;
+  }
+  .layout-post .post-container table th:last-child,
+  .layout-post .post-container table td:last-child {
+    min-width: 180px;
   }
   .layout-post .post-container :not(pre) > code {
     white-space: normal;

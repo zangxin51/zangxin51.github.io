@@ -35,7 +35,6 @@ public class MainApp {
 ```
 
 
-
 ### controller
 
 ```java
@@ -133,9 +132,9 @@ spring-boot-starter-web自动配置了 Tomcat,自动配置 SpringMVC
   Arrays.stream(definitionNames).forEach(System.out::println);
   ```
 
-  
 
 ### resources\application.properties
+
 - SpringBoot 项目最重要也是最核心的配置文件就是application.properties，所有的框架配
 置都可以在这个配置文件中说明
 
@@ -155,7 +154,6 @@ resources\application.properties 自定义配置
   private String bdUrl;
   ```
 
-  
 
 ### springboot在哪里读取application.properties配置
 
@@ -195,7 +193,6 @@ Spring注入组件的注解
   Monster monster = xmlContext.getBean(Monster.class);
   ```
 
-  
 
 - 通过@Configuration 创建配置类来注入组件
 
@@ -214,7 +211,6 @@ Spring注入组件的注解
   }
   ```
 
-  
 
 - Configuration标注的配置类自身也会被放入到容器中(它是一个@Component)
 
@@ -293,6 +289,7 @@ public class BeanConfig {}
 ```
 
 ### 配置绑定
+
 @ConfigurationProperties(prefix = "zangxin.dog")
 
 - 读取到 SpringBoot 核心配置文件 application.properties 的内容，并且把它作为 JavaBean的属性,必须作为一个组件, 提供gettter/setter
@@ -329,8 +326,8 @@ public class BeanConfig {}
 ```
 
 
-
 ### 配置绑定方式二
+
 @EnableConfigurationProperties(Dog.class)
 
 - 注释掉实体类上的@Component
@@ -354,7 +351,6 @@ public class BeanConfig {}
   public class BeanConfig {}
   ```
 
-  
 
   - bean的id变成了
   zangxin.dog-org.xxx.boot.bean.Dog
@@ -364,6 +360,7 @@ public class BeanConfig {}
 Tomcat 启动分析 + Spring 容器初始化 +Tomcat 如何关联 Spring 容器
 
 ### 组件扫描原理:
+
 @Configuration+@Bean注解底层还是IO/文件扫描+注解+反射+集合+映射
 
 ### SpringBoot 是怎么启动 Tomcat
@@ -395,7 +392,6 @@ public class MyConfig {
 ```
 
 
-
 ```java
 //MyApp
 
@@ -405,7 +401,6 @@ public class MyApp {
   }
 }
 ```
-
 
 
 ```java
@@ -432,7 +427,6 @@ public class MySpringApplication {
 ```
 
 
-
 - - 
 
 - MyWebApplicationInitializer
@@ -444,7 +438,7 @@ public class MySpringApplication {
  * 4.创建前端控制器 DispatcherServlet, 并让其持有Spring容器
  * 6.当DispatcherServlet持有容器, 就可以进行分发映射
  * 7.onStartup 是tomcat调用, 并把ServletContext对象传入
- 
+
 ```java
     public class MyWebApplicationInitializer implements WebApplicationInitializer {
       @Override
@@ -519,7 +513,6 @@ public class MySpringApplication {
 ```
 
 
-
 ## Spring Initailizr
 
 Spring 官方提供的 Spring Initializr 来构建 Maven 项目，能完美支持 IDEA 和 Eclipse
@@ -589,7 +582,6 @@ public class Monster {
   private Map<String, List<Car>> cars;
 }
 ```
-
 
 
 ```yaml
@@ -682,21 +674,21 @@ http://localhost/5.png
 
 - 2.如果静态资源uri和controller冲突怎么办
 - META-INF/resources/1.webp
-	
+
 - @RequestMapping("/1.webp")
 	public String hi() {
   return "hi";
   }
 
 - 请求的http://localhost/1.webp结果是controller返回hi, 而不是图片
-	
+
 - 解决办法, 静态资源路径映射
-	
+
 	- #静态资源路径映射
 	spring.mvc.static-path-pattern=/dog/**
 
 	- 访问OK: http://localhost/dog/1.webp
-	
+
 - 3.如何自定义静态资源路径
 
 	- 自定义的路径会覆盖掉默认的路径, 所以配置时要加上默认的路径
@@ -705,7 +697,6 @@ http://localhost/5.png
 ```properties
 spring.web.resources.static-locations=classpath:/myimg/,classpath:/META-INF/resources/,classpath:/resources/, classpath:/static/, classpath:/public/
 ```
-
 
 
 ## Rest 风格请求处理
@@ -737,7 +728,6 @@ public class RestStyleController {
   }
 }
 ```
-
 
 
 - 用postman调用
@@ -787,7 +777,6 @@ spring.mvc.view.suffix=.html
 如果视图名和Controller的uri相同, 则还是以视图解析器为准
 
 
-
 ## 接收参数注解
 
 ### @PathVariable
@@ -813,7 +802,6 @@ public String requestHeader(@RequestHeader("HOST") String host,
 ```
 
 
-
 - 使用map可以全部接收
 
 ### @RequestParam 
@@ -824,7 +812,6 @@ public String requestParam(@RequestParam("name") String name,
                            @RequestParam("version") List<String> versions,
                            @RequestParam Map<String, String> map) 
 ```
-
 
 
 - list/数组用来接收,复选框的值
@@ -869,7 +856,6 @@ public String login(HttpServletRequest request) {
 ```
 
 
-
 ```java
 @GetMapping("/ok")
 @ResponseBody
@@ -881,7 +867,6 @@ public String loginOk(@RequestAttribute(value = "user", required = false) String
   return "success";
 }
 ```
-
 
 
 ### @SessionAttribute
@@ -900,7 +885,6 @@ public String loginOk(@RequestAttribute(value = "user", required = false) String
   return "success";
 }
 ```
-
 
 
 ### 复杂参数
@@ -946,7 +930,6 @@ public String registerOk(HttpServletRequest request) {
 ```
 
 
-
 ### 自定义对象参数
 
 - 封装pojo
@@ -969,7 +952,6 @@ public class Monster {
 ```
 
 
-
 - 表单
 
 
@@ -987,7 +969,6 @@ public class Monster {
 ```
 
 
-
 - 获取级联对象的属性
 
   ```java
@@ -1000,7 +981,6 @@ public class Monster {
   }
   ```
 
-  
 
 - 不需要写@RequestBody, 写了反而出错
 这个是x-www-form-urlencoded表单, 写了解析不了, 如果是json数据则需要写@RequestBody
@@ -1100,7 +1080,6 @@ protected void writeInternal(Object object, @Nullable Type type, HttpOutputMessa
 ```
 
 
-
 ### 内容协商
 
 - 文档
@@ -1143,7 +1122,6 @@ protected void writeInternal(Object object, @Nullable Type type, HttpOutputMessa
       </Monster>
       ```
 
-      
 
       - 返回xml要引入依赖
 
@@ -1155,7 +1133,6 @@ protected void writeInternal(Object object, @Nullable Type type, HttpOutputMessa
       </dependency>
       ```
 
-      
 
 - 原理
 
@@ -1201,8 +1178,7 @@ protected void writeInternal(Object object, @Nullable Type type, HttpOutputMessa
   ```properties
 		  spring.mvc.contentnegotiation.favor-parameter=true
   ```
-		
-  
+
 
 		- 使用
 
@@ -1211,17 +1187,17 @@ protected void writeInternal(Object object, @Nullable Type type, HttpOutputMessa
 
 			- 返回xml
 http://localhost/returnJson?format=xml
-		
+
 - 原理
-		
+
 	- org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties.Contentnegotiation#favorParameter
-		
+
 	- Whether a request parameter ("format" by default) should be used to determine the requested media type.
-		
+
 		- 也可以改变参数的名字: format->改成其他的名字
-		
+
 			- spring.mvc.contentnegotiation.parameter-name=ggstar
-		
+
 		- 注意，参数 format 是规定好的 ， 在开启请求参数的内容协商功能后，SpringBoot 底层 ParameterContentNegotiationStrategy 会通过 format 来接收参数，然后返回对应的媒体类型/ 数据格式 , 当然 format=xx 这个 xx 媒体类型/数据格式 是 SpringBoot 可以处理的才行，不 能乱写.
 
 @MatrixVariable
@@ -1259,7 +1235,6 @@ http://localhost/returnJson?format=xml
     }
   ```
 
-  
 
 - 拦截器注册到配置类中(实现 WebMvcConfigurer 的 addInterceptors)
 
@@ -1274,7 +1249,6 @@ public class Config implements WebMvcConfigurer {
   }
 }
 ```
-
 
 
 - 指定拦截规则
@@ -1312,7 +1286,6 @@ public class Config implements WebMvcConfigurer {
         }
   ```
 
-  
 
 ## 文件上传
 
@@ -1368,7 +1341,6 @@ private File getUploadDir() {
 ```
 
 
-
 - 前端
 
 ```html
@@ -1386,7 +1358,6 @@ private File getUploadDir() {
 ```
 
 
-
 ### 注意事项
 
 - 上传文件大小
@@ -1399,7 +1370,6 @@ private File getUploadDir() {
   spring.servlet.multipart.max-file-size=100MB
   ```
 
-  
 
 - 创建目录的命令mkdir, 而不是createNewFile
 
@@ -1422,7 +1392,7 @@ Whitelabel Error Page
 
   ```text
   DefaultErrorViewResolver类
-  
+
   Default ErrorViewResolver implementation that attempts to resolve error views using well known conventions. Will search for templates and static assets under '/error' using the status code and the status series.
   For example, an HTTP 404 will search (in the specific order):
   '/<templates>/error/404.<ext>'
@@ -1431,7 +1401,6 @@ Whitelabel Error Page
   '/<static>/error/4xx.html'
   ```
 
-  
 
 ### 自定义错误页面
 
@@ -1445,7 +1414,6 @@ Whitelabel Error Page
   {"view":null,"model":{"timestamp":1742014303472,"status":500,"error":"Internal Server Error","path":"/manage.html"},"status":null,"empty":false,"reference":true,"modelMap":{"timestamp":1742014303472,"status":500,"error":"Internal Server Error","path":"/manage.html"},"viewName":"error/500"}
   ```
 
-  
 
 - 可以从错误消息modelAndView中取出信息给前端展示用
 
@@ -1487,7 +1455,6 @@ Whitelabel Error Page
   }
   ```
 
-  
 
 - 原理 
 
@@ -1525,7 +1492,6 @@ Whitelabel Error Page
     }
     ```
 
-    
 
     - 使用
 
@@ -1539,7 +1505,6 @@ Whitelabel Error Page
       }
       ```
 
-      
 
     - 触发错误会跳转
       4xx.html页面去, 这是使用了默认的处理方法
@@ -1556,7 +1521,6 @@ Whitelabel Error Page
     }
     ```
 
-    
 
 ## 拦截器和过滤器的区别
 
@@ -1597,7 +1561,6 @@ Whitelabel Error Page
   public class App {}
   ```
 
-  
 
 - 方式二: ServletRegistrationBean注册
 
@@ -1631,7 +1594,6 @@ public class RegisterConfig_ {
 ```
 
 
-
 - servlet
 
 ```java
@@ -1642,7 +1604,6 @@ public class BootAndServlet extends HttpServlet {
     response.getWriter().write("BootAndServlet~~ 在boot中Servlet 完成OK~~~");
   }
 ```
-
 
 
 - filter
@@ -1658,7 +1619,6 @@ public class Filter_ implements Filter {
     chain.doFilter(request, response);
   }
 ```
-
 
 
 - listener
@@ -1680,7 +1640,6 @@ public class Listener implements ServletContextListener {
   }
 }
 ```
-
 
 
 ### 注意
@@ -1735,7 +1694,6 @@ server.tomcat.connection-timeout=100000
 ```
 
 
-
 - 也可以通过类来配置,不过配置项比较少
 
   ```java
@@ -1749,7 +1707,6 @@ server.tomcat.connection-timeout=100000
   }
   ```
 
-  
 
 ### 使用Undertown,maven
 
@@ -1769,7 +1726,6 @@ server.tomcat.connection-timeout=100000
   </exclusions>
 </dependency>
 ```
-
 
 
 ## 数据库操作
@@ -1795,7 +1751,6 @@ server.tomcat.connection-timeout=100000
   spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
   ```
 
-  
 
 ### Druid
 
@@ -1823,7 +1778,6 @@ server.tomcat.connection-timeout=100000
   }
   ```
 
-  
 
   - @ConfigurationProperties(prefix = "spring.datasource")
   可以通过这个注解从文件中读取数据源配置
@@ -1836,11 +1790,10 @@ server.tomcat.connection-timeout=100000
   @Conditional(PooledDataSourceCondition.class)
   @ConditionalOnMissingBean({ DataSource.class, XADataSource.class })
   protected static class PooledDataSourceConfiguration {}
-  
+
   @ConditionalOnMissingBean({ DataSource.class指出当Datasource缺失时才会注入, 现在我们有druidDatasource, 就会不会注入hikari了
   ```
 
-  
 
 - druid监控功能
 
@@ -1871,7 +1824,6 @@ server.tomcat.connection-timeout=100000
   }
   ```
 
-  
 
   - 访问url:localhost/druid
 
@@ -1890,7 +1842,6 @@ server.tomcat.connection-timeout=100000
     }
     ```
 
-    
 
   - sql防火墙
 
@@ -1911,7 +1862,6 @@ server.tomcat.connection-timeout=100000
   </dependency>
   ```
 
-  
 
   ```properties
   #druid
@@ -1949,7 +1899,6 @@ server.tomcat.connection-timeout=100000
 ```
 
 
-
 ### 测试类
 
 ```java
@@ -1965,7 +1914,6 @@ public class CrudTest {
     furnList.forEach(System.out::println);
   }
 ```
-
 
 
 ## Spring Boot 整合 MyBatis
@@ -1998,7 +1946,6 @@ mybatis.configuration.map-underscore-to-camel-case=true
 ```
 
 
-
 ### Mapper接口上加@Mapper
 
 ```java
@@ -2016,7 +1963,6 @@ public interface FurnMapper {
 @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
 private Timestamp createTime;
 ```
-
 
 
 ### @Mapper注解说明以及优化
@@ -2048,7 +1994,6 @@ private Timestamp createTime;
   </dependency>
   ```
 
-  
 
 - 配置
 
@@ -2066,7 +2011,6 @@ private Timestamp createTime;
   mybatis-plus.configuration.map-underscore-to-camel-case=true
   ```
 
-  
 
 - Mapper接口继承BaseMapper<>
 
@@ -2080,7 +2024,6 @@ private Timestamp createTime;
   }
   ```
 
-  
 
 - Service接口继承父IService
 
@@ -2088,7 +2031,6 @@ private Timestamp createTime;
   public interface FurnService extends IService<Furn> {}
   ```
 
-  
 
 - ServiceImpl实现类继承ServiceImpl<BaseMapper,实体类> 实现 Service接口
 
@@ -2096,7 +2038,6 @@ private Timestamp createTime;
   public class FurnServiceImpl extends ServiceImpl<FurnMapper,Furn> implements FurnService {}
   ```
 
-  
 
 - @TableName注解,解决实体类和表名不一致的问题
 
@@ -2127,7 +2068,7 @@ public class User {}
   @Configuration
   public class MyBatisPlusConfig {
     /**
-  
+
    * 添加分页插件
      */
     @Bean
@@ -2141,7 +2082,6 @@ public class User {}
   }
   ```
 
-  
 
 - 分页查询代码
 
@@ -2161,7 +2101,6 @@ public class User {}
   }
   ```
 
-  
 
 ### MybatisX插件/MybatisCodeHelperPro
 
@@ -2192,7 +2131,6 @@ spring.redis.password=root
 #Redis 数据库索引(默认为 0)
 spring.redis.database=0
 ```
-
 
 
 连接超时时间(毫秒)
@@ -2245,7 +2183,7 @@ spring.redis.lettuce.pool.min-idle=0
       template.setHashValueSerializer(jackson2JsonRedisSerializer);
       return template;
     }
-  
+
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
       RedisSerializer<String> redisSerializer = new StringRedisSerializer();
@@ -2269,7 +2207,6 @@ spring.redis.lettuce.pool.min-idle=0
   }
   ```
 
-  
 
 ### RedisTemplate使用
 
@@ -2283,7 +2220,6 @@ private RedisTemplate redisTemplate;
   String book = (String) redisTemplate.opsForValue().get("book");
   ```
 
-  
 
 - 操作list
 
@@ -2316,4 +2252,3 @@ private RedisTemplate redisTemplate;
 - 看报错，是 json 转换异常，实际上是因为 redisTemplate 在做数据存储的时候会把存 储的内容序列化，所以，redisTemplate 读取的时候也会反序列化，而在 redis 客户端 set 的时候并不会做序列化，因此 set 的进去的值在用 redisTemplate 读的时候就会报类 型转换异常了
 
 - 解决方案 : 最简单的就是用程序重新 set 一遍即可,或者不要用其他客户端设置值, 用什么写,就用什么读
-

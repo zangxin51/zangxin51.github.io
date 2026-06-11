@@ -10,22 +10,17 @@ tags:
 ---
 
 
-
-
-
-
-
 # 函数式编程
 
-1.函数f: A-->B的一个映射, (A,B为非空集合) 自变量x的不可变性（java中就是final类型）
+## 1.函数f: A-->B的一个映射, (A,B为非空集合) 自变量x的不可变性（java中就是final类型）
 
 f: x --> f(x)
 
 f(x) = x ^ 2,f:  x -> x ^ 2， lambda 表达式就是函数（映射）
 
-2.在java中 静态方法相当于C语言的中函数概念, 因为实例方法的调用需要`对象.方法()`调用
+## 2.在java中 静态方法相当于C语言的中函数概念, 因为实例方法的调用需要`对象.方法()`调用
 
-3.普通函数和lambda函数区别
+## 3.普通函数和lambda函数区别
 
 普通函数的调用: 对象.方法()
 
@@ -47,11 +42,11 @@ static Lambda minus = new Lambda() {
 };
 ```
 
-4.行为参数化operator(a,b) 二元运算---> 具体运算规则的实现a+b, a*b, a/b
+## 4.行为参数化operator(a,b) 二元运算---> 具体运算规则的实现a+b, a*b, a/b
 
 lambda 将行为也作为参数, 即将函数作为参数
 
-5.延迟执行
+## 5.延迟执行
 
 ```java
 int add(int a, int b){
@@ -68,10 +63,7 @@ Operator add = (a,b) -> add(a,b);
 ```
 
 
-
-
-
-6.lambda表达式的分类
+## 6.lambda表达式的分类
 
 ```java
 // 只有一行代码可以省略大括号和return
@@ -93,7 +85,7 @@ interface Lambda2 {
 a -> a;
 ```
 
-7.方法引用
+## 7.方法引用
 
 ```java
 Math::max   ==> (int a, int b) -> Math.max(a,b)
@@ -119,12 +111,10 @@ interface Lambda2 {
 ```
 
 
-
 1. `Lambda1 lambda = a, b -> a - b`  ❌
 2. `Lambda1 lambda = (c, d) -> c * d` ✅
 3. `Lambda1 lambda = (int a, b) -> a + b` ❌
 4. `Lambda2 lambda = Object a -> System.out.println(a)` ❌
-
 
 
 2）写出等价的 lambda 表达式
@@ -132,7 +122,7 @@ interface Lambda2 {
 ```java
 static class Student {
     private String name;
-    
+
     public Student(String name) {
         this.name = name;
     }
@@ -159,7 +149,6 @@ static class Student {
     }
 }
 ```
-
 
 
 1. `Math::random`   
@@ -200,7 +189,7 @@ static class Student {
 
    `(String name)->new Student(name)`
 
-9.函数分类
+## 9.函数分类
 
 如果两个函数的参数的个数相同，且返回类型也相同，那么称这个两个函数等价
 
@@ -223,12 +212,11 @@ public interface IntPredicate {
 ```
 
 
-
 10. lambda表达式和方法引用是等价的
 
-11.java中的lambda对象有两种表现形式 `lambda`表达式和`方法引用`
+## 11.java中的lambda对象有两种表现形式 `lambda`表达式和`方法引用`
 
-12.jdk中的函数分类
+## 12.jdk中的函数分类
 
 在包 java.util.function下
 
@@ -236,7 +224,7 @@ public interface IntPredicate {
 
 <img src="./../img/md-img/2024-08-10-functionalprogramming/image-20240811222704193.png" alt="image-20240811222704193" style="zoom:80%;" />
 
-13.方法引用定义
+## 13.方法引用定义
 
 def：将现有方法的调用转化为函数对象（lambda对象）
 
@@ -244,7 +232,7 @@ student.getName :=> stu -> stu.getName => Student::getName
 
 () -> new Student()  Student::new 
 
-14.静态方法
+## 14.静态方法
 
 类名::静态方法
 
@@ -252,7 +240,7 @@ student.getName :=> stu -> stu.getName => Student::getName
 
  参数，就是静态方法得参数
 
-15.非静态方法
+## 15.非静态方法
 
 类名::非静态方法
 
@@ -271,7 +259,7 @@ Student::setName -> stu.setName(name) -> (stu,name) -> stu.setName()
 
 参数： 非静态方法的 参数
 
-17.类名::new
+## 17.类名::new
 
 对于构造方法，也有专门的语法把它们转换为 lambda 对象
 
@@ -280,15 +268,15 @@ Student::setName -> stu.setName(name) -> (stu,name) -> stu.setName()
 * 参数部分与构造方法参数一致
 * 返回值类型与构造方法所在类一致
 
-18.this::非静态方法名
+## 18.this::非静态方法名
 
 算是15的特例，只能用在类内部
 
-19.super::非静态方法名
+## 19.super::非静态方法名
 
 算是15的特例，只能用在类内部（用在要用 super 区分重载方法时）
 
-20.特例
+## 20.特例
 
 函数接口和方法引用之间，可以差一个返回值，例如
 
@@ -298,7 +286,7 @@ public class ExceptionTest {
         Runnable task1 = ExceptionTest::print1;
         Runnable task2 = ExceptionTest::print2;
     }
-    
+
     static void print1() {
         System.out.println("task1 running...");
     }
@@ -312,7 +300,7 @@ public class ExceptionTest {
 
 * 可以看到 Runnable 接口不需要返回值，而实际的函数对象多出的返回值也不影响使用
 
-21.闭包（Closure）
+## 21.闭包（Closure）
 
 何为闭包，闭包就是**函数对象**与**外界变量**绑定在一起，形成的整体。
 
@@ -321,7 +309,7 @@ public class ExceptionTest {
   * 道理也简单，为了保证函数的不变性，防止破坏成道
 * 闭包是一种给函数执行提供数据的手段，函数执行既可以使用函数入参，还可以使用闭包变量
 
-22.柯里化
+## 22.柯里化
 
 def：让接收多个参数的函数转换为一系列的接收一个参数的函数
 
@@ -391,7 +379,7 @@ interface F3 {
 }
 ```
 
-23.高阶函数
+## 23.高阶函数
 
 def：使用了其他函数对象作为参数或者返回值
 
@@ -399,7 +387,7 @@ def：使用了其他函数对象作为参数或者返回值
 
 将易变复杂的逻辑放在外部的函数对象中
 
-24.简单流
+## 24.简单流
 
 ```java
 @Test
@@ -449,7 +437,7 @@ class SimpleStream<T> {
 }
 ```
 
-25.简单流-简化，reduce
+## 25.简单流-简化，reduce
 
 ```java
 // identity是二元运算的单位元，满足 a * e = e * a = a
@@ -474,7 +462,7 @@ void test03() {
 }
 ```
 
-26.简单流-收集，collect
+## 26.简单流-收集，collect
 
 ```java
 public <C> C collect(Supplier<C> supplier, BiConsumer<C, T> consumer) {
@@ -543,7 +531,7 @@ Stream.of(
         .forEach(System.out::println);
 ```
 
-29.flatMap 扁平化
+## 29.flatMap 扁平化
 
 ```java
 Integer[][] array2D = {
@@ -626,7 +614,7 @@ ThreadLocalRandom.current().ints(5,0,100).forEach(System.out::println);
         System.out.println(stream.noneMatch(x -> (x & 1) == 0));
 ```
 
-34.去重与排序
+## 34.去重与排序
 
 ```java
 // 排序
@@ -647,7 +635,7 @@ Stream.of(
         .forEach(System.out::println);
 ```
 
-35.化简流
+## 35.化简流
 
 ```java
 @Test
@@ -679,7 +667,7 @@ void test05() {
     System.out.println(heroStream.mapToInt(Hero::strength).average());
 ```
 
-36.收集流
+## 36.收集流
 
 ```java
 /*创建容器，收集方法*/
@@ -696,7 +684,7 @@ StringJoiner ret4 = stream.collect(() -> new StringJoiner("$"), StringJoiner::ad
 System.out.println("ret4 = " + ret4);
 ```
 
-37.改善收集流-->收集器Collectors	
+## 37.改善收集流-->收集器Collectors
 
 ```java
 Stream<String> stream = Stream.of("令狐冲", "风清扬", "独孤求败", "方证", "东方不败", "冲虚", "向问天", "任我行", "不戒");
@@ -706,7 +694,7 @@ Set<String> set = stream.collect(Collectors.toSet());
 Map<String, Integer> map = stream.collect(Collectors.toMap(x -> x, x -> 1));
 ```
 
-38.收集流，下游收集器
+## 38.收集流，下游收集器
 
 ```java
 Stream<Hero> stream = Stream.of(
@@ -771,7 +759,7 @@ void test08() {
 }
 ```
 
-39.三种基本流
+## 39.三种基本流
 
 基本类型流指 IntStream、LongStream 和 DoubleStream，它们在做数值计算时有更好的性能。
 
@@ -818,12 +806,11 @@ void test09() {
 ```
 
 
+## 40.流的特性
 
-40.流的特性
+1. 一次使用
 
-1.一次使用
-
-2.两类操作(中间操作,lazy懒惰；终结操作  eager 迫切)
+2. 两类操作(中间操作,lazy懒惰；终结操作  eager 迫切)
 
 ```java
 Stream<Integer> stream = Stream.of(1, 2, 3, 4);
@@ -833,19 +820,4 @@ stream
         .forEach(System.out::println); // 打开阀门 eager
 ```
 
-41.并行流
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## 41.并行流

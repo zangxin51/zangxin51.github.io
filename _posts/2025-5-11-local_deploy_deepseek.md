@@ -10,7 +10,6 @@ tags:
 ---
 
 
-
 # 在本地部署deepseek
 
 ## 使用ollama方式
@@ -33,7 +32,6 @@ ollama run deepseek-r1:7b
 ```
 
 ![image-20250511115237815](./../img/md-img/2025-5-11-local_deploy_deepseek/image-20250511115237815.png)
-
 
 
 ### 下载deepseek
@@ -63,7 +61,6 @@ https://ollama.com/library?q=deepseek&sort=popular
 | **deepseek-v2.5**     | **中间版本？** | 236b                  | 可能是v2的改进版         | 需测试                |                              |
 
 
-
 #### 2.参数规模
 
 | **模型参数规模**  | **典型用途**             | **CPU 建议**                             | **GPU 建议**                                    | **内存建议 (RAM)** | **磁盘空间建议**  | **适用场景**                      |
@@ -74,4 +71,3 @@ https://ollama.com/library?q=deepseek&sort=popular
 | **32b (320亿)**   | 大型推理、高性能任务     | 12核以上 (Intel Xeon / AMD Threadripper) | 高性能 GPU (如 NVIDIA A100, 40GB 显存)          | 64GB               | 100GB 以上 SSD    | 大规模 NLP、多模态任务、研究用途  |
 | **70b (700亿)**   | 超大规模推理、研究任务   | 16核以上 (服务器级 CPU)                  | 多 GPU 并行 (如 2x NVIDIA A100, 80GB 显存)      | 128GB              | 200GB 以上 SSD    | 超大规模模型、研究、企业级应用    |
 | **671b (6710亿)** | 超大规模训练、企业级任务 | 服务器级 CPU (如 AMD EPYC / Intel Xeon)  | 多 GPU 集群 (如 8x NVIDIA A100, 320GB 显存)     | 256GB 或更高       | 1TB 以上 NVMe SSD | 超大规模训练、企业级 AI 平台      |
-
