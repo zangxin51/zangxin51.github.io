@@ -1,48 +1,169 @@
-<!-- ---
-layout: page
-title: "About"
-description: "「他单纯只想把日子过得不浪费」"
-header-img: "img/bg-me-2022.jpg"
-header-mask: 0.3
-multilingual: true
+---
+layout: default
+title: "关于"
+description: "关于我、我正在做的事，以及如何联系我"
+header-img: "img/home-bg.jpg"
+header-mask: 0.45
+permalink: /about/
 ---
 
-{% include multilingual-sel.html %}
+{% include intro-header.html type='page' %}
 
-<!-- Chinese Version -->
-<div class="zh post-container">
-    {% capture about_zh %}{% include about/zh.md %}{% endcapture %}
-    {{ about_zh | markdownify }}
-</div>
+<main class="about-page">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-12">
+                <section class="about-intro">
+                    <div class="about-intro-copy">
+                        <span class="about-kicker">ABOUT ME</span>
+                        <h2>你好，我是 zangxin。</h2>
+                        <p>
+                            我在这里记录 Java、Web 开发、数据库、工程实践，以及哲学与阅读笔记。
+                            这个网站既是知识档案，也是一份会持续完善的个人介绍。
+                        </p>
+                        <p>
+                            欢迎因为技术、阅读或共同兴趣与我联系，也欢迎交流合作与职业机会。
+                        </p>
+                        <div class="about-actions">
+                            <a class="about-button about-button-primary" href="mailto:{{ site.email }}">
+                                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                联系我
+                            </a>
+                            <a class="about-button" href="https://github.com/{{ site.github_username }}" target="_blank"
+                                rel="noopener noreferrer">
+                                <i class="fa fa-github" aria-hidden="true"></i>
+                                GitHub
+                            </a>
+                        </div>
+                    </div>
+                    <aside class="about-status" aria-label="开放联系方向">
+                        <span class="about-status-dot" aria-hidden="true"></span>
+                        <strong>开放联系</strong>
+                        <p>技术交流 · 阅读讨论 · 合作与机会</p>
+                    </aside>
+                </section>
 
-<!-- English Version -->
-<div class="en post-container">
-    {% capture about_en %}{% include about/en.md %}{% endcapture %}
-    {{ about_en | markdownify }}
-</div>
+                <section class="about-section" aria-labelledby="about-focus">
+                    <div class="about-section-heading">
+                        <span>01</span>
+                        <div>
+                            <p>FOCUS</p>
+                            <h2 id="about-focus">我正在关注</h2>
+                        </div>
+                    </div>
+                    <div class="about-grid about-grid-three">
+                        <article class="about-card">
+                            <span class="about-card-icon"><i class="fa fa-code" aria-hidden="true"></i></span>
+                            <h3>软件开发</h3>
+                            <p>Java、Spring、Web 后端与可维护的软件工程实践。</p>
+                        </article>
+                        <article class="about-card">
+                            <span class="about-card-icon"><i class="fa fa-database" aria-hidden="true"></i></span>
+                            <h3>数据与基础设施</h3>
+                            <p>MySQL、PostgreSQL、Redis、Linux、Docker 与自动化部署。</p>
+                        </article>
+                        <article class="about-card">
+                            <span class="about-card-icon"><i class="fa fa-book" aria-hidden="true"></i></span>
+                            <h3>阅读与思考</h3>
+                            <p>哲学、软件工程与技术之外值得长期思考的问题。</p>
+                        </article>
+                    </div>
+                </section>
 
+                <section class="about-section" aria-labelledby="about-skills">
+                    <div class="about-section-heading">
+                        <span>02</span>
+                        <div>
+                            <p>TOOLBOX</p>
+                            <h2 id="about-skills">技能版图</h2>
+                        </div>
+                    </div>
+                    <div class="about-skill-list">
+                        <div class="about-skill-row">
+                            <strong>后端开发</strong>
+                            <div>
+                                <span>Java</span>
+                                <span>Spring Boot</span>
+                                <span>Spring Security</span>
+                                <span>SSM</span>
+                            </div>
+                        </div>
+                        <div class="about-skill-row">
+                            <strong>数据存储</strong>
+                            <div>
+                                <span>MySQL</span>
+                                <span>PostgreSQL</span>
+                                <span>Redis</span>
+                            </div>
+                        </div>
+                        <div class="about-skill-row">
+                            <strong>工程工具</strong>
+                            <div>
+                                <span>Git</span>
+                                <span>Docker</span>
+                                <span>Linux</span>
+                                <span>GitHub Actions</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-{% if site.disqus_username %}
-<!-- disqus 评论框 start -->
-<div class="comment">
-    <div id="disqus_thread" class="disqus-thread">
+                <section class="about-section" aria-labelledby="about-projects">
+                    <div class="about-section-heading">
+                        <span>03</span>
+                        <div>
+                            <p>PROJECTS</p>
+                            <h2 id="about-projects">项目与实践</h2>
+                        </div>
+                    </div>
+                    <article class="about-project">
+                        <div class="about-project-meta">
+                            <span>持续维护</span>
+                            <span>2024 — 至今</span>
+                        </div>
+                        <h3>zangxin Blog</h3>
+                        <p>
+                            使用 Jekyll 与 GitHub Pages 搭建的个人知识站点，持续整理开发实践和阅读笔记，
+                            并通过 GitHub Actions 自动构建与部署。
+                        </p>
+                        <div class="about-project-tags">
+                            <span>Jekyll</span>
+                            <span>GitHub Pages</span>
+                            <span>GitHub Actions</span>
+                            <span>Responsive Design</span>
+                        </div>
+                        <a href="https://github.com/{{ site.github_username }}/{{ site.github_username }}.github.io"
+                            target="_blank" rel="noopener noreferrer">
+                            查看源码 <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    </article>
 
+                    <!--
+                    新项目模板：复制下面的 article，替换项目名称、职责、结果和技术栈。
+                    <article class="about-project">
+                        <div class="about-project-meta">
+                            <span>项目类型</span>
+                            <span>时间</span>
+                        </div>
+                        <h3>项目名称</h3>
+                        <p>说明你解决了什么问题、承担什么职责，以及最终取得的结果。</p>
+                        <div class="about-project-tags">
+                            <span>技术栈</span>
+                        </div>
+                        <a href="项目地址">查看项目 <span aria-hidden="true">&rarr;</span></a>
+                    </article>
+                    -->
+                </section>
+
+                <section class="about-section about-contact" aria-labelledby="about-contact">
+                    <div>
+                        <span class="about-kicker">LET'S CONNECT</span>
+                        <h2 id="about-contact">找到同好，也找到新的可能。</h2>
+                        <p>如果你想讨论技术、书籍、哲学，或者有合适的合作与职业机会，欢迎来信。</p>
+                    </div>
+                    <a href="mailto:{{ site.email }}">{{ site.email }}</a>
+                </section>
+            </div>
+        </div>
     </div>
-</div>
-<!-- disqus 评论框 end -->
-
-<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES * * */
-    var disqus_shortname = "{{site.disqus_username}}";
-    var disqus_identifier = "{{site.disqus_username}}/{{page.url}}";
-    var disqus_url = "{{site.url}}{{page.url}}";
-
-    (function () {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-</script>
-<!-- disqus 公共JS代码 end -->
-{% endif %} -->
+</main>
