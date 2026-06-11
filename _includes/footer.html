@@ -10,6 +10,10 @@
                     Copyright &copy; {{ site.title }} {{ site.time | date: '%Y' }}
                     <span class="footer-separator" aria-hidden="true">·</span>
                     Keep learning, keep writing.
+                    {% if site.email %}
+                    <span class="footer-separator" aria-hidden="true">·</span>
+                    <a href="mailto:{{ site.email }}" aria-label="Email {{ site.email }}">{{ site.email }}</a>
+                    {% endif %}
                 </p>
             </div>
         </div>
