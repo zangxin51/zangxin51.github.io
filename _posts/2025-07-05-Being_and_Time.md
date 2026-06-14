@@ -6,6 +6,7 @@ date:       2025-07-05 06:37:00
 author:     "zangxin"
 header-img: "img/home-bg.jpg"
 catalog: true
+category: philosophy
 tags:
 ---
 

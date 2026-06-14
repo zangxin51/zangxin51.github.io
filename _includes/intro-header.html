@@ -41,6 +41,13 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                 <div class="post-heading">
                     <div class="tags">
+                        {% assign post_category_slug = page.categories | first %}
+                        {% if post_category_slug %}
+                        {% assign post_category = site.data.categories | where: "slug", post_category_slug | first %}
+                        {% if post_category %}
+                        <a class="tag" href="{{ site.baseurl }}/categories/#{{ post_category_slug }}" title="{{ post_category.name }}">{{ post_category.name }}</a>
+                        {% endif %}
+                        {% endif %}
                         {% for tag in page.tags %}
                         <a class="tag" href="{{ site.baseurl }}/archive/?tag={{ tag | url_encode }}" title="{{ tag }}">{{ tag }}</a>
                         {% endfor %}

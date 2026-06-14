@@ -6,6 +6,7 @@ date:       2025-04-12 12:25:00
 author:     "zangxin"
 header-img: "img/home-bg.jpg"
 catalog: true
+category: database
 tags:
 ---
 

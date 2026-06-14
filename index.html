@@ -6,20 +6,52 @@ no-catalog: true
 ---
 
 <section class="home-feed" aria-labelledby="latest-posts">
+    <section class="category-overview" aria-labelledby="category-heading">
+        <div class="category-overview-heading">
+            <div>
+                <span class="feed-kicker">BROWSE BY TOPIC</span>
+                <h2 id="category-heading">按分类浏览</h2>
+            </div>
+            <a class="category-overview-all" href="{{ '/categories/' | prepend: site.baseurl }}">
+                查看全部分类 <span aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
+        <div class="category-grid">
+            {% for category in site.data.categories %}
+            {% assign category_posts = site.categories[category.slug] | where_exp: "post", "post.hidden != true" %}
+            {% if category_posts.size > 0 %}
+            <a class="category-card" href="{{ '/categories/#' | append: category.slug | prepend: site.baseurl }}">
+                <span class="category-card-icon" aria-hidden="true">
+                    <i class="fa fa-{{ category.icon }}"></i>
+                </span>
+                <span class="category-card-copy">
+                    <strong>{{ category.name }}</strong>
+                    <small>{{ category.description }}</small>
+                </span>
+                <span class="category-card-count">{{ category_posts.size }}</span>
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
     <header class="feed-heading">
-        <span class="feed-kicker">LATEST NOTES</span>
-        <h2 id="latest-posts">最近更新</h2>
-        <p>关于开发实践、技术探索与哲学阅读的个人笔记。</p>
+        <span class="feed-kicker">ALL NOTES</span>
+        <h2 id="latest-posts">全部文章</h2>
+        <p>不再分页，按发布时间从新到旧展示。</p>
     </header>
 
-    {% for post in paginator.posts %}
+    {% for post in site.posts %}
+    {% unless post.hidden %}
+    {% assign post_category_slug = post.categories | first %}
+    {% assign post_category = site.data.categories | where: "slug", post_category_slug | first %}
     <article class="post-preview">
         <a class="post-card-link" href="{{ post.url | prepend: site.baseurl }}">
             <div class="post-card-meta">
                 <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
-                {% if post.tags.size > 0 %}
+                {% if post_category %}
                 <span class="post-card-dot" aria-hidden="true"></span>
-                <span>{{ post.tags | first }}</span>
+                <span>{{ post_category.name }}</span>
                 {% endif %}
             </div>
             <h2 class="post-title">{{ post.title }}</h2>
@@ -39,20 +71,6 @@ no-catalog: true
             </div>
         </a>
     </article>
+    {% endunless %}
     {% endfor %}
-
-    {% if paginator.total_pages > 1 %}
-    <ul class="pager">
-        {% if paginator.previous_page %}
-        <li class="previous">
-            <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; 较新文章</a>
-        </li>
-        {% endif %}
-        {% if paginator.next_page %}
-        <li class="next">
-            <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">更早文章 &rarr;</a>
-        </li>
-        {% endif %}
-    </ul>
-    {% endif %}
 </section>

@@ -6,6 +6,7 @@ date:       2024-10-08 20:10:00
 author:     "zangxin"
 header-img: "img/home-bg.jpg"
 catalog: true
+category: java
 tags:
 ---
 

@@ -6,6 +6,7 @@ date:       2025-07-09 22:21:00
 author:     "zangxin"
 header-img: "img/home-bg.jpg"
 catalog: true
+category: software-engineering
 tags:
 ---
 

@@ -6,6 +6,7 @@ date:       2025-04-13 16:39:00
 author:     "zangxin"
 header-img: "img/home-bg.jpg"
 catalog: true
+category: ai
 tags:
 ---
 

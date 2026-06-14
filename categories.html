@@ -1,0 +1,77 @@
+---
+layout: default
+title: "分类"
+description: "按主题浏览全部文章"
+header-img: "img/home-bg.jpg"
+header-mask: 0.45
+permalink: /categories/
+---
+
+{% include intro-header.html type='page' %}
+
+<main class="categories-page">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-12">
+                <nav class="category-directory" aria-label="文章分类">
+                    <div class="category-directory-heading">
+                        <span class="feed-kicker">TOPICS</span>
+                        <h2>选择一个分类</h2>
+                        <p>点击分类后直接跳转到对应文章列表。</p>
+                    </div>
+                    <div class="category-grid">
+                        {% for category in site.data.categories %}
+                        {% assign category_posts = site.categories[category.slug] | where_exp: "post", "post.hidden != true" %}
+                        {% if category_posts.size > 0 %}
+                        <a class="category-card" href="#{{ category.slug }}">
+                            <span class="category-card-icon" aria-hidden="true">
+                                <i class="fa fa-{{ category.icon }}"></i>
+                            </span>
+                            <span class="category-card-copy">
+                                <strong>{{ category.name }}</strong>
+                                <small>{{ category.description }}</small>
+                            </span>
+                            <span class="category-card-count">{{ category_posts.size }}</span>
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </nav>
+
+                <div class="category-sections">
+                    {% for category in site.data.categories %}
+                    {% assign category_posts = site.categories[category.slug] | where_exp: "post", "post.hidden != true" %}
+                    {% if category_posts.size > 0 %}
+                    <section class="category-section" id="{{ category.slug }}">
+                        <header class="category-section-heading">
+                            <div class="category-section-title">
+                                <span class="category-card-icon" aria-hidden="true">
+                                    <i class="fa fa-{{ category.icon }}"></i>
+                                </span>
+                                <div>
+                                    <h2>{{ category.name }}</h2>
+                                    <p>{{ category.description }}</p>
+                                </div>
+                            </div>
+                            <span class="category-section-count">{{ category_posts.size }} 篇</span>
+                        </header>
+
+                        <div class="category-post-list">
+                            {% for post in category_posts %}
+                            <article class="category-post">
+                                <a href="{{ post.url | prepend: site.baseurl }}">
+                                    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+                                    <span class="category-post-title">{{ post.title }}</span>
+                                    <span class="category-post-arrow" aria-hidden="true">&rarr;</span>
+                                </a>
+                            </article>
+                            {% endfor %}
+                        </div>
+                    </section>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

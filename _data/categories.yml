@@ -1,0 +1,39 @@
+- slug: java
+  name: Java
+  description: Java 基础、框架、JVM 与后端开发
+  icon: code
+
+- slug: database
+  name: 数据库与中间件
+  description: 数据库、缓存与消息队列
+  icon: database
+
+- slug: frontend
+  name: 前端
+  description: HTML、CSS、JavaScript 与 Vue
+  icon: desktop
+
+- slug: projects
+  name: 项目实战
+  description: 项目设计、开发过程与复盘
+  icon: folder-open-o
+
+- slug: tools
+  name: 工具与环境
+  description: Git、Docker、Linux 与开发工具
+  icon: wrench
+
+- slug: ai
+  name: AI
+  description: 模型部署与人工智能实践
+  icon: cogs
+
+- slug: philosophy
+  name: 哲学
+  description: 黑格尔、海德格尔与逻辑学笔记
+  icon: university
+
+- slug: software-engineering
+  name: 软件工程
+  description: 权限设计、工程管理与技术阅读
+  icon: book

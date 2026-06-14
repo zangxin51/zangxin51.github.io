@@ -6,6 +6,7 @@ date:       2024-08-07 14:36:00
 author:     "zangxin"
 header-img: "img/home-bg.jpg"
 catalog: true
+category: projects
 hidden: true
 tags:
 ---

@@ -1,9 +1,10 @@
-const CACHE_NAME = 'zangxin-blog-v5';
+const CACHE_NAME = 'zangxin-blog-v6';
 const PRECACHE_URLS = [
   '/',
   '/offline.html',
   '/css/bootstrap.min.css',
   '/css/zangxin-blog.min.css',
+  '/css/categories.css',
   '/js/jquery.min.js',
   '/js/bootstrap.min.js',
   '/js/zangxin-blog.min.js',
