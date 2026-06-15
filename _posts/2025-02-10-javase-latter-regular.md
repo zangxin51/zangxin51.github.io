@@ -1,752 +1,562 @@
 ---
-layout:     post
-title:      "javase latter"
-subtitle:   ""
-date:       2024-02-10 15:44:00
-author:     "zangxin"
+layout: post
+title: "Java SE 进阶学习笔记"
+subtitle: ""
+date: 2024-02-10 15:44:00
+author: "zangxin"
 header-img: "img/home-bg.jpg"
 catalog: true
 category: java
 tags:
+  - Java
+  - Java SE
 ---
 
-# java基础后半部分
+# Java SE 进阶学习笔记
 
-## 基础
+本篇接续 Java SE 基础内容，集中整理集合、泛型、反射、多线程、JDBC、ThreadLocal、正则表达式、网络编程和 IO 等常用知识。
 
-## 面向对象
+## 面向对象回顾
 
-### 面向对象1
+### 类的成员
 
-- 类的成员
+| 成员 | 分类或作用 |
+| --- | --- |
+| 成员变量 | 静态变量、实例变量 |
+| 方法 | 静态方法、实例方法 |
+| 构造器 | 创建对象并初始化成员 |
+| 代码块 | 静态代码块、实例代码块 |
+| 内部类 | 成员、静态、局部、匿名内部类 |
 
-	- 成员变量
+### 封装、继承与多态
 
-		- 静态变量
+- **封装**：将属性私有化，通过方法控制访问。
+- **继承**：子类复用父类成员，并可以重写父类方法。
+- **多态**：父类型引用指向子类型对象，调用重写方法时执行对象实际类型的实现。
 
-		- 实例变量
+```java
+Animal animal = new Dog(); // 向上转型
+animal.run();
 
-	- 方法
+if (animal instanceof Dog) {
+    Dog dog = (Dog) animal; // 向下转型
+    dog.swim();
+}
+```
 
-		- 静态方法
+方法调用具有动态绑定特性，运行时根据对象的实际类型选择重写后的方法；成员变量不参与这种动态绑定。
 
-		- 实例方法
+### 抽象类与接口
 
-	- 构造器
+抽象类用于提取共同状态和实现，接口用于定义能力和行为契约。二者都不能直接实例化，也都可以支持多态。
 
-	- 代码块
+| 对比项 | 抽象类 | 接口 |
+| --- | --- | --- |
+| 定义 | `abstract class` | `interface` |
+| 关系 | 类只能单继承 | 类可以实现多个接口 |
+| 成员 | 可以包含普通类的大部分成员 | 以常量、抽象方法、默认方法和静态方法为主 |
+| 适用场景 | 共享状态、模板和公共实现 | 定义能力、降低模块耦合 |
 
-		- 代码块
+### 内部类
 
-		- 非静态代码块
+| 类型 | 定义位置 | 特点 |
+| --- | --- | --- |
+| 局部内部类 | 方法或代码块中 | 作用域仅限所在局部位置，可访问外部类成员 |
+| 匿名内部类 | 局部位置且无显式类名 | 定义类的同时创建对象，适合一次性实现 |
+| 成员内部类 | 外部类成员位置 | 可以访问外部类的全部成员 |
+| 静态内部类 | 使用 `static` 修饰 | 只能直接访问外部类的静态成员 |
 
-	- 内部类
+成员重名时遵循就近原则。在内部类中需要访问外部类同名成员时，可以使用 `OuterClass.this.member`。
 
-### 面向对象2
+## 集合框架
 
-- 封装
+Java 集合框架主要分为两类：
 
-	- 私有化属性,提供访问器方法
+- `Collection`：保存单列元素。
+- `Map`：保存键值对。
 
-- 继承
+### Collection 常用方法
 
-	- 方法重写
+| 方法 | 作用 |
+| --- | --- |
+| `add(E element)` | 添加元素 |
+| `remove(Object value)` | 删除元素 |
+| `contains(Object value)` | 判断是否包含元素 |
+| `size()` | 获取元素数量 |
+| `isEmpty()` | 判断集合是否为空 |
+| `addAll(Collection c)` | 添加另一个集合的全部元素 |
+| `containsAll(Collection c)` | 判断是否包含另一个集合的全部元素 |
+| `removeAll(Collection c)` | 删除与另一个集合重合的元素 |
+| `clear()` | 清空集合 |
 
-- 多态
+### List
 
-	- 向上转型
+`List` 有索引、允许重复元素，并保留插入顺序。
 
-	- 向下转型
+常用方法：
 
-	- 动态绑定
-1.当调用对象方法的时候, 该方法会和该对象的内存地址/运行类型绑定
-2.当调用对象属性时, 没有动态绑定机制,哪里声明的, 哪里调用, 哪里使用
+```java
+list.add(index, element);
+list.addAll(index, collection);
+list.get(index);
+list.set(index, element);
+list.remove(index);
+list.indexOf(element);
+list.lastIndexOf(element);
+list.subList(fromIndex, toIndex); // 左闭右开
+```
 
-### 面向对象3
+常见遍历方式：
 
-- 抽象类
+```java
+for (String value : list) {
+    System.out.println(value);
+}
 
-	- 抽象方法
+for (int index = 0; index < list.size(); index++) {
+    System.out.println(list.get(index));
+}
 
-- 接口
+Iterator<String> iterator = list.iterator();
+while (iterator.hasNext()) {
+    System.out.println(iterator.next());
+}
+```
 
-	- 属性为常量
-方法为抽象方法
-具有多态性
+#### List 实现类对比
 
-- 内部类
+| 实现类 | 底层结构 | 线程安全 | 特点 |
+| --- | --- | --- | --- |
+| `ArrayList` | 动态数组 | 否 | 随机访问快，尾部追加效率高 |
+| `LinkedList` | 双向链表 | 否 | 首尾增删方便，随机访问需要遍历 |
+| `Vector` | 动态数组 | 是 | 旧式同步容器，方法级同步开销较高 |
 
-	- 定义在外部类局部位置上（方法内）
+`ArrayList` 无参创建时底层数组初始为空，第一次添加元素时通常扩容到 10，后续按约 1.5 倍扩容。指定初始容量可以减少频繁扩容。
 
-		- 局部内部类
+### Set
 
-		  地位相当于局部变量，
-		  不能添加访问修饰符，可以用final修饰（不可继承，本质还是类）
-		  可以访问外部类的所有成员包括私有的
-		  作用域：仅仅在定义他的方法或代码块中
-		  外部其他类不能访问局部内部类
-		  如果外部类和局部内部类的成员重名时，使用就近原则使用局内变量，如果想访问外部变量则使用OuterClass.this.variable来访问
+`Set` 不允许元素重复，通常没有索引，只能使用迭代器或增强 `for` 遍历。
 
-		- 匿名内部类
+| 实现类 | 特点 |
+| --- | --- |
+| `HashSet` | 基于哈希表，不保证遍历顺序 |
+| `LinkedHashSet` | 在哈希表基础上维护双向链表，保留插入顺序 |
+| `TreeSet` | 根据自然顺序或比较器排序 |
 
-		  定义在外部类的局部位置，并且没有类名
-		  匿名内部类既是一个类的定义，同时它本身也是一个对象
-		  匿名内部类是一个子类
+#### HashSet 与 HashMap
 
-	- 定义在外部类的成员上
+`HashSet` 底层使用 `HashMap` 保存元素。添加元素的大致过程：
 
-		- 成员内部类
+1. 根据元素的 `hashCode()` 计算哈希值和桶索引。
+2. 桶为空时直接添加。
+3. 桶中已有元素时，通过哈希值和 `equals()` 判断是否重复。
+4. 元素不重复时加入链表或红黑树。
 
-		  定义在外部类的成员位置上
-		  可以添加访问修饰符public protected 默认 private
-		  可以访问外部类的成员，包括私有的
-		  如果内部类变量和外部类变量重名，使用就近原则，想要访问外部类使用Outer.this.outerVar
+在 Java 8 的典型实现中，哈希表默认加载因子为 `0.75`。首次需要分配时通常创建容量为 16 的数组，达到阈值后按两倍扩容。
 
-		- 静态内部类
+当单个桶的链表长度达到树化条件，并且表容量至少为 64 时，链表可转换为红黑树；容量不足时会优先扩容。
 
-  静态内部类定义在外部类成员位置，并有static修饰
-		  可以添加访问修饰符
-		  作用域：同其他成员，为整个类体
-		  静态内部类可以访问所有静态成员
-		  外部类访问静态内部类，先创建对象，再访问
+> 自定义对象作为 `HashSet` 元素或 `HashMap` 的键时，应正确实现 `equals()` 和 `hashCode()`。
 
+### Iterator
 
-## 集合
+迭代器用于按统一方式遍历集合：
 
-### 集合框架体系
+| 方法 | 作用 |
+| --- | --- |
+| `hasNext()` | 判断是否还有下一个元素 |
+| `next()` | 返回下一个元素并移动游标 |
+| `remove()` | 删除最近一次 `next()` 返回的元素 |
 
-### Collection(单列数据)
+遍历时直接调用集合的增删方法可能触发 `ConcurrentModificationException`。需要在遍历过程中删除当前元素时，应使用迭代器的 `remove()`。
 
-add
-remove
-contains
-size
-isEmpty
-addAll
-containsAll
-removeAll
-
-- List
-
-  add(int index,Object ele)
-  addAll(int index, Collection c)
-  get(int index)
-  indexOf
-  lastIndexOf
-  remove
-  set(int index,Object ele)
-  subList(int from, int to) (from,to]
-
-  三种遍历方式 iterator, foreach, fori
-
-	- ArrayList
-
-	  ArrayList可以加入多个null
-	  ArrayList是由数组来实现数据存储的
-	  ArrayList基本等同于Vector,除了ArrayList是线程不安全的(执行效率高)
-
-	  1.ArrayList中维护了一个Object类型的数组elementData
-	  transient Object[] elementData;
-	  2.如果创建ArrayList对象时使用无参构造器,则数组容量为0,第一次添加,则扩容为10,如需要再次扩容,则扩容为1.5倍(0 10 15 22 33)
-	  3.如果使用指定大小构造器,则初始容量为指定,再次扩容为1.5倍
-
-	- Vector
-
-	  底层数组:protected Object[] elementData;
-	  Vector是线程安全的,方法签名带有synchronized
-	  需要线程安全时,可以使用Vector
-	  扩容:无参构造器,第一次添加10,每次扩容2倍
-
-	- LinkedList(双向链表)
-
-  array和linkedList比较
-	  linkedList和ArrayList都是线程不安全的
-	  增删效率: array涉及扩容较低, linkedList通过链表追加较高
-	  改查效率:array是数组效率高,linkedList要遍历,效率低
-
-- Set
-
-  无序,没有索引,不允许元素重复
-  实现了collection接口,可以使用collection接口中的方法
-  只有两种遍历方式,iterator,foreach
-
-  HashSet实际上是HashMap
-  public HashSet() {
-      map = new HashMap<>();
-  }
-  可以存放null值,但只能有一个(不能重复)
-  HashSet无序是由hash后的索引结果决定的
-  不能有重复元素
-
-  - HashSet
-
-    1.hashSet底层是hashMap(所以下面说的都是HashMap的原理)
-
-    2.添加一个元素,先得到hash值-》转化成索引值
-    3.找到存储数据的表table,看这个索引位置是否已经存放元素
-    4.如果没有直接加入
-    5.如果有,调用equals方法比较,如果相同,则放弃添加,如果不同就添加到最后
-    6.在java8中,链表长度 > 8 且 哈希表容量 ≥ 64 时，链表会树化为红黑树。如果链表长度 > 8 但容量 < 64，HashMap 会优先扩容
-    扩容机制(resize())
-    1.第一次tabl扩容到16,临界值=容量*加载因子0.75=16*.75=12,
-    如果table数组到了临界值12,table就会扩容两倍32,临界值为24,以此类推
-    3.java8只有链表长度大于8,table长度大于等于64才会进行红黑树树化,否则只会扩容table
-
-  - LinkedHashSet
-
-    linkedHashset是hashset的子类
-    1.在linked中维护了一个hash表和双向链表
-    2.每一个节点有before和after属性,这样可以形成双向链表
-    3每添加一个元素时,先求hash值,再求索引,确定元素在tbale的位置,然后再将添加的元素加入到双向链表中,如果元素已经存在,则不添加
-    4.这样能在遍历时,可以保证顺序和添加时一致
-
-  - TreeSet
-
-- 迭代器
-
-  Iterator
-  hasNext:判断是否还有下一个
-  next():下移元素,将下移后集合位置上的元素返回
-
-### Map(双列元素)
-
-Map和Collection接口并列存在
-Map用于保存句用映射关系到数据:key-value键值对
-Map中key和Value可以是任何引用类型的元素,会封装到HashMap$Node对象中
-Map中的key不能重复,value可以重复
-Map的key只有一个为null
-常用String作为key
-key和Value是映射关系,通过key可以找到value,反之不一定(非双射)
-常用方法:
-put
-get
-remove
-size
-isEmpty
-clear清空
-containsKey
-containsValue
-
-- HashMap
-
-  使用key-value对存储数据,HashMap$Node(实现Map.Entry)
-  如果添加相同的key则会更新原来的value
-  与hashSet一样不保证映射的顺序
-  hashMap没有实现同步,因此是线程不安全的
-  扩容机制:和hashset一样
-  HashMap底层维护了Node类型数组table,默认为null
-  当创建对象时,将加载因子初始化为0.75
-  当添加key-value,通过key的hash值得到table的索引.然后判断索引是否有元素,无的话,直接添加,有的话,则继续判断key是否相等,相等替换,不等时判断是否为树结构或链表结构,做出相应处理,如果容量不够时,则需要扩容
-  第1次添加,容量为16,临界值为12
-  以后再扩容table长度*2(32),临界值*2(24),以此类推,超过临界值就会触发扩容
-  在java8中,链表长度>8,且table长度>=64,触发树化
-
-- Hashtable
-
-  1.存放元素是键值对
-  hashtable的key和value都不能为null,否则空指针
-  hashtable使用方法和hashmap一样
-  hashtable是线程安全的
-  Hashtable添加元素使用头插法,hashMap使用尾插法
-
-- LinkedHashMap
-
-- Properties
-
-  继承与hashtable接口
-  使用和hashtable类似
-  可以用于从xxx.properrties文件中,加载数据到Properties对象进行读写(jdbc配置文件)
-
-- TreeMap
-
-  使用无参构造器,创建时是无序的
-  构造器可以指定比较器,指定如何比较,cmp=0的元素只能存在一个
-
-### Collections
-
-reverse
-shuffle
-sort
-swap
-max
-min
-frequency
-copy
-replaceAll
+### Map
+
+`Map` 以 `key-value` 形式保存数据。键不能重复，添加相同键时会覆盖原值；值可以重复。
+
+| 方法 | 作用 |
+| --- | --- |
+| `put(K key, V value)` | 添加或更新键值对 |
+| `get(Object key)` | 根据键获取值 |
+| `remove(Object key)` | 删除键值对 |
+| `containsKey(Object key)` | 判断是否包含键 |
+| `containsValue(Object value)` | 判断是否包含值 |
+| `keySet()` | 获取全部键 |
+| `values()` | 获取全部值 |
+| `entrySet()` | 获取全部键值对 |
+| `size()` / `isEmpty()` / `clear()` | 数量、判空和清空 |
+
+遍历键值对时优先使用 `entrySet()`：
+
+```java
+for (Map.Entry<String, Integer> entry : scores.entrySet()) {
+    System.out.println(entry.getKey() + ": " + entry.getValue());
+}
+```
+
+#### Map 实现类对比
+
+| 实现类 | 顺序 | `null` | 线程安全 | 典型用途 |
+| --- | --- | --- | --- | --- |
+| `HashMap` | 不保证顺序 | 允许一个 `null` 键和多个 `null` 值 | 否 | 通用键值存储 |
+| `LinkedHashMap` | 保留插入或访问顺序 | 允许 | 否 | 有序遍历、LRU 场景 |
+| `TreeMap` | 按键排序 | 通常不允许 `null` 键 | 否 | 排序、范围查询 |
+| `Hashtable` | 不保证顺序 | 键和值都不允许 `null` | 是 | 旧式同步容器 |
+| `Properties` | 不保证顺序 | 不允许 | 是 | 读写字符串配置 |
+
+`HashMap` 的哈希、扩容和树化机制与前面的 `HashSet` 基本一致，因为 `HashSet` 本身就是借助 `HashMap` 实现的。
+
+`TreeMap` 可以使用键的自然顺序，也可以在构造时传入 `Comparator`。比较结果为 `0` 的键会被视为同一个键。
+
+### Collections 工具类
+
+`Collections` 提供操作集合的静态方法：
+
+| 方法 | 作用 |
+| --- | --- |
+| `reverse()` | 反转列表 |
+| `shuffle()` | 随机打乱 |
+| `sort()` | 排序 |
+| `swap()` | 交换两个位置的元素 |
+| `max()` / `min()` | 获取最大值或最小值 |
+| `frequency()` | 统计元素出现次数 |
+| `copy()` | 将一个列表内容复制到另一个列表 |
+| `replaceAll()` | 批量替换指定元素 |
 
 ### 集合选型
 
-选择的集合类取决于业务操作特点
-1.先判断存储的类型: 单列 or 双列
-2.单列: Collection接口
-	允许重复: List
-		增删多:linkedList
-		修改查找多:ArrayList
-	不允许重复:
-		无序: HashSet
-		排序: TreeSet
-		添加顺序和取出顺序一致: linkedHashSet
-3.双列: Map
-	键无序: HashMap
-	键排序:TreeMap
-	键添加和取出顺序一致: linkedHashMap
-	读取文件: Properties	
+1. 保存单列数据时选择 `Collection`，保存键值关系时选择 `Map`。
+2. 允许重复且需要索引时选择 `List`。
+3. 不允许重复时选择 `Set`。
+4. 主要进行随机访问时选择 `ArrayList`，频繁操作首尾时可以考虑 `LinkedList`。
+5. 不关心顺序时选择 `HashSet` 或 `HashMap`。
+6. 需要保留插入顺序时选择 `LinkedHashSet` 或 `LinkedHashMap`。
+7. 需要排序时选择 `TreeSet` 或 `TreeMap`。
+8. 读取 `.properties` 配置时使用 `Properties`。
 
 ## 泛型
 
-### 优点:编译时,检查元素的类型,提高安全性
+泛型把类型检查提前到编译阶段，可以减少强制类型转换，提高代码复用性和类型安全。
 
-减少了类型转换次数
+### 泛型类
 
-### jdk5新特性,解决数据类型安全问题
+```java
+public class Box<T> {
+    private T value;
 
-类声明标识属性的类型
-方法的返回值或参数类型
-编译时会确定泛型的实际类型,默认用Object替代
+    public T getValue() {
+        return value;
+    }
 
-### 泛型语法
+    public void setValue(T value) {
+        this.value = value;
+    }
+}
+```
 
-- 声明interface/class <K,V>
+类的泛型参数在创建对象时确定。静态成员属于类本身，因此不能直接使用类级泛型参数。
 
-	- 泛型类
+### 泛型接口
 
-	  class 类名 <T, R...> {   }
-	  普通成员可以使用泛型:属性和方法
-	  使用泛型的数组,不能初始化(不能确定T的类型,无法在内存中开辟空间)
-	  静态方法中不能使用类的泛型, 泛型类的泛型在创建对象时确定
-	  如果创建对象没有指定类型,默认为Object
+```java
+public interface Converter<S, T> {
+    T convert(S source);
+}
 
-	- 泛型接口
+public class StringToInteger implements Converter<String, Integer> {
+    @Override
+    public Integer convert(String source) {
+        return Integer.valueOf(source);
+    }
+}
+```
 
-  静态成员不能使用泛型
-	  泛型接口类型, 在继承接口或者实现接口时确定
-	  没有指定类型, 默认为Object
+接口的泛型类型可以在继承接口或实现接口时确定。
 
-	- 泛型方法
+### 泛型方法
 
-  修饰符 <T, R...> 返回类型 方法名(参数列表) { }
-	  泛型方法可以定义在普通类, 也可以定义在泛型类
-	  2.当泛型方法被调用时,类型会确定
-	  3.public void eat(E e){} 修饰符后没有<T,R..> eat,所以方法不是泛型方法,而是使用了泛型
+泛型方法需要在返回值类型前单独声明类型参数：
 
-	- 泛型继承和通配符说明
+```java
+public static <T> T first(List<T> values) {
+    return values.get(0);
+}
+```
 
-	- 泛型不具备继承性
+仅仅使用类级泛型参数的方法，不等同于泛型方法。
 
-	- <?>支持任意泛型类型
-	<? extends A> 支持A类以及A的子类,规定了泛型的上限
-<? super A> 支持A类以及A的父类,不限于直接父类,规定泛型的下限
+### 通配符
 
-- 泛型擦除
+泛型本身不具备继承关系，例如 `List<Integer>` 不是 `List<Number>` 的子类型。
 
-	- 在编译时使用泛型进行类型检查，而在运行时将泛型类型信息擦除，替换为原始类型（通常是Object）或边界类型
+| 写法 | 含义 | 典型用途 |
+| --- | --- | --- |
+| `<?>` | 任意泛型类型 | 只关心容器，不关心元素具体类型 |
+| `<? extends T>` | `T` 或其子类型 | 主要读取，生产 `T` |
+| `<? super T>` | `T` 或其父类型 | 主要写入，消费 `T` |
 
-	  类型参数替换为原始类型：
+可以用 PECS 记忆：Producer Extends，Consumer Super。
 
-		  如果泛型类型没有指定边界（如<T>），则类型参数会被替换为Object。
-		  如果指定了边界（如<T extends Number>），则类型参数会被替换为边界类型（如Number）。
-		  类型检查在编译时完成：
+### 类型擦除
 
-		  编译器会在编译时检查泛型类型的安全性，确保类型匹配。
-		  运行时，泛型类型信息会被擦除，无法通过反射获取具体的泛型类型。
-		  桥接方法：
-
-		  为了保证多态性，编译器会生成桥接方法（bridge methods）。例如，如果泛型类继承或实现了某个类或接口，编译器会生成额外的方法来确保类型擦除后的代码仍然能正确运行。
-
+Java 泛型主要在编译阶段生效。编译后泛型参数会被擦除，并在必要时插入类型转换或生成桥接方法，以维持多态行为。
 
 ## 反射
 
-### 反射机制
+反射允许程序在运行时获取类的信息，并动态访问构造器、字段和方法。
 
-- 反射机制允许在程序执行期借助于ReflectionAPI取得任何类的内部信息(比如成员变量,构造器,成员方法等等)并且能够操作对象的属性及方法,反射在设计模式和框架底层都会用到
+### 获取 Class 对象
 
-- 加载类完成后,在堆中产生一个Class类型的对象,一个类只有一个Class对象,这个对象包含了类的完整结构信息.通过这个对象获取类的结构, 这个Class对象就像一个镜子,通过这个镜子反射到类的结构---形象称为反射
+同一个类在一次类加载过程中只有一个对应的 `Class` 对象。
 
-- 反射机制原理图
+```java
+Class<String> first = String.class;
+Class<?> second = Class.forName("java.lang.String");
+Class<? extends String> third = "hello".getClass();
 
-### 反射类
+System.out.println(first == second); // true
+```
 
-- java.lang.Class:代表一个类,Class对象表示某个类加载后在堆中的对象
+常见获取方式：
 
-	- 注意点
+| 方式 | 适用场景 |
+| --- | --- |
+| `类名.class` | 编译期已知类型 |
+| `对象.getClass()` | 已有对象 |
+| `Class.forName("全限定类名")` | 根据配置动态加载 |
 
-		- Class也是类,也继承Object类
+基本类型、数组、接口、枚举、注解和 `void` 都有对应的 `Class` 对象。
 
-		- Class类不是new出来的,而是系统创建的
+### 类加载过程
 
-		- 对于某个类Class类对象,在内存中只有一份,因为类只加载一次
+类加载通常包含以下阶段：
 
-		- 每个类实例都会记得自己是由哪个Class实例生成
+1. **加载**：读取字节码并创建 `Class` 对象。
+2. **验证**：检查字节码是否符合 JVM 规范。
+3. **准备**：为静态变量分配内存并设置初始值。
+4. **解析**：将符号引用转换为直接引用。
+5. **初始化**：执行静态变量显式赋值和静态代码块，形成 `<clinit>`。
 
-		- 通过Class对象可以完整的得到一个类的完整结构,通过一系列API
+静态加载在编译期就能确定依赖；动态加载则可能在运行时才确定具体类。
 
-		- Class对象是放在堆里面的
+### 获取类结构
 
-		- 类的字节码二进制数据是放在方法区的,有的地方称为类的元数据(包括方法代码,变量名,方法名,访问权限等)
+```java
+Class<User> type = User.class;
 
-	- 常用方法
+Constructor<User> constructor = type.getDeclaredConstructor();
+Field field = type.getDeclaredField("name");
+Method method = type.getDeclaredMethod("setName", String.class);
+```
 
-		- forName
-newInstance
-getName 返回Class对象表示的实体类名称
-getInterfaces
-getClassLoader
-getSuperClass
-getConstructors
-getDeclaredFields
-getFields区别,getDeclaredFields返回该类所有字段,getFields会查找父类接口等,不返回私有的字段
-getMethod
-getPackage 获取类的包
+常用 API：
 
-	- 获取类Class对象
+| API | 作用 |
+| --- | --- |
+| `getName()` / `getSimpleName()` | 获取全限定类名或简单类名 |
+| `getSuperclass()` | 获取父类 |
+| `getInterfaces()` | 获取实现的接口 |
+| `getDeclaredConstructors()` | 获取本类声明的构造器 |
+| `getDeclaredFields()` | 获取本类声明的字段 |
+| `getDeclaredMethods()` | 获取本类声明的方法 |
+| `getAnnotations()` | 获取注解 |
 
-		- Class.forName(类的全限定名)
+`getXxx()` 通常只能获取公开成员，并可能包含继承成员；`getDeclaredXxx()` 获取当前类声明的成员，不受访问权限限制。
 
-		- Class clazz = Cat.class
+### 创建对象和调用方法
 
-		- 对象.getClass(运行类型--真正类型)
+```java
+Class<User> type = User.class;
 
-		- ClassLoader cl = 对象.getClass.getClassLoader
-Class clazz = cl.loadClass("类的全限定名)
+Constructor<User> constructor = type.getDeclaredConstructor();
+constructor.setAccessible(true);
+User user = constructor.newInstance();
 
-		- 基本数据类型
-Class clazz = int.class
+Field nameField = type.getDeclaredField("name");
+nameField.setAccessible(true);
+nameField.set(user, "Alice");
 
-		- 包装类: Integer.TYPE (Integer 和int是一个Class对象)
+Method sayHello = type.getDeclaredMethod("sayHello", String.class);
+sayHello.setAccessible(true);
+Object result = sayHello.invoke(user, "Java");
+```
 
-	- 哪些类型有Calss对象
+现代代码优先使用 `Constructor.newInstance()`，避免使用已过时的 `Class.newInstance()`。
 
-		- 外部类,成员内部类,静态内部类,局部内部类,匿名内部类
+### 优点与限制
 
-		- 接口
+反射让框架可以根据配置动态创建对象、注入依赖和调用方法，但也会带来额外复杂度：
 
-		- 数组
+- 编译器难以检查运行时才确定的成员。
+- 访问私有成员会破坏封装边界。
+- 反射调用通常比直接调用慢。
+- 重构时字符串形式的类名和成员名不容易被工具发现。
 
-		- 枚举
-
-		- 注解
-
-		- 基本数据类型
-
-		- void
-
-	- 类加载
-
-		- 反射机制是实现动态语言的关键,也就是通过反射实现类动态加载
-静态加载:编译时加载相关的类,如果没有则报错,缺点就是依赖性太强
-动态加载:运行时加载需要的类, 如果运行时不用该类,即使不存在该类,也不报错,降低了依赖性
-
-		- 加载时机
-
-			- 当创建对象时 new
-
-			- 子类被加载时,父类也会被加载
-
-			- 调用类中的静态成员时
-
-			- 通过反射(动态加载)
-
-		- 加载过程
-
-			- 1加载
-- 将字节码从不同的数据源(jar,.class文件,网络中获取转换二进制字节流加载到内存里, 并且生成一个表示该类的Class对象
-
-- 2连接
-			- 1.验证
-	- 目的是为了确保class字节码文件中包含信息符合虚拟机要求,且不会危害到虚拟机安全
-
-	- 包括:文件格式验证(是否以0xcafebabe开头)元数据验证字节码验证符号引用验证...
-
-	- 可以考虑使用-Xverify:none参数来关闭大部分验证,缩短虚拟机加载时间
-
-	- 2.准备
-
-		- JVM会在该阶段对静态变量分配内存并默认初始化(对应的数据类的默认初始值(0,0L,null,false等),注意静态常量直接赋值, 这些变量所使用内存都将在方法区中进行分配
-
-	- 3.解析
-			- 虚拟机将常量池内的符号引用替换为直接引用的过程
-
-			- 3.初始化
-- 到初始化阶段,才是真正执行类中定义的java程序代码,此阶段是执行<clinit>()方法的过程.
-
-- <clinit>方法是有编译器按照语句在源文件中出现的顺序,一次自动收集类中的所有静态变量的赋值动作和静态代码块中的语句,并进行合并.
-
-- 虚拟机会保证一个类的<clinit>方法在多线程环境中被正确的加锁,同步,如果多个线程同时去初始化一个类, 那么只会有一个线程去执行这个<clinit>方法,其他线程都需堵塞等待,直到线程活动执行<clinit>方法完毕
-
-- java.lang.reflect.Method代表类的方法,Method对象表示某个类的方法
-
-- java.lang.reflect.Field:表示类的成员变量
-
-- java.lang.reflect.constructor:代表类的构造方法,constructor对象表示构造器
-
-### 反射的缺点和优点
-
-- 缺点:执行速度慢
-
-	- 优化
-
-		- Method和Field和Constructor对象都有set Accessible方法,该方法的作用是启动和禁用访问访问检查开关
-设置为true表示关闭访问检查,提高反射效率,false代表反射的对象执行访问检查
-
-- 优点:动态创建和使用对象,使用灵活,没有反射,框架技术就失去了支撑
-
-### 通过反射获取类的结构信息
-
-- java.lang.Class类
-
-	- getName获取全类名
-get SimpleName
-getFileds获取所有public修饰的属性,包含本类的和父类的
-getDeclaredFields:获取本类中所有属性
-getMethods获取所有public修饰的方法,包含本类以及父类的
-getConstructor获取本类所有public修饰的构造器
-getDeclaredConstructor获取本类中所有构造器
-getPackage:以package形式返回包信息
-getSuperClass以Class形式返回父类信息
-getInterfaces以class[]形式返回接口信息
-getAnnotations:以Annotation[]形式返回注解信息
-
-- java.lang.reflect.Field类
-
-	- getModifiers:以int形式返回修饰符,默认是0,public1, private2, protectded是4,static是8,final是16
-getType:以class形式返回类型, get Name返回属性名
-
-- java.lang.reflect.Method类
-
-	- getModifiers:以int形式返回修饰符,默认是0,public1, private2, protectded是4,static是8,final是16
-getReturnType:以Class形式返回 返回类型
-getName 返回方法名
-getParameter Types:以Class[]返回参数类型数组
-
-- java.lang.reflect.Constructor
-
-	- 和method一样
-
-- 通过反射创建对象
-
-	- Class.newInstance
-
-	- 构造器对象.newInstance
-
-	- 遇到私有构造器可以暴力破解:set Accessible(true)
-
-- 访问属性
-
-	- 根据属性名获取Field对象
-Field f = Class对象.getDeclaredField(属性名);
-爆破: f.setAccessib(true)
-访问: f.set(obj, 值) // 实例变量
-f.set(null,值) // 静态变量
-
-- 访问方法
-
-	- 根据方法名和参数列表获取Method对象
-Method m = Class对象.getDeclaredMethod(方法名,XX.class);
-获取对象 Ojbect obj = clazz.newInstance()
-爆破 m.set Accessible(true)
-调用,m.invoke(obj,参数列表)
-如果静态方法: m.invoke(null,参数列表)
-返回值: invoke方法有返回值
+因此应将反射封装在框架或基础设施层，普通业务代码优先使用直接调用。
 
 ## 多线程
 
-### 程序
+### 基本概念
 
-程序:为了完成特定任务,用某种语言编写的一组指令集合(代码)
-进程:进程指运行中的程序,操作系统会为该进程分配内存空间, 进程是程序的一次执行过程,或者是正在运行的一个程序,是动态过程,具有生命周期:产生,存在,死亡.
-线程:线程是由进程创建的,是进程的一个实体
-一个进程可以拥有多个线程
+| 概念 | 说明 |
+| --- | --- |
+| 程序 | 存放在磁盘上的指令和数据 |
+| 进程 | 正在运行的程序实例 |
+| 线程 | 进程中的执行单元 |
+| 并发 | 多个任务在同一时间段交替推进 |
+| 并行 | 多个任务在同一时刻同时执行 |
 
-- 线程
+### 创建线程
 
-	- 单线程:同一时刻只允许执行一个线程
-
-	- 多线程:同一个时刻可以执行多个线程(游戏画面和游戏音乐)
-
-- 并发:同一个时刻,多个任务交替执行,造成一种“貌似同时”的错觉,单核CPU的多任务就是并发
-
-- 并行:同一时刻,多个任务同时执行.多核CPU可以实现并行
-
-- 在多核CPU上可以同时存在并发和并行
-
-### 创建线程的方式
-
-- 1继承Thread类重写run方法,执行start启动线程
-- Thread类实现了Runnable接口
-
-- 2实现函数型接口Runnable,重写run方法,执行:new Thread(new Runnable()).start();
-- Thread代理了Runnable接口任务
-
-- java是单继承的,如果有时候类已经继承了其他父类,就不能使用继承Thread方法创建多线程了
-所以要使用实现Runnable接口创建线程
-
-### 启动线程:当main线程启动一个子线程时,主线程不会堵塞,会继续执行
-
-- 为什调用start方法启动线程而不是run方法
-start方法调用start0(native方法),线程并不一定执行,知识将线程变成了可运行状态,具体执行时间取决于cpu的调度.
-执行run方法,相当于串行的执行一个普通方法.
-start0 是一个本地方法，由 JVM 实现，负责调用操作系统的线程创建 API
-当调用 Thread 的 start 方法时，start0 会创建一个新线程，并让该线程执行 run 方法。
-start0 的实现依赖于 JVM 和操作系统的底层线程库。
-
-### jconsole查看线程
-
-### 超卖问题
+继承 `Thread`：
 
 ```java
-public static void main(String[] args) {
-    SellTicketTask sellTicketTask = new SellTicketTask();
-    Thread t1 = new Thread(sellTicketTask);
-    Thread t2 = new Thread(sellTicketTask);
-    Thread t3 = new Thread(sellTicketTask);
-    t1.start();t2.start();t3.start();
-}
-lass SellTicketTask implements Runnable {
-    // 只有100张票
-    private int count = 100;
-    // 售票
+class DownloadThread extends Thread {
     @Override
     public void run() {
-        while (count > 0) {
+        System.out.println("download");
+    }
+}
 
-System.out.println(Thread.currentThread().getName() + "卖出一张票,还剩:" + --count);
-              Thread.sleep(50);
+new DownloadThread().start();
+```
+
+实现 `Runnable`：
+
+```java
+class DownloadTask implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("download");
+    }
+}
+
+Thread thread = new Thread(new DownloadTask());
+thread.start();
+```
+
+实现 `Runnable` 可以避免单继承限制，也更容易把任务与线程对象分开。
+
+调用 `start()` 会请求 JVM 创建新线程，并由新线程执行 `run()`；直接调用 `run()` 只是普通方法调用，不会启动新线程。
+
+### 共享数据与超卖问题
+
+多个线程共同修改库存、余额或票数时，复合操作不是原子的，可能产生重复销售或负数库存。
+
+```java
+class SellTicketTask implements Runnable {
+    private int tickets = 100;
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (this) {
+                if (tickets <= 0) {
+                    break;
+                }
+
+                System.out.println(
+                    Thread.currentThread().getName() + " 卖出第 " + tickets + " 张票"
+                );
+                tickets--;
+            }
         }
     }
 }
 ```
 
+### 线程停止
 
-### 线程终止
+不建议使用强制终止线程的旧 API。更常见的方式是使用中断状态或共享标记，让线程自己结束。
 
-- 当线程完成任务后,会自动退出
+```java
+class Worker implements Runnable {
+    private volatile boolean running = true;
 
-- 还可以通过使用变量来控制run方法退出的方式停止线程,即通知方式
+    public void stop() {
+        running = false;
+    }
 
-  ```java
-  class T extends Thread {
-      private int count = 0;
-      private boolean loop = true;
-      @Override
-      public void run() {
-          // 修改loop使得线程退出----》通知方式
-          // t.setLoop(false); 让循环结束
-          while (loop) {
-              try {
-                  Thread.sleep(50);
-              } catch (InterruptedException e) {
-                  throw new RuntimeException(e);
-              }
-              System.out.println("T running..." + ++count);
-          }
-      }
-      public void setLoop(boolean loop) {
-          this.loop = loop;
-      }
-  }
-  ```
+    @Override
+    public void run() {
+        while (running && !Thread.currentThread().isInterrupted()) {
+            // 执行任务
+        }
+    }
+}
+```
 
+### 常用方法
 
-### 线程的常用方法
+| 方法 | 作用 |
+| --- | --- |
+| `start()` | 启动线程 |
+| `run()` | 线程执行体 |
+| `sleep(milliseconds)` | 让当前线程休眠指定时间 |
+| `join()` | 等待目标线程结束 |
+| `yield()` | 提示调度器让出执行机会，不保证成功 |
+| `interrupt()` | 设置中断状态或唤醒阻塞线程 |
+| `isInterrupted()` | 查询线程中断状态 |
+| `currentThread()` | 获取当前线程 |
+| `setDaemon(true)` | 设置为守护线程 |
 
-setName
-getName
-start 启动新线程
-run 不会启动新线程
-setPriority 设置线程优先级 高10 中5 低1
-getPriority
-sleep 线程静态方法,是当前线程休眠
-interrupt 中断线程,并非结束线程, 一般用于中断正在休眠的线程(让线程停止休眠,来干活)
+`sleep()` 和 `yield()` 不会释放已经持有的监视器锁，`wait()` 会释放当前对象的监视器锁。
 
-- 线程方法
+### 用户线程与守护线程
 
-	- yield:yield 方法用于提示线程调度器当前线程愿意让出 CPU 资源。
+- **用户线程**：完成主要业务工作。
+- **守护线程**：为其他线程提供后台服务。
 
-	它是一个静态的本地方法，具体实现由 JVM 提供。
+当所有用户线程都结束后，JVM 可以退出，不会等待守护线程完成。
 
-	yield 只是一个提示，线程调度器可能会忽略它。
+### 线程生命周期
 
-	适用于需要提高多线程程序公平性的场景，但不适用于精确控制线程执行顺序。\
+Java 线程主要有以下状态：
 
-- join:线程的插队,插队成功后,则肯定先执行插入的线程的所有任务
+| 状态 | 说明 |
+| --- | --- |
+| `NEW` | 已创建但未启动 |
+| `RUNNABLE` | 可运行，包含运行和等待 CPU 调度 |
+| `BLOCKED` | 等待进入同步区域 |
+| `WAITING` | 无限期等待其他线程动作 |
+| `TIMED_WAITING` | 在指定时间内等待 |
+| `TERMINATED` | 执行结束 |
 
-### 用户线程和守护线程
+![线程生命周期](./../img/md-img/2025-03-26-project-01/截屏2025-04-20%2010.43.53.png)
 
-- 用户线程:也叫工作线程,什么时候终止线程: 当线程执行完或者通知方式结束
-守护线程:一般为工作线程服务,当**所有**用户线程结束时,守护线程自动结束
-常见守护线程: 垃圾回收机制
-设置守护线程: 
-myDaemonThread.setDaemon(true);
-myDaemonThread.start();
+可以使用 JConsole、VisualVM 或线程转储观察线程状态和锁等待情况。
 
-### 线程的生命周期
+### 线程同步
 
-- NEW
-- RUNNABLE
+线程同步用于保护共享可变数据。常见方式包括：
 
-	- READ
+- `synchronized` 代码块或方法。
+- `Lock` 接口及其实现，例如 `ReentrantLock`。
+- 原子类，例如 `AtomicInteger`。
+- 并发集合，例如 `ConcurrentHashMap`。
 
-	- RUNNING
-- BLOCKED
-- WAITING
-- TIMED_WAITING
-- TERMINATED
+```java
+private final Lock lock = new ReentrantLock();
 
-![截屏2025-04-20 10.43.53](../img/md-img/2025-03-26-project-01/截屏2025-04-20 10.43.53.png)
+public void update() {
+    lock.lock();
+    try {
+        // 修改共享数据
+    } finally {
+        lock.unlock();
+    }
+}
+```
 
-### 线程同步机制
+锁范围应尽量只覆盖需要原子执行的临界区，并始终在 `finally` 中释放显式锁。
 
-- 多个线程要共享一个资源, 但是在同一时刻只允许一个线程访问,只有当该线程访问完了,其他线程才能访问
+### volatile 与双重检查
 
-- 同步机制方式
+`volatile` 保证变量修改对其他线程的可见性，并限制相关指令重排序，但不能让 `count++` 这类复合操作变成原子操作。
 
-	- 同步方法:public synchronized void method(){}
-
-	- 同步代码块 synchronized(对象) {需要同步的代码}
-
-- 互斥锁(synchronized)
-
-	- 在java中引入了互斥锁,来保证共享数操作的安全性
-
-	- 每个对象都对应于一个可称为互斥锁的标记,这个标记用来保证在任何一个时刻,只能有一个线程访问该对象
-
-	- 关键字synchronized于对象的互锁联系,当某个对象用synchronized修饰时,表明该对象在任意一时刻只能由一个线程访问
-
-	- 同步方法(非静态)的锁可以时this,也可以时其他的对象
-静态的: 锁为当前类本身
-
-- 释放锁
-
-	- 释放锁
-
-		- 代码正常执行完毕
-
-		- 发生错误异常
-
-		- wait()方法
-
-	- 不释放锁
-
-		- Thread.sleep
-yield
-
-		- suspend
-resume
-
-### volatile
-
-- 1.线程的可见性: 当一个线程去修改一个共线变量时, 另一外一个线程可以读取到整儿修改的值, 而不是副本
-
-- 2.禁止指令重排: 执行顺序和代码顺序一致
-
-- 安全懒汉式单例模式--双检锁单例模式
-
-  ```java
-  public class Singleton {
-  // volatile
-  // 1.线程的可见性: 当一个线程去修改一个共线变量时, 另一外一个线程可以读取到整儿修改的值, 而不是副本
-  // 2.禁止指令重排: 执行顺序和代码顺序一致
-  private volatile static Singleton instance;
+```java
+public class Singleton {
+    private static volatile Singleton instance;
 
     private Singleton() {
     }
@@ -761,1631 +571,982 @@ resume
         }
         return instance;
     }
-  }
-  ```
+}
+```
 
+双重检查中的 `volatile` 用于避免对象引用在初始化尚未完成时被其他线程观察到。
 
 ## JDBC
 
-### jdbc作用
+JDBC 是 Java 访问关系型数据库的一组标准接口。数据库厂商提供驱动实现，业务代码通过统一 API 建立连接、执行 SQL 和处理结果。
 
-- 1.jdbc为访问不同的数据库提供了统一的接口, 为使用者屏蔽了细节问题
+### 基本步骤
 
-- 2.java程序使用jdbc,可以连接任何提供了jdbc驱动程序的数据库, 从而完成对数据库的各种操作
+1. 准备数据库驱动。
+2. 使用 `DriverManager` 或连接池获取 `Connection`。
+3. 创建 `PreparedStatement`。
+4. 执行 SQL。
+5. 处理 `ResultSet` 或更新行数。
+6. 释放资源。
 
-- 3.如果不同数据库,我们DAO层的方法不统一,不利于程序的管理,而jdbc通过规定一套接口规范, 让不同的数据库厂商实现, 在java程序中统一调用接口的方法
+现代 JDBC 驱动通常支持自动注册，无需显式调用 `Class.forName()`。
 
-- 4.jdbc时java(sun/oracle)开发者提供的一条用于数据库操作的接口, java程序员只要面向这套接口编程即可. 不同的数据库厂商,需要针对这套接口, 提供不同的实现
+```java
+String url = "jdbc:mysql://localhost:3306/app"
+    + "?useUnicode=true&characterEncoding=utf8"
+    + "&serverTimezone=Asia/Shanghai";
 
-### jdbc作用示意
+try (
+    Connection connection = DriverManager.getConnection(
+        url,
+        System.getenv("DB_USERNAME"),
+        System.getenv("DB_PASSWORD")
+    );
+    PreparedStatement statement = connection.prepareStatement(
+        "select id, name, email from user where id = ?"
+    )
+) {
+    statement.setLong(1, 1L);
 
-- java程序需要访问数据库
-
-	- JDBC
-
-		- JDBCMysqlImpl
-
-			- MySQL DB
-
-		- JDBCOracleImpl
-
-			- Oracle DB
-
-		- JDBCSqlserverImpl
-
-			- Sqlserver DB
-
-### jdbc接口编写步骤
-
-- 1.注册驱动类
-
-- 2.获取连接
-
-  - 五种方法获取连接
-
-    - 第一种
-
-    ```java
-    Driver driver = new com.mysql.cj.jdbc.Driver();
-    ```
-
-    - ```java
-        // 第二种
-        Class<?> aClass = Class.forName("com.mysql.cj.jdbc.Driver");
-        driver = (Driver) aClass.newInstance();
-        ```
-
-
-    - ```java
-        // 3.反射
-        Class<?> aClass = Class.forName("com.mysql.cj.jdbc.Driver");
-        driver = (Driver) aClass.newInstance();
-        // 使用DriverManager统一管理
-        DriverManager.registerDriver(driver); // 注册驱动
-        // 获取连接
-    Connection connection = DriverManager.getConnection(url, "root", "root");
-        ```
-
-    -    ```java
-        // 4. 反射
-        Class<?> aClass = Class.forName("com.mysql.cj.jdbc.Driver");
-        driver = (Driver) aClass.newInstance();
-        // 使用DriverManager统一管理，获取连接
-        Connection connection = DriverManager.getConnection(url, "root", "root");
-        ```
-
-
-        ```java
-        //5. 使用DriverManager统一管理，获取连接
-        Connection connection = DriverManager.getConnection(url, "root", "root");
-        ```
-
-        mysql驱动5.1.6可以无需使用Class.forName去加载类, 而是自动的调用驱动jar包下的mysql-connector-j-8.4.0.jar!/META-INF/services/java.sql.Driver文本中类名称去注册
-
-    - 5.通过文件获取
-
-      ```java
-      @Test
-      void jdbcConnect05() throws Exception {
-        Properties p = new Properties();
-        p.load(this.getClass().getResourceAsStream("/jdbc.properties"));
-        Connection connection = DriverManager.getConnection(p.getProperty("url"), p.getProperty("user"), p.getProperty("password"));
-      }
-      ```
-
-      jdbc.properties
-
-      ```properties
-      driverClassName=com.mysql.cj.jdbc.Driver
-      user=root
-      password=root
-      url=jdbc:mysql://localhost:3306/jbdc_db
-      ```
-
-
-- 3.执行增删改查
-
-  - 查询
-
-    - 结果集ResultSet
-
-      - 游标遍历
-
-        ```java
-        String sql = "select * from news";
-        ResultSet resultSet = ps.executeQuery(sql);
-        // 移动光标，当没有值时返回false
+    try (ResultSet resultSet = statement.executeQuery()) {
         while (resultSet.next()) {
-        // 列从1开始，这是jdbc和其他java api的不同之处
-        int id = resultSet.getInt(1);
-        String title = resultSet.getString(2);
-        String content = resultSet.getString(3);
-        System.out.printf("id=%s,title=%s,content=%s\n", id, title, content);
+            long id = resultSet.getLong("id");
+            String name = resultSet.getString("name");
+            String email = resultSet.getString("email");
+            System.out.println(id + ", " + name + ", " + email);
         }
-        ```
+    }
+}
+```
 
-      - next()向下移动一行
+> 数据库地址、用户名和密码应放在环境变量或外部配置中，不要硬编码到源码。
 
-      - previous() 向上移动一行
+### PreparedStatement
 
-      - getXxx(列的索引|列名) 返回对应列的值, 接受类型是Xxx
+`PreparedStatement` 使用占位符传递参数：
 
-      - getObject(列的索引|列名) 返回对应的列的值, 接受类型是 Object
+```java
+String sql = "insert into user(name, email) values (?, ?)";
 
-- 4.关闭连接, 释放资源
+try (PreparedStatement statement = connection.prepareStatement(sql)) {
+    statement.setString(1, "Alice");
+    statement.setString(2, "alice@example.com");
 
-- 实例
+    int affectedRows = statement.executeUpdate();
+    System.out.println("affected rows: " + affectedRows);
+}
+```
 
-  ```java
-  // 1.注册驱动
-  Driver driver = new com.mysql.cj.jdbc.Driver();
-  // 2.获取连接
-  // mysql协议连接url
-  String url = "jdbc:mysql://localhost:3306/jbdc_db";
-  // 准备连接信息
-  Properties props = new Properties();
-  props.setProperty("user", "root");
-  props.setProperty("password", "root");
-  Connection connect = driver.connect(url, props);
-  // 3.执行sql
-  String sql = "insert into actor(id, name, gender, birthday, phone) values (null,'刘德华','m',current_timestamp(),'10086')";
-  // 执行sql
-  PreparedStatement ps = connect.prepareStatement(sql);
-  // ResultSet resultSet = ps.executeQuery();
-  int affectedRows = ps.executeUpdate();
-  // boolean execute = ps.execute(); //返回boolean值
-  // 4.关闭连接，释放资源
-  ps.close();
-  connect.close();
-  ```
+与拼接 SQL 相比，它具有以下优势：
 
+- 参数和 SQL 结构分离，可防止大多数 SQL 注入。
+- 自动处理字符串转义。
+- 相同 SQL 重复执行时更容易复用执行计划。
+- 支持批处理。
 
-### PreparedStatement对象
+常用执行方法：
 
-- PreparedStatement执行sql语句中的参数用?来表示,调用PreparedStatement的setXXX方法来设置这些参数, setXXX方法有两个参数, 第一个设置索引,第二个设置值(Statement对象没有这些功能)
+| 方法 | 适用场景 | 返回值 |
+| --- | --- | --- |
+| `executeQuery()` | `SELECT` | `ResultSet` |
+| `executeUpdate()` | `INSERT`、`UPDATE`、`DELETE`、DDL | 受影响行数 |
+| `execute()` | SQL 类型未知或可能返回多个结果 | 是否产生结果集 |
 
-  ```java
-  String sql = "select * from news where id = ? and title = ? and content = ? ";
-  ps = connect.prepareStatement(sql);
-  ps.setInt(1,1);
-  ps.setString(2,"震惊");
-  ps.setString(3,"智障md");
-  System.out.println(sql);
-  // 这里不要再填sql参数，否则会报错
-  ResultSet resultSet = ps.executeQuery();
-  ```
+### JDBC 工具方法
 
-- DQL
+可以集中管理连接创建和资源关闭：
 
-	- 调用executeQuery方法返回ResultSet对象
+```java
+public final class JdbcUtils {
+    private static final String URL = System.getenv("DB_URL");
+    private static final String USERNAME = System.getenv("DB_USERNAME");
+    private static final String PASSWORD = System.getenv("DB_PASSWORD");
 
-- DML
+    private JdbcUtils() {
+    }
 
-	- 调用executeUpdate方法返回affected rows, 执行update, delete, insert
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    }
+}
+```
 
-- 调用execute()方法返回的是boolean值, 用来区分query或update操作
+实际项目中更推荐使用 `DataSource` 和连接池，而不是每次通过 `DriverManager` 新建物理连接。
 
-- 预处理的好处, 不再使用+拼接sql语句, 减少语法错误,有效解决了sql注入问题, 大大减少了编译次数,效率高
+### 事务
 
-### SQL注入问题
+事务用于保证一组数据库操作要么全部成功，要么全部失败。
 
-- SQL注入是利用某些系统没有对用户输入的数据进行充分的检查, 而在用户输入数据中注入非法的SQL语句段或者命令, 恶意攻击数据库
+```java
+Connection connection = null;
 
-- 使用Statement对象会产生SQL注入问题, 只要使用PreparedStatement从(Statement扩展而来)来取代statement就可以了
+try {
+    connection = dataSource.getConnection();
+    connection.setAutoCommit(false);
 
-### JDBCUtils工具类
+    updateAccount(connection, fromAccount, -amount);
+    updateAccount(connection, toAccount, amount);
 
-- 获取资源和关闭资源两个静态方法
+    connection.commit();
+} catch (Exception exception) {
+    if (connection != null) {
+        connection.rollback();
+    }
+    throw exception;
+} finally {
+    if (connection != null) {
+        connection.setAutoCommit(true);
+        connection.close();
+    }
+}
+```
 
-### JDBC事务
+事务代码需要注意：
 
-- 基本介绍
-
-  1. 当jdbc程序中当一个Connectin对象创建时, 默认情况是自动提交事务, 每次执行一个sql语句时, 如果执行成功,就会向数据库提交, 而不能回滚
-
-    - 案例
-
-    ```java
-    try {
-      String sql1 = "update account set balance = balance-100 where id = 1";
-      String sql2 = "update account set balance = balance+100 where id = 2";
-      connection = JdbcUtil.getConnection();
-      // 关闭自动提交事务
-      connection.setAutoCommit(false);
-      // 执行多个sql
-      ps = connection.prepareStatement(sql1);
-      int rows1 = ps.executeUpdate();
-      ps = connection.prepareStatement(sql2);
-      int x = 1/0;
-      int rows2 = ps.executeUpdate();
-      // 提交事务
-      connection.commit();
-      System.out.println("rows1 = " + rows1);
-      System.out.println("rows2 = " + rows2);
-     } catch (Exception e) {
-    	// 发生异常时回滚事务
-      connection.rollback();
-      e.printStackTrace();
-     } finally {
-    	JdbcUtil.close(null, ps, connection);
-     }
-    ```
-
-  2. JDBC程序中为了让多个SQL语句作为一个整体执行,需要使用事务
-
-  3. 调用connection.setAutoCommit(false)可以取消自动提交事务
-
-  4. 在所有sql执行成功后,调用connection的commit()方法提交事务
-
-  5. 在其中某个操作失败或者出现异常时,调用connection的rollback()方法回滚事务
+- 在同一个 `Connection` 上执行全部操作。
+- 关闭自动提交后显式调用 `commit()`。
+- 异常时调用 `rollback()`。
+- 连接归还连接池前恢复必要状态。
 
 ### 批处理
 
-1. 当需要成批插入或者更新记录时, 可以采用java的批量更新机制, 这一机制允许多条语句一次性提交给数据库批量处理, 通常比单独提交处理更有效率
+批量插入时可以先积累参数，再统一提交：
 
-2. jdbc的批量处理语句包括下面的方法
+```java
+String sql = "insert into user(name, email) values (?, ?)";
 
-	1. addBatch添加批量处理的sql语句或者参数
+try (PreparedStatement statement = connection.prepareStatement(sql)) {
+    for (int index = 0; index < users.size(); index++) {
+        User user = users.get(index);
+        statement.setString(1, user.getName());
+        statement.setString(2, user.getEmail());
+        statement.addBatch();
 
-	2. executeBatch 执行批量处理语句
+        if ((index + 1) % 500 == 0) {
+            statement.executeBatch();
+            statement.clearBatch();
+        }
+    }
 
-	3. clearBatch清空批量处理语句
+    statement.executeBatch();
+}
+```
 
-3. JDBC连接mysql时, 如果要使用批处理功能, 需要在url后添加参数?rewriteBatchedStatements=true
-
-  - 实例
-
-  ```java
-  String sql = "insert into news values (null,?,?)";
-  PreparedStatement ps = connection.prepareStatement(sql);
-  for (int i = 0; i < 5000; i++) {
-      ps.setString(1, "ggggg");
-      ps.setString(2, "haf;akdaha");
-      // 加入批处理
-      ps.addBatch();
-      if ((i + 1) % 1000 == 0) {
-          // 执行批处理
-          ps.executeBatch();
-          // 清空批处理
-          ps.clearBatch();
-      }
-  }
-  ```
-
+MySQL 驱动使用批处理优化时，可以根据驱动版本和项目配置评估 `rewriteBatchedStatements=true`。
 
 ### 数据库连接池
 
-- 传统连接问题
+频繁创建和关闭物理连接成本较高。连接池预先创建连接，并在应用与数据库之间复用。
 
-	- 传统的jdbc数据库连接使用drivermanager来获取,每次向数据库连接时都要将Connection加载到内存中, 再验证ip/用户名和密码,(0.05-1s)时间, 需要数据库的连接时候, 就向数据库要求一个, 频繁的进行数据库连接操作占用很多系统资源, 很容易造成服务器崩溃
+常见连接池包括：
 
-	- 每一次数据库连接, 使用完都得断开, 如果程序出现异常而未能关闭, 将导致数据库内存泄露,最终导致重启数据库
+| 连接池 | 说明 |
+| --- | --- |
+| HikariCP | 现代 Java 项目中常见，轻量且性能较好 |
+| Druid | 提供监控、统计和扩展能力 |
+| DBCP | Apache Commons 连接池 |
+| C3P0 | 较早期的连接池实现 |
 
-	- 传统的获取连接的方式,不能控制创建的连接数量了, 如果连接过多, 可能导致内存泄漏, mysql崩溃/或者拒绝连接
+连接池通常通过 `DataSource` 暴露连接：
 
-	- 解决传统开发中数据库连接问题, 可以采用数据库连接池技术
+```java
+try (
+    Connection connection = dataSource.getConnection();
+    PreparedStatement statement = connection.prepareStatement(sql)
+) {
+    // 执行数据库操作
+}
+```
 
-- 连接池原理
-
-	1. 从连接池取出连接
-
-	2. 使用连接操作mysql完, 将连接放入到连接池,并非关闭连接(复用)
-
-	3. 等待队列: 如果连接池连接不够, java程序会先加入等待队列中, 等到其他线程释放资源时, 再使用连接
-
-- 连接池种类
-
-  - jdbc数据库连接池使用javax.sql.DataSource接口来表示, 由第三方实现
-
-    - C3P0
-
-      - 速度相对较慢,但稳定性不错
-
-        - 配置
-
-          1. 引入c3p0的jar包
-          2. [配置文件c3p0-config.xml](file:///Users/qingsongcai/IdeaProjects/j2025/javase/resources/c3p0-config.xml)
-          3. 实例
-
-          ```java
-          ComboPooledDataSource ds = new ComboPooledDataSource("jbdc_db");
-          Connection connection = ds.getConnection();
-          ```
-
-
-    - DBCP
-
-    	- 比c3p0块,但不稳定
-
-    - Proxool
-
-    	- 有监控功能,没有c3p0稳定
-
-    - BoneCP
-
-    	- 速度快
-
-    - Druid
-
-      - 速度快,有监控功能,稳定
-
-        1. 引入druid的jar包
-        2. [配置文件druid.properties](file:///Users/qingsongcai/IdeaProjects/j2025/javase/resources/druid.properties)
-        3. 实例
-
-        ```java
-        properties.load(TestDruidConnectPool.class.getResourceAsStream("/druid.properties"));
-        DataSource ds = DruidDataSourceFactory.createDataSource(properties);
-        Connection connection = ds.getConnection();
-        ```
-
+调用 `connection.close()` 时，连接通常是归还连接池，而不是立即关闭物理连接。
 
 ### Apache DBUtils
 
-- 问题引入
-
-	1. 结果集和connection是关联的, 如果关闭连接, 就不能使用结果集
-
-	2. 结果集不利于数据管理, 用一次,查一次
-
-	3. 返回信息处理不方便, 一个一个取, 有多少张表就要遍历多少次
-
-- 有什么方法能够将结果集转换为javaBean的集合
-
-	- apache common-dbutils
-
-- api
-
-  - DbUtils类
-
-    - QueryRunner类: 封装了SQL的执行,是线程安全的, 可以实现增删改查,批处理
-
-    - 使用QueryRunner类实现查询
-
-    - ResultSetHandler接口用于处理java.sql.ResultSet,将数据转换为另一种形式
-
-    	- ArrayHandler把结果集中的第一行转为对象数组
-
-    	- ArrayListHandler将结果集中的每一行都转成一个数组放入list中
-
-    	- BeanHandler把结果集中第一行数据封装到一个javabean中
-
-    	- BeanHandlerList将结果集中的每一行数据都封装一个对应的javabean实例,存放到list中
-
-    	- columnListHandler把结果集中某一列数据存放到list中
-
-    	- keyedHandler(name)将结果集中的每一行数据都封装到map中, 在把这些map存个一个map中, 其key为指定的key
-
-    	- MapHandler将结果集中第一行数据封装一个Map中,key是列名,value是对应的值
-
-    	- MapListHandler将结果集中每一行数据都封装一个map中,然后在存放list中
-
-    - 查询
-
-      - 单行
-
-        ```java
-        String sql = "select * from news where id =?";
-      QueryRunner queryRunner = new QueryRunner();
-        News news = queryRunner.query(connection, sql, new BeanHandler<>(News.class), 1);
-        ```
-
-
-      -         多行
-
-        ```java
-        QueryRunner queryRunner = new QueryRunner();
-        String sql = "select * from news where id in (?,?)";
-        // 底层使用反射机制，来封装
-        List<News> newsList = queryRunner.query(connection, sql, new BeanListHandler<>(News.class), 1, 2);
-        // 底层帮忙关闭了resultSet和preparedStatement，只用关闭connection
-      JdbcDruidUtil.close(null, null, connection);
-        newsList.forEach(System.out::println);
-        ```
-
-
-      - 单行单列
-
-        ```java
-        Object query = queryRunner.query(connection, sql, new ScalarHandler<>(), 4);
-        ```
-
-
-    - 实例
-
-      - dml
-
-        ```java
-        String sql = "delete from news where id = ?";
-        QueryRunner queryRunner = new QueryRunner();
-        // 返回受影响的行数
-        int affectedRows = queryRunner.update(connection, sql, 35034);
-        ```
-
-
-### 表和javaBean的类型映射关系
-
-- int,double等java中都要使用包装类, 因为mysql中所有的类型都可能是null, 而java中只有引用类型才会有NULL值
-
-- mysql字符串类型 ---> java String
-浮点--->浮点
-日期---> Date/timestamp
-
-### BaseDao- 操作dao的公共方法
+Apache DBUtils 对 JDBC 的资源管理和结果集映射进行了轻量封装。
 
 ```java
-package xxx.util;
+QueryRunner queryRunner = new QueryRunner(dataSource);
 
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.BeanHandler;
-import org.apache.commons.dbutils.handlers.BeanListHandler;
-import org.apache.commons.dbutils.handlers.ScalarHandler;
+User user = queryRunner.query(
+    "select id, name, email from user where id = ?",
+    new BeanHandler<>(User.class),
+    1L
+);
+```
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
+常见 `ResultSetHandler`：
 
-/**
- * 操作dao的公共方法，缺点不能使用：批处理，使用事务
- *
- * @author zangxin
- * @version 1.0
- * @date 2025/2/17
- */
-public class BaseDao<T> {
-    private QueryRunner queryRunner = new QueryRunner();
+| Handler | 返回结果 |
+| --- | --- |
+| `BeanHandler<T>` | 单个 JavaBean |
+| `BeanListHandler<T>` | JavaBean 列表 |
+| `ScalarHandler<T>` | 单个标量值 |
+| `MapHandler` | 单行 `Map` |
+| `MapListHandler` | 多行 `Map` 列表 |
 
-    /**
-     * 查询单个对象
-     *
-     * @param sql        sql
-     * @param clazz      返回的类型
-     * @param parameters sql参数
-     * @return t
-     */
-    public T selectOne(String sql, Class<T> clazz, Object... parameters) {
-        Connection connection = null;
-        try {
-            connection = JdbcDruidUtil.getConnection();
-            return queryRunner.query(connection, sql, new BeanHandler<>(clazz), parameters);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            JdbcDruidUtil.close(null, null, connection);
-        }
+### SQL 与 Java 类型映射
+
+| SQL 类型 | 常用 Java 类型 |
+| --- | --- |
+| `INT` | `Integer` |
+| `BIGINT` | `Long` |
+| `DECIMAL` | `BigDecimal` |
+| `VARCHAR` / `CHAR` | `String` |
+| `DATE` | `LocalDate` 或 `java.sql.Date` |
+| `DATETIME` / `TIMESTAMP` | `LocalDateTime` 或 `Timestamp` |
+| `BOOLEAN` / `BIT` | `Boolean` |
+| `BLOB` | `byte[]` 或二进制流 |
+
+### 通用 BaseDao
+
+可以在 DAO 基类中集中封装更新和查询逻辑：
+
+```java
+public abstract class BaseDao {
+    private final QueryRunner queryRunner = new QueryRunner();
+
+    protected int update(Connection connection, String sql, Object... args)
+        throws SQLException {
+        return queryRunner.update(connection, sql, args);
     }
 
-    /**
-     * 查询list
-     *
-     * @param sql        sql
-     * @param clazz      返回的类型
-     * @param parameters sql参数
-     * @return
-     */
-    public List<T> selectList(String sql, Class<T> clazz, Object... parameters) {
-        Connection connection = null;
-        try {
-            connection = JdbcDruidUtil.getConnection();
-            return queryRunner.query(connection, sql, new BeanListHandler<>(clazz), parameters);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            JdbcDruidUtil.close(null, null, connection);
-        }
+    protected <T> T queryOne(
+        Connection connection,
+        Class<T> type,
+        String sql,
+        Object... args
+    ) throws SQLException {
+        return queryRunner.query(
+            connection,
+            sql,
+            new BeanHandler<>(type),
+            args
+        );
     }
 
-    /**
-     * 查询单行单列
-     *
-     * @param sql        sql
-     * @param parameters sql参数
-     * @return Object
-     */
-    public Object selectScalar(String sql, Object... parameters) {
-        Connection connection = null;
-        try {
-            connection = JdbcDruidUtil.getConnection();
-            return queryRunner.query(connection, sql, new ScalarHandler<>(), parameters);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            JdbcDruidUtil.close(null, null, connection);
-        }
+    protected <T> List<T> queryList(
+        Connection connection,
+        Class<T> type,
+        String sql,
+        Object... args
+    ) throws SQLException {
+        return queryRunner.query(
+            connection,
+            sql,
+            new BeanListHandler<>(type),
+            args
+        );
     }
 
-    /**
-     * update，insert，delete
-     *
-     * @param sql        sql
-     * @param parameters sql参数
-     * @return 影响行数
-     */
-    public int update(String sql, Object... parameters) {
-        Connection connection = null;
-        try {
-            connection = JdbcDruidUtil.getConnection();
-            return queryRunner.update(connection, sql, parameters);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            JdbcDruidUtil.close(null, null, connection);
-        }
+    protected <T> T queryScalar(
+        Connection connection,
+        String sql,
+        Object... args
+    ) throws SQLException {
+        ScalarHandler<T> handler = new ScalarHandler<>();
+        return queryRunner.query(connection, sql, handler, args);
     }
 }
 ```
 
+事务边界通常不应由单个 DAO 方法自行决定，而应由上层服务统一控制并传递同一个连接。
 
 ## ThreadLocal
 
-### 作用
-
-- 可以实现在同一线程数据共享, 从而解决多线程数据安全问题
-
-- 可以给当前线程关联一个数据(普通变量,对象,数组),使用set()方法(没有形参或者key名, 因为只有一个数据), 是以副本的形式, 所以说如果未及时释放资源可能会造成内存泄露
-
-- ThreadLocal可以像Map一样存储数据, key为当前线程,使用get()方法(没有形参或者key名, 因为只有一个数据)
-
-- 每一个ThreadLocal对象只能为当前线程关联**一个数据**, 如果要为当前线程关联多个数据,就需要使用多个ThreadLocal对象实例
-
-- 每个ThreadLocal对象实例声明时, 一般为static
-
-- ThreadLocal中保存的数据, 在线程销毁后, 会自动释放
-
-### 原理
-
-- 最本质的原理就是, 线程Thread持有了一个key为ThreadLocal的Map属性, Map<ThreadLocal,Ojbect>
-
-	- set,get,remove三个方法都是Map接口的方法,key是当前线程(执行这些方法的线程), value就是线程要保留变量
-
-	- 三个对象之间关系, 
-threadLocal, Thread, Object(要存的变量)
-
-- Thread类的threadLocals字段
-
-	```java
- /* ThreadLocal values pertaining to this thread. This map is maintained
-	     * by the ThreadLocal class. */
-ThreadLocal.ThreadLocalMap threadLocals = null;
-	```
-
-	- 类型是ThreadLocalMap
-
-		- 是ThreadLocal的静态内部类,本质上是一个定制的hash表,用于存储线程本地变量
-
-		- Entry 是 ThreadLocalMap 的内部类，继承自 WeakReference<ThreadLocal<?>>，即键（ThreadLocal 实例）是弱引用。
-
-			- 键的弱引用：当 ThreadLocal 实例失去强引用时，垃圾回收器可以回收键，避免内存泄漏。
-
-值的强引用：Entry 的值（即存储的变量副本）始终是强引用。如果线程未终止且未主动清理，值可能无法被回收，导致内存泄漏。
-
-- ThreadLocal.set
-
-	- 获取当前线程的 ThreadLocalMap。若 ThreadLocalMap 不存在，则创建并绑定到当前线程。然后以当前 ThreadLocal 实例为键，存储值到 ThreadLocalMap 的 Entry 中。这一步意味着一个线程可以有多个ThreadLocal变量
-
-- ThreadLocal.get
-
-	- 获取当前线程的 ThreadLocalMap。若 ThreadLocalMap 存在，查找当前 ThreadLocal 对应的 Entry。若找到 Entry，直接返回值；否则调用 initialValue() 初始化值并存储。
-
-- ThreadLocal.remove()
-
-	- 作用：删除当前线程的 ThreadLocalMap 中与当前 ThreadLocal 关联的 Entry。
-
-	  必要性：避免内存泄漏（尤其在线程池中，线程可能被长期复用）。
-
-- ThreadLocalMap 的哈希冲突处理
-
-  - 开放地址法（线性探测法）：插入或查找时，若目标位置已被占用（哈希冲突），则向后线性探测，直到找到空槽或匹配的键。
-
-  优点：避免链表结构，减少内存占用。
-
-  缺点：哈希冲突较多时效率下降。
-
-  动态扩容：
-
-  ​	初始容量为 16，负载因子为 2/3。
-
-  ​	当 size >= threshold 时，扩容为原容量的 2 倍，并重新哈希所有 Entry。
-
-- 总结
-
-  - 线程隔离：ThreadLocal 通过为每个线程维护独立的变量副本，实现线程安全。
-
-底层实现：依赖 ThreadLocalMap 和弱引用机制，需注意内存泄漏问题。
-
-最佳实践：在线程池或长期存活的线程中，务必调用 remove() 清理 Entry。(使用,try-finally)
+`ThreadLocal` 为每个线程提供独立变量副本，适合保存与当前线程绑定的上下文，例如事务连接、请求追踪信息或日期格式化器。
 
 ```java
-try {
-	threadLocal.set(value);
-// 业务逻辑
-} finally {
-	threadLocal.remove();
+private static final ThreadLocal<Connection> CONNECTION_HOLDER =
+    new ThreadLocal<>();
+
+public static Connection currentConnection() throws SQLException {
+    Connection connection = CONNECTION_HOLDER.get();
+    if (connection == null) {
+        connection = dataSource.getConnection();
+        CONNECTION_HOLDER.set(connection);
+    }
+    return connection;
 }
 ```
 
+### 原理
+
+每个 `Thread` 内部维护自己的 `ThreadLocalMap`：
+
+- `ThreadLocal` 对象作为键。
+- 当前线程独有的数据作为值。
+- 不同线程访问同一个 `ThreadLocal` 时，读写的是各自线程中的映射。
+
+`ThreadLocalMap` 使用开放寻址方式处理哈希冲突。键对 `ThreadLocal` 是弱引用，而值仍是强引用；如果线程长期存活且没有清理，值可能无法及时回收。
+
+### 正确清理
+
+在线程池中，线程会被长期复用，因此用完后必须调用 `remove()`：
+
+```java
+try {
+    CONTEXT.set(context);
+    handleRequest();
+} finally {
+    CONTEXT.remove();
+}
+```
+
+`ThreadLocal` 不是线程间通信工具，也不会让共享对象自动变得线程安全。
 
 ## 正则表达式
 
-### regular expression
-
-- 对字符串执行模式匹配的技术
-
-- java正则默认是贪婪匹配:匹配最长的
-
-	- \\d+ --> 111 ---> 匹配全部的1
-
-	- 用非贪婪的
-\\d+? --> 3个1
-
-- 注意
-
-	- 注意: 在[]中.+等字符当做普通字符来用,而不正则元字符
-
-### 理论
-
-- 转义符号: java中\\\ 表示其他语言中\, \\$代表转义的$
-
-- 元字符
-
-  - 限定符
-
-    - *
-
-      - 指定字符重复0次或n次
-
-        - (abc)* 包含任意个abc字符串 匹配 abc,abcabc, abcabcabc
-
-    - +
-
-      - 指定字符重复1次或者n次
-
-        - m+(abc)* 会匹配 m,mabc,mmabc
-
-    - ?
-
-      - 指定字符重复0次或1次
-
-        - m+abc? 匹配 mab,mabc
-
-    - {n}
-
-      - 只能输入n个字符
-
-        - [abcd]{3} 匹配 abc,abd,bcd
-
-    - {n,}
-
-      - 至少n个
-
-        - [abcd]{3,} 匹配 abc,abcd,aabdfa
-
-    - {n,m}
-
-    	- n个到m个
-
-    		- [abcd]{3.5}
-
-    			- abc,abcd, abcda
-
-  1. 选择匹配符
-
-    - |
-
-      - ab | abc 匹配 ab或者abc
-
-
-  - 分组组合和反向引用符
-
-    - 分组组合
-
-      - 目标字符串
-
-      	- zangxin51 zangxinaixizao zangxineat zangxinfly
-
-      - (?<name>pattern)
-
-        - 给分组起别名
-
-          ```java
-          String regex = "(?<g1>\\d\\d)(?<g2>\\d)(?<g3>\\d)";
-          matcher.group("g1") <==> matcher.group(1)
-          ```
-
-      - (?:pattern)
-
-      	- zangxin51|zangxinaixizao|zangxinaixizao|zangxinfly
-
-      	- zangxin(?:51|aixizao|eat|fly)
-
-      - (?=pattern)
-
-      	- zangxin(?=51|aixizao|eat|fly)
-
-      - (?!pattern)
-
-      	- zangxin(?!51|eat|fly)
-
-      		- 对上面的取反
-
-      - 注意 (?:pattern) | (?=pattern) | (?!pattern) 是非捕获分组, 不能使用group(1)
-
-    - 反向引用符
-
-      - 引入问题: 找出所有四位数字, 其中第一位和第4位相同,第二位和第三位相同,如1221,1331
-
-      - 匹配两个连续相同的数字:(\\d)\\1
-
-      - 匹配5个连续相同的数字:(\\d)\\1{4}
-
-      - 匹配个位与千位相同,十位与百位相同的数字(\\d)(\\d)\\2\\1
-
-      - 匹配12321-133999111,前面是五位数,后面9位,每三位重复
-
-      	- ^\d{5}-(\d)\1{2}(\d)\2{2}(\d)\3{2}$
-
-      - 把 类似 : "我....我要....学学学学....编程 java!"  通过正则表达式 修改成 "我要学编程 java"
-
-        ```java
-        // 1.去掉所有的点.
-        content= Pattern.compile("\\.").matcher(content).replaceAll("");
-        // 2.去掉重复的字,分组捕获的内容记录到$1,使用反向引用$1来替换匹配的内容
-        content= Pattern.compile("(.)\\1+").matcher(content).replaceAll("$1");
-        ```
-
-  2. 特殊字符
-
-  3. 字符匹配符
-
-  	- [ ] 可接收字符列表
-
-  		- [efg] 补表示efg中任意1个字符
-
-  	- [^不接收字符列表] 
-
-  		- [^abc]表示除a,b,c之外的任意一个字符
-
-  	- - 连字符
-
-  		-  A-Z 所有大写字母
-
-  	- . 
-
-  		- 匹配除了\n以外的任何字符
-
-  	- \\d
-
-  		- 匹配单个数字字符
-
-  	- \\D
-
-  	  - 匹配单个非数字字符,相当于
-
-  	    ```java
-      [^0-9]
-  	    ```
-
-  	- \\w
-
-  		-  匹配数字,英文字母(大小写),下划线相当于[0-9a-zA-Z]
-
-  	- \\W
-
-  		- 匹配单个非数字,大小字母,相当于
-
-  		  ```java
-  		  [^0-9a-zA-Z]
-  		  ```
-
-  - 定位符
-
-  	- ^
-
-  		- 起始字符
-
-  	- $结束字符
-
-  	- \\b
-
-  		- 匹配目标字符串的边界
-
-  			- 边界是子串后面有空格,或者是字符串结束的位置
-
-  				- xin\\b --> "zangxin zang xin" --> 匹配两个
-
-  	- \\B
-
-  		- 匹配目标字符串的非边界
-
-  			- zang\\B --> "zangxin zang xin" --> 匹配1个
-
-- 案例
-
-	- 匹配汉字
-
-		- "^[\u0391-\uffe5]+$"
-
-	- 邮政编码 要求:1-9开头的六个数字,比如123890
-^[1-9]\\d{5}$
-
-	- QQ号 要求:1-9开头的5-10个数字,比如 12368, 3292996020
-^[1-9]\d{4,9}$
-
-	- 手机号码:必须以13,14,15,18开头的11位数, 17688861008
-^1[3|4|5|8]\d{9}$
-
-	- url
-((http|https)://)([\w-]+\.)+[\w-]+(\/[\w-_?=&/%+.#@]+)*$
-
-### 正则表达式类
-
-- java.util.regex
-
-  - Pattern类
-
-    - 没有构造器, 调用公共静态方法获取对象
-      该方法接受一个正则表达式字符串作为参数
-
-      ```java
-      Pattern pattern = Pattern.compile("[a-zA-Z0-9]+")
-      ```
-
-  - Matcher
-
-    - 调用Pattern类compile方法获取对象
-
-      ```java
-      Matcher matcher = pattern.matcher(content)
-      ```
-
-  - PatternSyntaxException
-
-  	- 表示正则表示语法错误
-
-  - 使用方法
-
-    - 整体匹配,验证输入是否满足条件
-
-      ```java
-      boolean isMatch = Pattern.matches(regex, content);
-      ```
-
-
-    - 替换
-
-      ```java
-      String srcString = "ggstar";
-      pattern = Pattern.compile(srcString);
-      matcher = pattern.matcher(target);
-      // 替换不改变原来字符串内容, 而是返回一个新的字符串
-      String newStr = matcher.replaceAll("zangxin");
-      ```
-
-
-    - 查找
-
-      ```java
-      String target = "hello edu java tom hello smith ggstar ggstar happy";
-      String regex = "hello";
-      Pattern pattern = Pattern.compile(regex);
-      Matcher matcher = pattern.matcher(target);
-      while (matcher.find()) {
-      System.out.print("目标字符串开始索引:" + matcher.start() + " ");
-      System.out.print("目标字符串结束索引:" + matcher.end() + " ");
-      // 等价于 target.substring(matcher.start(), matcher.end());
-      System.out.println("找到:" + matcher.group());
-      }
-      ```
-
-### String类中使用正则表达式(简化使用正则类)
+正则表达式用于描述字符串匹配规则，可以完成校验、查找、分割和替换。
+
+### 常用元字符
+
+| 语法 | 含义 |
+| --- | --- |
+| `.` | 除换行外的任意字符 |
+| `\d` / `\D` | 数字 / 非数字 |
+| `\w` / `\W` | 单词字符 / 非单词字符 |
+| `\s` / `\S` | 空白字符 / 非空白字符 |
+| `^` / `$` | 字符串开头 / 结尾 |
+| `\b` | 单词边界 |
+| `[abc]` | `a`、`b` 或 `c` |
+| `[^abc]` | 除 `a`、`b`、`c` 外的字符 |
+| `[a-z]` | 指定字符范围 |
+| `x|y` | 匹配 `x` 或 `y` |
+
+Java 字符串本身也会处理反斜杠，因此正则中的 `\d` 在 Java 源码中需要写成 `"\\d"`。
+
+### 数量词
+
+| 语法 | 含义 |
+| --- | --- |
+| `?` | 0 次或 1 次 |
+| `*` | 0 次或多次 |
+| `+` | 1 次或多次 |
+| `{n}` | 恰好 n 次 |
+| `{n,}` | 至少 n 次 |
+| `{n,m}` | n 到 m 次 |
+
+数量词默认是贪婪模式，会尽可能多地匹配；后面加 `?` 可切换为勉强模式，例如 `.*?`。
+
+### 分组、引用和环视
+
+| 语法 | 说明 |
+| --- | --- |
+| `(pattern)` | 捕获分组 |
+| `(?:pattern)` | 非捕获分组 |
+| `\1` | 引用第一个捕获组 |
+| `(?=pattern)` | 正向肯定预查 |
+| `(?!pattern)` | 正向否定预查 |
+| `(?<=pattern)` | 反向肯定预查 |
+| `(?<!pattern)` | 反向否定预查 |
+
+在 Java 字符串中，反向引用需要写为 `"\\1"`。
+
+### 常见示例
 
 ```java
-public String repleaceAll(String regex, String replacement)
-public boolean matches(String regex)
-public String[] split(String regex)
+String username = "java_user";
+boolean validUsername = username.matches("[A-Za-z][A-Za-z0-9_]{2,15}");
+
+String number = "-12.50";
+boolean validNumber = number.matches("-?\\d+(\\.\\d+)?");
+
+String chineseText = "学习Java";
+boolean containsChinese = chineseText.matches(".*[\\u4e00-\\u9fa5].*");
 ```
 
+正则适合做格式初步校验，但邮箱、手机号等业务规则会变化，最终仍需结合业务逻辑和服务端校验。
+
+### Pattern 与 Matcher
+
+```java
+Pattern pattern = Pattern.compile("\\d+");
+Matcher matcher = pattern.matcher("订单 101，总价 299");
+
+while (matcher.find()) {
+    System.out.println(matcher.group());
+}
+```
+
+常用方法：
+
+| 方法 | 作用 |
+| --- | --- |
+| `matches()` | 整个字符串是否匹配 |
+| `find()` | 查找下一个匹配片段 |
+| `group()` | 获取当前匹配内容 |
+| `start()` / `end()` | 获取匹配位置 |
+| `replaceAll()` | 替换全部匹配内容 |
+| `replaceFirst()` | 替换第一个匹配内容 |
+
+`String` 也提供了便捷方法：
+
+```java
+text.matches(regex);
+text.replaceAll(regex, replacement);
+text.replaceFirst(regex, replacement);
+text.split(regex);
+```
+
+频繁复用同一个正则时，应缓存编译后的 `Pattern`，避免重复编译。
 
 ## 常用类
 
 ### 包装类
 
-- 自动装箱(底层调用valueOf方法/自动拆箱(底层调用intValue方法)
+八种基本类型都有对应包装类：
 
-- 整数类型有缓存(-128-+127)
+| 基本类型 | 包装类 |
+| --- | --- |
+| `byte` | `Byte` |
+| `short` | `Short` |
+| `int` | `Integer` |
+| `long` | `Long` |
+| `float` | `Float` |
+| `double` | `Double` |
+| `char` | `Character` |
+| `boolean` | `Boolean` |
 
+Java 支持自动装箱和拆箱：
 
-- 数值类型继承了Number类
+```java
+Integer value = 10; // 装箱
+int number = value; // 拆箱
+```
+
+部分包装类会缓存常用值。比较包装对象的数值内容时，应使用 `equals()` 或先拆箱，不要依赖 `==`。
 
 ### String
 
-- final类不可继承
+`String` 对象不可变，修改操作会返回新字符串。
 
-- 不可以修改
-private final char value[]放在常量池中
+常用方法：
 
-- 常用方法
+```java
+text.length();
+text.charAt(index);
+text.substring(begin, end);
+text.contains(keyword);
+text.startsWith(prefix);
+text.endsWith(suffix);
+text.indexOf(keyword);
+text.replace(oldValue, newValue);
+text.trim();
+text.toUpperCase();
+text.toLowerCase();
+text.split(regex);
+```
 
-  equals:区分大小写判断内容是否相等
-  equalsIgnoreCase
-  charAt()
-  length
-  indexOf:字符第一次出现的位置
-  concat
-  replace
-  format
+### StringBuffer 与 StringBuilder
 
-### StringBuffer
+| 类型 | 线程安全 | 适用场景 |
+| --- | --- | --- |
+| `StringBuilder` | 否 | 单线程中频繁拼接字符串 |
+| `StringBuffer` | 是 | 需要方法级同步的旧式多线程场景 |
 
-char[] value放在堆中可以更改
-
-final类不可被继承
-stringBuffer的直接父类是AbstractStringBuilder
-实现了序列化接口
-在父类中,属性char[] value不是final
-因为StringBuffer字符内容存到char[] value中,所以每次增加或删除时,不用每次都更换地址(即不是每次创建新对象),所以效率高于String
-
-
-- string --> stringBuffer
-构造器或者append方法
-stringBuffer --> string
-stringBuffer的toString方法
-或者string的构造器
-
-### StringBuilder
-
-继承AbstractStringBuilder,实现了序列化接口
-final类不可被继承
-属性char[] value 内容存在value中(堆)
-单线程使用,stringBuilder效率高
-
-- 与stringBuffer ApI兼容
-stringBuffer是线程安全,
-stringBuilder非线程安全
+```java
+String result = new StringBuilder()
+    .append("Java")
+    .append(" ")
+    .append("SE")
+    .toString();
+```
 
 ### Math
 
-随机数区间
-
 ```java
-// [a,b]
-(int)(Math.random()*(b-a+1)+a) 
+Math.abs(-10);
+Math.ceil(3.2);
+Math.floor(3.8);
+Math.round(3.5);
+Math.max(10, 20);
+Math.min(10, 20);
+Math.pow(2, 10);
+Math.random();
 ```
 
+`Math.random()` 返回 `[0.0, 1.0)` 范围内的随机数。
 
 ### Arrays
 
-- toString
-sort
-binarySearch
-copyOf
-fill
-equals
-asList
+```java
+Arrays.sort(values);
+Arrays.toString(values);
+Arrays.binarySearch(values, target);
+Arrays.copyOf(values, newLength);
+Arrays.equals(first, second);
+Arrays.fill(values, defaultValue);
+```
+
+使用 `binarySearch()` 前应保证数组已经按同一规则排序。
 
 ### System
 
-- exit
-arraycopy
-currentTimeMillis
-gc
+```java
+System.currentTimeMillis();
+System.nanoTime();
+System.arraycopy(source, 0, target, 0, length);
+System.getProperty("java.version");
+System.getenv("JAVA_HOME");
+```
 
-### BigDecimal和BigInteger
+`currentTimeMillis()` 适合表示时间点，测量耗时时通常优先使用单调递增语义更合适的 `nanoTime()`。
 
-- BigInteger
+### BigDecimal 与 BigInteger
 
-- BigDecimal
-除不尽可能抛出异常,需要指定精度(RoundingMode)
+`BigInteger` 用于任意精度整数，`BigDecimal` 用于高精度十进制计算。
 
-### 日期类
+```java
+BigDecimal price = new BigDecimal("19.90");
+BigDecimal count = new BigDecimal("3");
+BigDecimal total = price.multiply(count);
+```
 
-- 第一代日期类
+创建 `BigDecimal` 时优先使用字符串构造器或 `BigDecimal.valueOf()`，避免直接传入二进制浮点数产生精度误差。
 
-	- Date精确到毫秒
-SimpleDateFormat.parse
-利用format格式化date日期,或将日期字符串转换成date对象
+### 日期与时间
 
-- 第二代日期类
+旧式日期 API 包括 `Date`、`Calendar` 和 `SimpleDateFormat`。现代 Java 优先使用 `java.time`：
 
-  - Calendar
-    日历类
+```java
+LocalDate today = LocalDate.now();
+LocalDateTime now = LocalDateTime.now();
+Instant instant = Instant.now();
 
-    ```java
-    Calendar.getInstance()
-    c.get(Calendar.YEAR)
-    ```
+DateTimeFormatter formatter =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-- 第三代日期类
+String formatted = now.format(formatter);
+LocalDateTime parsed =
+    LocalDateTime.parse("2025-04-20 10:30:00", formatter);
+```
 
-  - LocalDate
+常用类型：
 
-  - LocalTime
-
-  - LocalDateTime
-
-  	- now()
-  getYear
-  格式化时间:配合类DateTimeFormatter来使用
-
-  	  ```java
-  	  LocalDateTime now = LocalDateTime.now();
-  	  // 格式化时间日期
-  	  DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-  	  String format = dtf.format(now);
-  	  System.out.println(format);
-  	  ```
-
-  	- 计算时间
-
-  	  ```java
-  	  LocalDateTime after100day = now.plusDays(100);
-  	  LocalDateTime before1000min = now.minusMinutes(1000);
-  	  ```
-
-  - Instant时间戳对象
-  和Date互相转换
-
-    ```java
-    Instant now = Instant.now();
-    Date date = Date.from(now);
-    Instant instant = date.toInstant();
-    ```
-
-  - java.sql.Timestamp
-
-    - java.sql.Timestamp转换成LocalDateTime
-
-      ```java
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-      String format = formatter.format( new Timestamp(1741585226000L).toLocalDateTime());
-      ```
-
-    - LocalDateTime转成Timestamp
-
-      ```java
-      // 2000-1-1 00:00:00 转成Timestamp
-      Timestamp.valueOf(LocalDateTime.of(2000, 1, 1, 0, 0, 0)
-      ```
-
-    - 更简单的String转换成Timestamp
-
-      ```java
-      Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
-      Timestamp.valueOf("2022-12-12 12:12:12")
-      ```
-
+| 类型 | 用途 |
+| --- | --- |
+| `LocalDate` | 不带时间和时区的日期 |
+| `LocalTime` | 不带日期和时区的时间 |
+| `LocalDateTime` | 不带时区的日期时间 |
+| `Instant` | UTC 时间线上的时间点 |
+| `ZonedDateTime` | 带时区的日期时间 |
+| `Duration` / `Period` | 时间或日期间隔 |
 
 ## 网络编程
 
-### 网络通信
-
-- 网络: 两台+的设备通过物理设备连接起来构成了网络
-
-	- 局域网,城域网,广域网(万维网)
-
-- 两台设备之间通过网络实现数据传输
-
-- ip地址
-
-	- 概念: 用于表示网络中的每台计算机/主机
-
-	- 查看ip地址: ipconfig/ifconfig
-
-	- ip地址形式: ff.ff.xx.xx (每一个十进制数范围(0-255)
-
-	- ip地址的组成: 网络地址+主机地址
-
-		- A类
-
-			- 127.0.0.1表示本机
-
-		- B类
-
-		- C类
-
-			- 192.168.xx.xx局域网
-
-		- D类,E类
-
-	- ipv6是用于替代v4的下一代ip地址,主要原因是ipv4能表示范围有限2^32=40亿
-
-	- 域名:将ip映射成域名,便于记忆,传播
-
-	- 端口号
-
-		- 用于标识计算机上某个特定的网络程序
-
-		- 范围0-65536
-
-			- 0-1024一般都被占用了,ssh24,ftp21,smtp25,http80
-
-		- 80端口可以默认不用写
-
-- 网络通信协议
-
-	- 传输数据的规范,约定
-
-	- TCP/IP(Transmission Control Protocol/ Internet Protocol是internet最基本的协议,网络的基础
-
-	- OSI七层模型
-
-		- 与 OSI 模型相比，TCP/IP 模型更简洁，更贴近实际的互联网协议栈。
-
-	- TCP/IP模型
-
-		- 应用层
-
-			- 提供应用程序与网络之间的接口，处理高级别协议和数据格式。	
-
-			- HTTP, HTTPS, FTP, SMTP, DNS, Telnet, SSH
-
-				- HTTP/HTTPS：用于网页浏览。
-
-FTP：用于文件传输。
-
-SMTP：用于电子邮件发送。
-
-DNS：将域名解析为 IP 地址。
-
-SSH/Telnet：用于远程登录
-
-- 传输层
-
-  提供端到端的通信，确保数据的可靠传输和流量控制。	
-
-  TCP (可靠传输), UDP (不可靠传输)
-
-  TCP（传输控制协议）：提供可靠的、面向连接的服务。
-  通过三次握手建立连接(客户端-服务端)，确保数据按序到达。
-  适用于需要高可靠性的应用（如网页浏览、文件传输）
-  传输完毕需要释放连接
-  可以传输大量的数据
-
-TCP 三次握手 是 TCP 协议中用于建立连接的过程，分为三个步骤：
-
-​	1.客户端发送 SYN 报文。
-
-​	2.服务器回复 SYN-ACK 报文。
-
-​	3.客户端发送 ACK 报文。
-
-三次握手确保了双向通信的可靠性，防止旧的重复连接初始化，并同步初始序列号。
-
-UDP（用户数据报协议）：
-
-​	提供不可靠的、无连接的服务。
-​	传输速度快，但不保证数据的可靠性和顺序。
-​	适用于实时应用（如视频流、在线游戏）
-​	不用连接无需释放资源
-​	每个数据报的大小控制在64k内不合适传输大量数据
-​	用来发送通知,短信等比较好, 无需别人是否在线
-
-网络层: 负责数据包的路由和转发，将数据从源主机发送到目标主机。	
-
- 涉及协议: IP (IPv4, IPv6), ICMP, ARP, IGMP
-
- IP（互联网协议）：为数据包提供逻辑地址（IP 地址）。负责将数据包从源主机路由到目标主机。
-
-ICMP（互联网控制消息协议）：用于发送错误报告和网络诊断（如 ping 命令）。
-
-ARP（地址解析协议）：将 IP 地址解析为物理地址（MAC 地址）。
-
-网络接口层: 处理物理网络连接，负责数据帧的传输和硬件地址（如 MAC 地址）的管理。	
-
-协议: Ethernet, Wi-Fi, PPP, DSL
-
-Ethernet：用于有线局域网。
-
-Wi-Fi：用于无线局域网。
-
-PPP（点对点协议）：用于拨号连接。
-
-工作流程: 
-
-​	 数据封装：数据从应用层开始，每一层都会添加自己的头部信息（Header），形成新的数据单元。
-
-​	例如：应用层数据 → 传输层添加 TCP 头部 → 网络层添加 IP 头部 → 网络接口层添加帧头部。
-
-​	数据传输：数据通过网络接口层发送到目标主机。
-
-​	数据解封装：目标主机接收到数据后，每一层会移除对应的头部信息，最终将原始数据传递给应用程序。
-
-### 网络编程
-
-- InetAddress类
-
-  ```java
-  // 获取本机的ip地址对象
-  InetAddress localHost = InetAddress.getLocalHost();
-  // 从主机名获取ip地址对象
-  InetAddress host1 = InetAddress.getByName("qingsongdeMacBook-Pro.local");
-  // 根据域名返回ip地址对象
-  InetAddress host2 = InetAddress.getByName("wwww.baidu.com");
-  // 根据ip地址对象返回ip
-  String address = host2.getHostAddress();
-  //根据ip地址对象返回主机名
-  String hostName = host2.getHostName();
-  ```
-
-
-- Socket(套接字)
-
-	- 通信的两端都要有socket,是两台计算机通信的端点
-网络通信其实就是socket之间的通信
-socket允许程序把网络连接成一个流, 数据在两个socket之间通过IO传输.
-一般主动发起通信的程序属于cilent,等待通信请求的为server
-
-	- TCP网络通信编程
-
-		- server
-
-			- ServerSocket(int port)
-监听
-Socket accept()
-接受请求/发送使用
-socket.getInputStream
-socket.getOutputStream
-// 关闭
-socket.close()
-
-		- client
-
-			- 填服务器的地址
-Socket(InetAddres,port)
-// 发送请求/接受请求
-outputStream/InputStream
-// 关闭
-socket.close()
-
-		- 流要全部关闭
-
-			- serverSocket
-
-				- 如果你想关闭某个客户端连接，只需调用 socket.close()。
-
-如果你想停止整个服务端（包括停止接受新的连接），必须调用 serverSocket.close()，同时关闭所有已建立的客户端连接（通过关闭对应的 Socket 对象）。
-
- 是否可以只用 socket.close()关闭？
-
-不能。如果你只关闭 socket.close()，服务端的 ServerSocket 仍然会继续监听新的连接请求。如果你希望完全停止服务端，包括停止接受新的连接，必须调用 serverSocket.close()。
-
-写的时候,写完要flush和设置结束标志shutdownOutput,否则接受方不知道你是否写完了,造成阻塞
-
-查看网络命令(监听)
+### 基本概念
+
+- **IP 地址**：定位网络中的主机。
+- **域名**：便于人类记忆的主机名称，通过 DNS 解析为 IP。
+- **端口**：定位主机中的具体进程，范围为 `0` 到 `65535`。
+- **协议**：通信双方共同遵守的数据格式和交互规则。
+
+常见端口示例：
+
+| 协议 | 默认端口 |
+| --- | --- |
+| HTTP | 80 |
+| HTTPS | 443 |
+| SSH | 22 |
+| MySQL | 3306 |
+
+### TCP/IP 分层
+
+| 层级 | 常见协议或职责 |
+| --- | --- |
+| 应用层 | HTTP、HTTPS、DNS、FTP、SMTP |
+| 传输层 | TCP、UDP |
+| 网络层 | IP、ICMP |
+| 网络接口层 | 以太网、Wi-Fi 等链路通信 |
+
+### TCP 与 UDP
+
+| 对比项 | TCP | UDP |
+| --- | --- | --- |
+| 连接 | 面向连接 | 无连接 |
+| 可靠性 | 可靠、有序、可重传 | 不保证到达和顺序 |
+| 开销 | 较高 | 较低 |
+| 数据形式 | 字节流 | 数据报 |
+| 常见场景 | Web、文件传输、数据库连接 | 实时音视频、广播、简单查询 |
+
+TCP 建立连接通常经历三次握手，关闭连接通常经历四次挥手。
+
+### InetAddress
+
+```java
+InetAddress address = InetAddress.getByName("www.example.com");
+
+System.out.println(address.getHostName());
+System.out.println(address.getHostAddress());
+System.out.println(address.isReachable(3000));
+```
+
+### TCP Socket
+
+服务端：
+
+```java
+try (ServerSocket serverSocket = new ServerSocket(9000)) {
+    try (
+        Socket socket = serverSocket.accept();
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)
+        )
+    ) {
+        System.out.println(reader.readLine());
+    }
+}
+```
+
+客户端：
+
+```java
+try (
+    Socket socket = new Socket("127.0.0.1", 9000);
+    BufferedWriter writer = new BufferedWriter(
+        new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
+    )
+) {
+    writer.write("hello");
+    writer.newLine();
+    writer.flush();
+}
+```
+
+当协议需要明确表示“请求体已经发送完成”时，可以调用 `socket.shutdownOutput()` 关闭输出方向，同时保留输入方向继续读取响应。
+
+常用排查命令：
 
 ```shell
-netstat -an | less
-netstat -anb | less
-netstat -anb | grep 9999
-sudo lsof -nP -iTCP -sTCP:LISTEN
+netstat -ano
+lsof -i :9000
 ```
-查看所有TCP监听窗口
 
-当客户端连接到服务器时,客户端也是通过一个端口和server通讯的,这个端口是Tcp/Ip随机分配的
+### UDP
 
-UDP网络通信编程
-
-DataGramSocket和DatagramPacket(数据报)实现了基于UDP协议的网络程序
-
-UDP通过Datagram Socket发送和接收,系统不保证数据报一定能送到目的地,也不确定什么时候到达
-
-DatagramPacket封装了UDP数据报,数据报中包含有发送端的ip地址和端口及接收端的ip和端口
-
-UDP中有ip地址和端口,所以无需建立发送方和接收方的连接
-
-编写流程
-
-核心类,DatagramSocket和Datagram Packet
-
-建立接收端,发送端
-
-发送数据,打包Datagram对象
-
-调用Datagram的发送接收方法
-
-关闭流
+UDP 通过 `DatagramSocket` 收发 `DatagramPacket`：
 
 ```java
-// 实例代码
-  @Test
-  void receiver01() throws Exception {
-  DatagramSocket socket = new DatagramSocket(9999);
-  // udp数据报最大为64kb
-  byte[] buf = new byte[1024];
-  DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-  // 接受数据
-  socket.receive(datagramPacket);
-  // 拆包
-  byte[] data = datagramPacket.getData();
-  int len = datagramPacket.getLength();
-  // 打印数据
-  System.out.println(new String(data, 0, len));
-  // 回复消息
-  byte[] b = "receiver: ok, 你也好, 明天一起出去玩嘛!".getBytes();
-  socket.send(new DatagramPacket(b, 0, b.length, InetAddress.getByName("127.0.0.1"), 8888));
-  socket.close();
+byte[] data = "hello".getBytes(StandardCharsets.UTF_8);
+InetAddress target = InetAddress.getByName("127.0.0.1");
+DatagramPacket packet =
+    new DatagramPacket(data, data.length, target, 9001);
+
+try (DatagramSocket socket = new DatagramSocket()) {
+    socket.send(packet);
 }
 ```
 
-
-​				  
-
-## IO流
-
-### 流
-
-- 文件在程序中是通过流形式来操作的
-
-- 流: 数据在数据源(文件/磁盘中)和程序(内存)之间经历的路径
-
-- 输入流: 数据源-->程序(内存)
-输出流:程序(内存)-->数据源(文件)
-
-### 文件对象
-
-- 创建文件构造器
-
-  ```java
-  new File(String pathname)//文件绝对路径
-  new File(File parent,String child)
-  new File(String parent, String child)
-  ```
-
-  - 获取文件的相关信息
-
-  	- getName 文件名
-  getAbsolutePath绝对路径文件名
-  getParent父目录
-  length字节
-  exists文件是否存在
-  isFile是文件吗
-  isDirectory是目录吗
-
-  - 创建/删除文件
-
-  	- delete //只有空目录才能删除
-  createNewFile()// 创建文件
-  mkdir 创建一级目录
-  mkdirs(mkdir -p)创建多级目录
-
-- 文件
-
-  - 遍历文件
-
-    - Files.walk()
-      在jdk8中，可以使用walk方法递归的去查找目录下所有文件
-
-      ```java
-      // 列出所有正规文件:即非目录
-      // path是绝对路径
-      Files.walk(Paths.get(path))
-      .filter(Files::isRegularFile)
-      .forEach(System.out::println);
-      ```
-
-
-      ```java
-      var dirName = "C:/Users/Jano/Downloads";
-      //过滤出目录
-      try (Stream<Path> paths = Files.walk(Paths.get(dirName))) {
-          paths.filter(Files::isDirectory)
-                  .forEach(System.out::println);
-      }
-      ```
+接收端需要准备缓冲区：
 
 ```java
-//按后缀名过滤
-try (Stream<Path> paths = Files.walk(Paths.get(dirName), 2)) {
-    paths.map(path -> path.toString()).filter(f -> f.endsWith(".pdf"))
-            .forEach(System.out::println);
+byte[] buffer = new byte[1024];
+DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+try (DatagramSocket socket = new DatagramSocket(9001)) {
+    socket.receive(packet);
+    String message = new String(
+        packet.getData(),
+        packet.getOffset(),
+        packet.getLength(),
+        StandardCharsets.UTF_8
+    );
+    System.out.println(message);
 }
 ```
 
+## IO 流
+
+IO 流用于在程序与文件、网络、内存等数据源之间传输数据。
+
+### File 与 Path
+
+`File` 表示文件或目录路径，不代表文件内容本身：
 
 ```java
-// 扫描指定包下的所有.class文件
-String packageName = "com.mvc";
-// com/mvc
-String packageNamePath = packageName.replaceAll("\\.", "/");
-// 获取运行时类路径:绝对路径
-String path = WebApplicationContext.class.getClassLoader()
-        .getResource(packageNamePath).getPath();
-System.out.println("packageNamePath = " + packageNamePath);
-System.out.println("path = " + path);
-// 遍历开始路径
-Path start = Paths.get(path);
-System.out.println("------------");
-try (Stream<Path> pathStream = Files.walk(start)) {
-    //             检查是否为文件,不是目录
-    List<String> list = pathStream.filter(Files::isRegularFile)
-            // 转成String
-            .map(Path::toString)
-            // 文件以.class结尾
-            .filter(f -> f.endsWith(".class"))
-            // 把绝对路径替换成类路径
-            .map(f -> f.substring(f.indexOf(packageNamePath)))
-            // 把文件分隔符/替换为包包分隔符.
-            .map(f -> f.replaceAll("/", "."))
-            .collect(Collectors.toList());
+File file = new File("data/example.txt");
+
+System.out.println(file.getName());
+System.out.println(file.getAbsolutePath());
+System.out.println(file.exists());
+System.out.println(file.isFile());
+System.out.println(file.length());
+```
+
+创建和删除：
+
+```java
+file.createNewFile();
+file.delete();
+
+File directory = new File("data/archive");
+directory.mkdirs();
+```
+
+现代代码也可以使用 `Path` 和 `Files`：
+
+```java
+Path path = Path.of("data", "example.txt");
+
+Files.createDirectories(path.getParent());
+Files.writeString(path, "hello", StandardCharsets.UTF_8);
+String content = Files.readString(path, StandardCharsets.UTF_8);
+```
+
+遍历目录：
+
+```java
+try (Stream<Path> paths = Files.walk(Path.of("src"))) {
+    paths.filter(Files::isRegularFile)
+        .filter(path -> path.toString().endsWith(".java"))
+        .forEach(System.out::println);
 }
 ```
 
+`Files.walk()` 返回的流需要关闭，因此应放在 try-with-resources 中。
 
-### java IO流
+### 流的分类
 
-按操作数据单位分 字节流(字节)二进制文件, 字符流(字符) 文本文件
-按数据流向分:输入流, 输出流
-按流的角色不同分: 节点流, 处理流/包装流
+| 分类 | 类型 | 适用场景 |
+| --- | --- | --- |
+| 字节流 | `InputStream` / `OutputStream` | 图片、音视频、压缩包和任意二进制数据 |
+| 字符流 | `Reader` / `Writer` | 文本数据 |
+| 节点流 | 直接连接数据源 | 文件、数组、管道等 |
+| 处理流 | 包装其他流并增强功能 | 缓冲、转换、对象序列化等 |
 
-- 字节流
-
-	- InputStream
-
-		- FileInputStream
-
-	- OutputStream
-
-		- FileOutputStream
-写文件不存在时会创建文件
-
-- 字符流
-
-	- Reader
-Writer
-
-		- FileReader
-
-		- FileWriter 构造器可以指定追加模式和覆盖模式
-写完后要执行flush或者close方法,才能把文件从内存写入到磁盘
-
-- 节点流
-从一个特定的数据源读取数据
-节点流是底层流,低级流,直接和数据源相连
-- 文件
-
-	- FileReader/FileWriter
-	FileInputStream/FileOutputStream
-
-- 数组
-
-	- ByteArrayInputStream/BayteArrayOutputStream
-	CharArrayReader/CharArrayWriter
-
-- 管道
-
-- 字符串
-
-- 包装流/处理流
-包装节点流,既可以消除不同节点流的实现差异,可以提供更方便的方法完成输入输出
-包装流使用了修饰器设计模式,不会与数据类直接相连
-增加缓冲,提高效率
-- 缓冲流
-
-	- BufferedReader/BufferedWriter (字符流)
-	关闭流只需关闭外层流即可
-是否追加写有节点流决定
-字符流不要去操作字节文件(视频,图片,音频,pdf,doc等)可能造成文件毁坏
-
-	- BufferedInputStream/BufferedOutputStream (字节流)
-	处理二进制文件ok ,也能处理文本
-
-- 对象流
-
-	- ObjectInputStream/ObjectOutputSteam
-	读取的顺序和写入的顺序要一致
-
-		- 序列化:在保存数据时,保存数据的值和类型
-	反序列化:恢复数据时,恢复数据的值和类型
-需要让某对象支持序列化机制,必须让其类是可序列化,实现接口: Serializable或Externalizable
-
-		- 注意事项
-	1.读取的顺序要和写入的顺序一致
-2.读取时需要实现序列化
-3.添加序列化ID: serialVersionUID
-4.默认序列化对象的All‘字段,除了static和transient
-5.序列化具有可继承性,父类实现序列化,其所有子类都可以序列化
-6.注意流的关闭,否则可能导致读取异常,因为没有写入完毕,程序退出
-
-- 标准输入/输出流
-
-	- 标准输入:System.in  键盘
-	// 编译类型：InputStream
- // 运行类型 BufferedInputStream
-
-	- 标准输出:System.out 显示器
-	编译类类型和运行类型一致 PrintStream
-
-- 转换流(字符流)
-
-	- InputStreamReader
-
-		- 重要构造器:    public InputStreamReader(InputStream in, String charsetName)
-	可以设置字符集,读入字节流,输出字符流
-
+### 字节流
 
 ```java
-// OutputStreamWriter.java
-// 将字节流转换成字符流,可以设置写入文件的字符集
-public OutputStreamWriter(OutputStream out, String charsetName)
-```
-打印流
-PrintSteam字节流
-默认输出显示器,可以设置输出到文件中
+try (
+    InputStream input = new FileInputStream("data/source.bin");
+    OutputStream output = new FileOutputStream("data/target.bin")
+) {
+    byte[] buffer = new byte[8192];
+    int length;
 
-System.setOut(new PrintStream(filename));
+    while ((length = input.read(buffer)) != -1) {
+        output.write(buffer, 0, length);
+    }
+}
+```
+
+### 字符流
 
 ```java
-PrintWriter字符流
-PrintWriter printWriter = new PrintWriter(System.out);
-PrintWriter printWriter = new PrintWriter(new FileWriter(file));
+try (
+    Reader reader = new FileReader(
+        "data/source.txt",
+        StandardCharsets.UTF_8
+    );
+    Writer writer = new FileWriter(
+        "data/target.txt",
+        StandardCharsets.UTF_8
+    )
+) {
+    char[] buffer = new char[4096];
+    int length;
+
+    while ((length = reader.read(buffer)) != -1) {
+        writer.write(buffer, 0, length);
+    }
+}
 ```
-记得close或者flush一下
 
-- Properties(hashtable的子类)
-常见方法
-load:加载配置文件的键值对到Properties对象
+### 缓冲流
 
-list : 将数据显示到指定设备
-getProperty 根据键获取值
-setProperty(k,v) 设置键值到Properties对象
-store 将Properties中的键值对存储到配置文件中,在idea中,保存信息到配置文件,如果有中文,会存储为unicode码
+缓冲流减少底层 IO 调用次数：
 
-.properties文件格式
-key=value
+```java
+try (
+    BufferedReader reader = Files.newBufferedReader(
+        Path.of("data", "source.txt"),
+        StandardCharsets.UTF_8
+    );
+    BufferedWriter writer = Files.newBufferedWriter(
+        Path.of("data", "target.txt"),
+        StandardCharsets.UTF_8
+    )
+) {
+    String line;
+    while ((line = reader.readLine()) != null) {
+        writer.write(line);
+        writer.newLine();
+    }
+}
+```
 
-key=value
-不需要有空格,默认类型是String
+### 转换流
 
-## 异常
+`InputStreamReader` 和 `OutputStreamWriter` 在字节流与字符流之间转换，并允许指定字符集：
 
-### try-catch捕捉异常
+```java
+Reader reader = new InputStreamReader(
+    inputStream,
+    StandardCharsets.UTF_8
+);
 
-### throws往上抛异常
+Writer writer = new OutputStreamWriter(
+    outputStream,
+    StandardCharsets.UTF_8
+);
+```
 
-### 自定义异常,一般继承runtime exception,使用默认的往上抛出处理方式
+### 对象序列化
 
-## 枚举类和注解
+`ObjectOutputStream` 可以把实现了 `Serializable` 的对象写入流，`ObjectInputStream` 可以读取。
 
-### 枚举类
+```java
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-包含有限对象的类
-只有一个对象的类是单例模式
-使用enum后就不能继承其他类,因为他默认继承java.lang.Enum类
-枚举类可以实现接口
+    private String name;
+}
+```
+
+```java
+try (ObjectOutputStream output = new ObjectOutputStream(
+    new FileOutputStream("data/user.bin")
+)) {
+    output.writeObject(user);
+}
+```
+
+序列化格式与类结构存在耦合，不适合作为长期稳定或跨语言的数据交换协议。接口传输通常使用 JSON、Protocol Buffers 等显式格式。
+
+### 标准输入输出与打印流
+
+| 对象 | 说明 |
+| --- | --- |
+| `System.in` | 标准输入 |
+| `System.out` | 标准输出 |
+| `System.err` | 标准错误输出 |
+
+`PrintStream` 和 `PrintWriter` 提供 `print()`、`println()` 和 `printf()` 等便捷输出方法。
+
+### Properties
+
+`Properties` 常用于读写简单的键值配置：
+
+```java
+Properties properties = new Properties();
+
+try (Reader reader = Files.newBufferedReader(
+    Path.of("config", "app.properties"),
+    StandardCharsets.UTF_8
+)) {
+    properties.load(reader);
+}
+
+String url = properties.getProperty("db.url");
+```
+
+敏感配置不应提交到仓库，可以通过环境变量或部署平台的 Secret 管理。
+
+## 异常处理
+
+异常处理用于分离正常业务流程和错误处理流程。
+
+### try-catch-finally
+
+```java
+try {
+    execute();
+} catch (IOException exception) {
+    logger.error("读取失败", exception);
+} finally {
+    releaseResource();
+}
+```
+
+优先使用 try-with-resources 自动关闭实现 `AutoCloseable` 的资源：
+
+```java
+try (InputStream input = Files.newInputStream(path)) {
+    // 使用资源
+}
+```
+
+### throws
+
+方法无法在当前层处理受检异常时，可以使用 `throws` 继续向调用方声明：
+
+```java
+public String read(Path path) throws IOException {
+    return Files.readString(path);
+}
+```
+
+### 自定义异常
+
+```java
+public class BusinessException extends RuntimeException {
+    public BusinessException(String message) {
+        super(message);
+    }
+
+    public BusinessException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+```
+
+自定义异常应表达明确的业务含义，并保留原始异常作为 `cause`，不要捕获后静默丢弃。
+
+## 枚举与注解
+
+### 枚举
+
+枚举适合表示固定集合：
+
+```java
+public enum OrderStatus {
+    CREATED,
+    PAID,
+    CANCELLED
+}
+```
+
+枚举可以定义字段、构造器和方法，比散落的数字或字符串常量更安全。
 
 ### 注解
 
-- 元注解
+注解为类、方法、字段等程序元素提供元数据。
 
-	- Retention指定注解的作用范围
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Audit {
+    String value() default "";
+}
+```
 
-	  source:编译器使用后直接丢弃
-	  class:编译器记录,但是运行时jvm不会保留注解,这个是默认值
-	  runtime:编译器记录在class文件中,当jvm运行时会保留注解,程序可以通过反射获取注解
+常用元注解：
 
-	- target指定修饰那些个程序元素
+| 元注解 | 作用 |
+| --- | --- |
+| `@Target` | 指定注解可使用的位置 |
+| `@Retention` | 指定注解保留到源码、字节码还是运行时 |
+| `@Documented` | 将注解包含在生成的文档中 |
+| `@Inherited` | 允许类级注解被子类继承 |
+| `@Repeatable` | 允许同一位置重复使用注解 |
 
-	  type:类
-	  field:成员变量
-	  method:方法
-	  parameter:形参
-	  constructor:构造器
-	  ...
+运行时注解通常结合反射读取。
 
-	- documented被javadoc工具提取成文档时,可以看到该注解
+## GUI 事件处理
 
-	- Inherited:如果某个类使用了被Inherited修饰的注解,则其子类将自动具有该注解
+Java GUI 采用事件驱动模型：事件源产生事件，监听器接收并处理事件。
 
-## GUI
+```java
+JButton button = new JButton("提交");
 
-### 事件处理机制
+button.addActionListener(event -> {
+    System.out.println("按钮被点击");
+});
+```
 
-## Iterable
+其中：
 
-### Collection
-
-- List
-
-	- ArrayList
-
-	- Vector
-
-	- LinkedList
-
-- Set
-
-	- TreeSet
-
-	- HashSet
-
-## Map
-
-### HashMap
-
-- LinkedHashMap
-
-### TreeMap
-
-### Hashtable
-
-- Properties
+- `JButton` 是事件源。
+- `ActionEvent` 是事件对象。
+- `ActionListener` 是事件监听器。
+- Lambda 中的代码是事件处理逻辑。
