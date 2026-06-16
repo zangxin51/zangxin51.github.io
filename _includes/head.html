@@ -7,7 +7,8 @@
     {% assign seo_image = page.header-img | default: site.header-img %}
     <meta name="description" content="{{ seo_description | escape }}">
     <meta name="keywords" content="{{ site.keyword | escape }}">
-    <meta name="theme-color" content="{{ site.chrome-tab-theme-color }}">
+    <meta name="theme-color" content="{{ site.chrome-tab-theme-color }}" id="theme-color-meta">
+    <meta name="color-scheme" content="light dark">
 
     <!-- Open Graph -->
     <meta property="og:title"
@@ -36,6 +37,20 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <title>{% if page.title %}{{ page.title }} - {{ seo_title }}{% else %}{{ seo_title }}{% endif %}</title>
+
+    <script>
+        (function () {
+            try {
+                var storageKey = 'zangxin-theme';
+                var savedTheme = localStorage.getItem(storageKey);
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="{{ site.baseurl }}/pwa/manifest.json">

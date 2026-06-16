@@ -248,6 +248,17 @@
   transform: translateX(3px);
 }
 
+html[data-theme="dark"] .category-card-count,
+html[data-theme="dark"] .category-section-count {
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+html[data-theme="dark"] .category-section:target {
+  border-color: rgba(167, 155, 255, 0.52);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.34);
+}
+
 @media only screen and (max-width: 767px) {
   .category-overview {
     padding: 24px 20px;
