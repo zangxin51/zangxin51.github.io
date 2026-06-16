@@ -67,8 +67,9 @@
     <link rel="stylesheet" href="{{ "/css/bootstrap.min.css" | prepend: site.baseurl }}">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ "/css/zangxin-blog.min.css" | prepend: site.baseurl }}">
-    <link rel="stylesheet" href="{{ "/css/categories.css" | prepend: site.baseurl }}">
+    {% assign asset_version = site.time | date: '%s' %}
+    <link rel="stylesheet" href="{{ "/css/zangxin-blog.min.css" | prepend: site.baseurl }}?v={{ asset_version }}">
+    <link rel="stylesheet" href="{{ "/css/categories.css" | prepend: site.baseurl }}?v={{ asset_version }}">
 
     <!-- Custom Fonts -->
     <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
