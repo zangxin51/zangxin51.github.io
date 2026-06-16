@@ -327,8 +327,8 @@ pre.highlight {
   font-style: italic;
 }
 .highlight .err {
-  color: #960050;
-  background-color: #1e0010;
+  color: #e06c75;
+  background-color: transparent;
 }
 .language-coq .highlight .err {
   background-color: transparent;
